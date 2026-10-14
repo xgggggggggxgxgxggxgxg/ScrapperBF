@@ -126,16 +126,40 @@ PROVIDERS = [
 ]
 
 
-def extract_unit(unit_text: str, section: str, max_retries: int = 3) -> Optional[dict]:
+def extract_unit(
+    unit_text: str,
+    section: str,
+    max_retries: int = 3,
+    extra_instructions: str = "",
+) -> Optional[dict]:
+    """Extrait une unité via le premier provider disponible.
+
+    ``extra_instructions`` reçoit les consignes dérivées des corrections
+    humaines (``FeedbackStore.prompt_supplement``) : les champs que des
+    opérateurs ont déjà dû corriger sur ce type d'annonce sont signalés au
+    modèle, ce qui ferme la boucle entre le dashboard et l'extraction.
+    """
     field_defs = load_field_schema(section)
     json_schema = build_json_schema(field_defs)
-    prompt = f"Schéma attendu (informatif, la contrainte réelle est appliquée par l'API):\n{json.dumps(json_schema, ensure_ascii=False)}\n\nTexte à analyser:\n{unit_text}"
+    parts = [
+        "Schéma attendu (informatif, la contrainte réelle est appliquée par l'API):",
+        json.dumps(json_schema, ensure_ascii=False),
+    ]
+    if extra_instructions:
+        parts += ["", "Points de vigilance issus de relectures humaines:", extra_instructions]
+    parts += ["", "Texte à analyser:", unit_text]
+    prompt = "\n".join(parts)
 
     last_error = None
     for provider in PROVIDERS:
         for attempt in range(max_retries):
             try:
                 result = provider["fn"](prompt, json_schema)
+                if not isinstance(result, dict):
+                    # Un modèle peut rendre un JSON valide mais pas un objet
+                    # (liste, chaîne) : on le traite comme un échec du provider
+                    # plutôt que de laisser planter l'appelant plus loin.
+                    raise ProviderError(f"réponse non conforme: {type(result).__name__}")
                 result["_provider"] = provider["name"]
                 return result
             except ProviderError as e:
