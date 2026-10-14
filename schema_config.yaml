@@ -1,0 +1,142 @@
+# Définit CE QUI doit être extrait. Pour ajouter un champ : ajoutez-le ici,
+# ne touchez pas au code Python. C'est le levier d'adaptabilité principal.
+
+RESULTATS:
+  autorite_contractante:
+    type: string
+    description: "Nom de l'institution/ministère/établissement qui a lancé le marché"
+    required: true
+  type_procedure:
+    type: string
+    description: "Ex: Demande de prix, Appel d'offres ouvert, Demande de prix à commandes"
+  numero_reference:
+    type: string
+    description: "Numéro du dossier tel qu'écrit (ex: N°2026-02/PRIM/CAB/FASP-WB/DG/SG/PRCP)"
+  objet:
+    type: string
+    description: "Objet du marché (ce qui est acheté/réalisé)"
+    required: true
+  financement:
+    type: string
+    description: "Source de financement mentionnée"
+  montant_previsionnel:
+    type: string
+    description: "Montant prévisionnel tel qu'écrit, avec devise"
+  nombre_plis_recus:
+    type: string
+    description: "Nombre de plis/offres reçus"
+  date_deliberation:
+    type: string
+    description: "Date de délibération de la commission"
+  soumissionnaires:
+    type: array
+    description: "Liste des entreprises ayant soumissionné avec leurs montants et le résultat"
+    items:
+      type: object
+  attributaire_provisoire:
+    type: string
+    description: "Nom de l'entreprise retenue comme attributaire provisoire"
+    required: true
+  montant_attribue_min:
+    type: string
+    description: "Montant minimum retenu pour l'attributaire (si marché à commandes)"
+  montant_attribue_max:
+    type: string
+    description: "Montant maximum retenu pour l'attributaire (si marché à commandes)"
+  delai_execution:
+    type: string
+    description: "Délai d'exécution/livraison mentionné"
+
+AVIS:
+  autorite_emettrice:
+    type: string
+    description: "Ministère/région/commune/institution qui émet l'avis"
+    required: true
+  categorie:
+    type: string
+    description: "Fournitures et services courants / Travaux / Prestations intellectuelles"
+  objet:
+    type: string
+    description: "Description précise du besoin"
+    required: true
+  type_avis:
+    type: string
+    description: "Ex: Avis de demande de prix, Appel d'offres ouvert accéléré, etc."
+  numero_reference:
+    type: string
+    description: "Numéro de l'avis tel qu'écrit"
+  financement:
+    type: string
+    description: "Source de financement et année d'exercice"
+  montant_previsionnel_global:
+    type: object
+    properties:
+      htva:
+        type: string
+        description: "Montant total HTVA"
+      ttc:
+        type: string
+        description: "Montant total TTC"
+  est_en_lots:
+    type: boolean
+    description: "Indique si le marché est alloti (true/false)"
+  lots:
+    type: array
+    description: "Détails de chaque lot si applicable"
+    items:
+      numero:
+        type: integer
+      designation:
+        type: string
+      montant_previsionnel:
+        type: object
+        properties:
+          htva: string
+          ttc: string
+      garantie_soumission:
+        type: string
+      cout_acquisition_dao:
+        type: string
+      delai_execution:
+        type: string
+      conditions_particulieres:
+        type: string
+        description: "Réservations (ex: moyennes entreprises), critères de qualification propres au lot"
+  conditions_eligibilite_generales:
+    type: string
+    description: "Agréments requis, chiffres d'affaires, lignes de crédit globales"
+  acquisition_dossier:
+    type: object
+    properties:
+      lieu:
+        type: string
+      frais_retrait:
+        type: string
+      modalite_paiement:
+        type: string
+  date_limite_depot:
+    type: string
+    description: "Date, heure et lieu de dépôt des offres"
+  date_ouverture_plis:
+    type: string
+    description: "Date, heure et lieu d'ouverture des plis (globale ou par lot)"
+  delai_validite_offres:
+    type: string
+    description: "Délai d'engagement ou de validité des offres"
+  renseignements_et_contact:
+    type: object
+    properties:
+      point_de_contact:
+        type: string
+      telephones:
+        type: array
+        items: string
+      horaires_adresse:
+        type: string
+  signataire:
+    type: object
+    properties:
+      nom:
+        type: string
+      titre:
+        type: string

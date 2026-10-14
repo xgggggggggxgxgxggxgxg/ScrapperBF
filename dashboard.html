@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Explorateur des Marchés Publics - Avis</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #0f172a; color: #e2e8f0; display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 420px; background: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; }
+        .header { padding: 20px; border-bottom: 1px solid #334155; }
+        .header h1 { font-size: 1.15rem; color: #38bdf8; font-weight: 700; }
+        .stats { display: flex; gap: 10px; margin-top: 10px; }
+        .badge { padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .search-box { padding: 12px 20px; }
+        .search-box input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; outline: none; }
+        #list { overflow-y: auto; flex: 1; padding: 10px; }
+        .item-card { padding: 14px; border-radius: 8px; background: #0f172a; margin-bottom: 8px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; }
+        .item-card:hover { border-color: #38bdf8; }
+        .item-card.active { border-color: #38bdf8; background: #1e293b; }
+        .item-card h3 { font-size: 0.88rem; margin-bottom: 6px; color: #f8fafc; line-height: 1.35; }
+        .item-card .meta { font-size: 0.75rem; color: #94a3b8; display: flex; justify-content: space-between; }
+        #main { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; }
+        .content-card { max-width: 950px; width: 100%; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155; }
+        .content-card h2 { color: #38bdf8; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; font-size: 1.2rem; }
+        .detail-box { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; font-size: 0.85rem; line-height: 1.6; color: #cbd5e1; }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <div class="header">
+            <h1>Appels d'offres (Avis)</h1>
+            <div class="stats">
+                <span class="badge" style="background:#047857; color:#d1fae5;">2 Avis</span>
+            </div>
+        </div>
+        <div class="search-box">
+            <input type="text" id="search" placeholder="Rechercher entité, réf, mot-clé...">
+        </div>
+        <div id="list"></div>
+    </div>
+    <div id="main">
+        <div class="content-card" id="detail">
+            <h2>Sélectionnez une entrée</h2>
+        </div>
+    </div>
+
+    <script>
+        const data = [{"id": "AVIS_0", "type": "Avis", "badgeColor": "#34d399", "titre": "Prestations intellectuelles", "reference": "Réf non spécifiée", "pages": "Pages 35 - 35 | MINISTERES | Fournitures et Services courants", "content": "# Prestations intellectuelles<br># AGENCE NATIONALE DE PROMOTION DE LA FINANCE INCLUSIVE (ANPFI)<br># Elaboration de deux guides de bonnes pratiques destinés respectivement aux assurances et aux émetteurs de monnaie électronique (EME), en vue de promouvoir des pratiques transparentes, responsables et respectueuses des droits des consommateurs des services financiers. ~~_~~<br># AVIS A MANIFESTATION D’INTERET n°2026-04/MEF/SG/ANPFI/DG/PRCP du 28/07/2026<br>La présente sollicitation de manifestations d’intérêt fait suite au plan de passation des marchés publics de l’Agence Nationale de Promotion de la Finance Inclusive (ANPFI).<br>1. Dans le cadre de l'exécution de son Plan de Travail et Budget Annuel (PTBA) 2026, l'Agence Nationale de Promotion de la Finance Inclusive (ANPFI), à travers l'Observatoire de la Qualité des Services Financiers du Burkina Faso (OQSF-BF), a prévu des ressources financières afin de recruter un cabinet d'études chargé d'élaborer deux guides de bonnes pratiques en matière de protection des consommateurs des services des assurances et des émetteurs de monnaie électronique.<br>2. La mission a pour objectif d'élaborer deux guides de bonnes pratiques destinés respectivement aux assurances et aux émetteurs de monnaie électronique (EME), en vue de promouvoir des pratiques transparentes, responsables et respectueuses des droits des consommateurs des services financiers.<br>3. La durée totale de la mission ne doit pas excéder soixante-quinze (75) jours, à compter de la date de notification de l'ordre de service.<br>4. Le cabinet ou groupement de cabinets sélectionnés sera chargé entre autres de :<br>- Ø réaliser un diagnostic de l'environnement de protection des consommateurs des services des assurances et des émetteurs de monnaie électronique ;<br>Øpromouvoir des pratiques équitables et transparentes de la part des assurances et EME<br>- Ø présenter les principes généraux et les normes applicables aux activités des assurances et des EME, notamment en ce qui concerne le respect des droits des consommateurs, la transparence, la responsabilité et la prévention des conflits d'intérêts ;<br>- Ø identifier les bonnes pratiques existantes dans le secteur des assurances et des EME, tant au niveau national, régional qu'international ;<br>- Ø proposer des recommandations et des outils pratiques pour aider les : compagnies d’assurances et les EME à mettre en œuvre les bonnes pratiques, à évaluer leur performance et à améliorer leur relation avec les consommateurs ;<br>- Ø proposer un mécanisme de suivi des bonnes p ratiques.<br>5. Les candidats intéressés sont invités à manifester leur intérêt pour la mission en fournissant les informations indiquant qu’ils sont qualifiés pour exécuter les prestations attendues. Ces informations sont entre autres : la nature des activités et le nombre d’années d’expérience, les qualifications dans le domaine des prestations, les références (page de garde et de signature des contrats ainsi que les attestations de bonne fin d’exécution) pour des missions similaires, l’organisation technique et managériale ainsi que les qualifications générales.<br>6. Le présent avis à manifestation d’intérêt est soumis aux dispositions du décret N° 2024-1748/PRES/PM/MEF du 31 décembre 2024 portant procédures de passation, d’exécution et de règlement des marchés publics. Les candidats seront évalués sur la base des critères ci-après :<br>[TABLEAU]<br>**CRITAIRES D’EVALUATION** | **NOTE** | <br>**OBSERVATIONS**<br>Nature des activités du candidat et relation avec le domaine des prestations (Registre de commerce, statut ou tout autre<br>document officiel probant) | <br>**09** | -<br>Nombre d’années d’ancienneté dans l’élaboration de guides de bonnes pratiques pour les institutions de financement<br>ou assimilés<br>**NB :l’expérience est prouvée par la page de garde et de signatures des contrats ainsi que les attestations de**<br>**bonne fin d’exécution** | <br> <br>**21** | 3 pts par année<br>d’expérience dans<br>le domaine sans<br>excéder 21 pts<br>Expériences pertinentes du cabinet en relation avec la mission à exécuter : | **60** | 20 pts par mission<br>similaires<br>pertinentes dûment<br>> _N° 4466 - Vendredi 14 août 2026_ Larevue DGCMEFded s ics<br>Quotidien d’information de la Direction Générale du Contrôle des N°3827 – lundi 04 Mars 2024 Marchés Publics et des Engagements Financiers du Burkina Faso<br>34<br><u>www.dgcmef.gov.bf www.finances.gov.bf</u><br><!-- Start of picture text --><br>- Avoir exécuté au cours des cinq (05) dernières années ( 2021, 2022, 2023, 2024 et 2025 ) au moins deux (02)  justifiée  sans<br>missions similaires pertinentes (enquêtes de satisfaction, enquêtes de ménages, études sur l'inclusion financière  excéder 60 pts<br>ou la protection sociale, …) d’envergure nationale d’un montant minimum de 10 millions FCFA TTC ;<br>NB : joindre obligatoirement les preuves des missions similaires exécutées (page de garde et de signatures des<br>contrats ainsi que les attestations de bonne fin d’exécution).<br>Organisation technique et managériale / Equipement en moyen matériel 10  -<br>TOTAL  100<br>NB : en cas d’égalité, les critères complémentaires suivants seront utilisés pour départager les candidats par ordre de priorité :<br>Ø le nombre de marchés similaires pertinents ;<br>Ø l’ancienneté.<br>7.  Il est demandé aux candidats de fournir ces informations en ne dépassant pas  50 pages .  En cas d’excédent, seules les 50 premières<br>pages du document seront considérées.  Les candidats peuvent s’associer pour renforcer leurs compétences respectives.<br>8.  Les trois (3) consultants les plus qualifiés et expérimentés seront retenus pour la suite de la procédure. Les consultants retenus seront invités<br>à remettre une proposition technique et financière. Après analyse, si l’une de ces propositions est jugée conforme et acceptable, le consultant<br>dont la proposition technique aura atteint le score minimal et ayant la proposition financière évaluée la moins disante sera invité à négocier<br>le marché. Les manifestations d’intérêts sont rédigées en français en quatre exemplaires (1 original et 3 copies) marquées comme telle et<br>doivent être déposées à l’adresse ci-après : au siège de l’ANPFI à Ouagadougou.<br>9.  Les candidats intéressés peuvent obtenir les termes de références auprès de la Personne Responsable de la Commande Publique (PRCP)<br>téléphone 00226 25 33 40 02, sise au siège de l’ANPFI à Ouagadougou au 131, Rue 4.101 Balima Robert, Koulouba, 2 ème  étage du bâtiment<br>de l’ANPFI 01 BP 572 Ouagadougou 01, entre 7 heures 30 minutes et 16 heures du lundi au jeudi et entre 7 heures 30 minutes et 16 heures<br>30 minutes le vendredi.<br>10.  Les manifestations d’intérêt doivent être déposées au siège de l’ANPFI à Ouagadougou au 131, Rue 4.101 Balima Robert, Koulouba, 2 ème<br>étage du bâtiment de l’ANPFI 01 BP 572 Ouagadougou 01 au plus tard le  vendredi 28 août 2026 à 9 heures 00 (GMT). L’ouverture des<br>plis sera faite immédiatement à 9 heures 00 (GMT) en présence des candidats qui souhaitent y assister.<br>NB : le budget prévisionnel est de dix-huit millions (18 000 000) francs CFA TTC.<br>Président de la Commission d’attribution des marchés<br>Sahouba KABRE<br>Chevalier de l’ordre de Mérite de l’Economie et des Finances<br><!-- End of picture text --><br>> _N° 4466 - Vendredi 14 août 2026_ Larevue DGCMEF des marchés publics<br>Quotidien d'information de la Direction Générale du Contrôle des N°3827 – lundi 04 Mars 2024 Marchés Publics et des Engagements Financiers du Burkina Faso<br>35<br><u>www.dgcmef.gov.bf www.finances.gov.bf</u>"}, {"id": "AVIS_1", "type": "Avis", "badgeColor": "#34d399", "titre": "Prestations intellectuelles", "reference": "Réf non spécifiée", "pages": "Pages 36 - 36 | MINISTERES | Fournitures et Services courants", "content": "# Prestations intellectuelles<br># CENTRE HOSPITALIER UNIVERSITAIRE PEDIATRIQUE CHARLES DE GAULLE – CHUP-CDG<br># Constitution d’une base de données complémentaire de fournisseurs et prestataires au profit du CHUP-CDG pour l’année 2026<br># Avis à manifestation d’intérêt<br># N°2026-03/MS/SG/CHUP-CDG/DG/DMP<br>Dans le cadre de la mise en œuvre de ses activités au titre de l’année 2026, le Centre Hospitalier Universitaire Pédiatrique Charles<br>de Gaulle (CHUP-CDG) souhaite recevoir des candidatures pour la mise en place d’une base de données complémentaire de fournisseurs/prestataires de biens et services dans le cadre de ses procédures de demande de cotations.<br>[TABLEAU]<br>**Numéro de lot** | **Domaines**<br>**Fournitures et équipements**<br>Lot1 | Achat de produits pharmaceutiques spécifiques<br>Lot2 | Achat de papier pour imprimante thermique<br>Lot3 | Acquisition, installation et mise en service de dispositifs de chauffe-eau électrique<br>La participation à la présente manifestation d’intérêt est ouverte aux entreprises à jour vis-à-vis de l’Administration.<br>Le CHUP-CDG rappelle aux prestataires et fournisseurs qui ont déjà déposé des offres de service à son niveau, qu’ils ne sont pas dispensés de cette formalité et devront produire un dossier composé de :<br>1. Une lettre de demande d’inscription adressée au Directeur Général du CHUP-CDG indiquant le lot et le domaine d’activité du candidat ;<br>2. Une présentation de l’entreprise indiquant notamment son adresse complète, sa situation géographique, ses qualifications et compétences dans le domaine d’intervention choisi ;<br>3. Une description des moyens humains et matériels dont dispose l’entreprise ;<br>4. Une copie du registre de commerce et de crédit mobilier ;<br>5. Une copie de l'autorisation d’ouverture et d’exploitation d’un établissement pharmaceutique de vente ou de distribution en gros pour le Lot1..<br>Les entreprises éligibles et désirant prendre part à cette consultation doivent déposer leurs dossiers sous pli fermé avec la mention « réponse à l’avis à manifestation d’intérêt pour la constitution d’une base de données complémentaire de fournisseurs/prestataires » auprès de la Direction des Marchés Publics du CHUP-CDG sis au 1er niveau du bâtiment administratif du CHUP-CDG, 01 BP 1198 Ouagadougou 01 ; bureau DMP, tel : 25 36 67 76 poste : 1028 au plus tard le <u>24/08/2026 à 09 heures.</u><br># _Le Président de la Commission d’Attribution des Marchés_<br># <u>Augustin N. BALMA</u><br>Administrateur des Services de Santé<br>> _N° 4466 - Vendredi 14 août 2026_ Larevue DGCMEF des marchés publics<br>Quotidien d’information de la Direction Générale du Contrôle des N°3827 – lundi 04 Mars 2024 Marchés Publics et des Engagements Financiers du Burkina Faso<br>36<br><u>www.dgcmef.gov.bf www.finances.gov.bf</u>"}];
+        const listEl = document.getElementById('list');
+        const detailEl = document.getElementById('detail');
+        const searchEl = document.getElementById('search');
+
+        function renderList(filter = '') {
+            listEl.innerHTML = '';
+            const filtered = data.filter(d => 
+                d.titre.toLowerCase().includes(filter.toLowerCase()) || 
+                d.reference.toLowerCase().includes(filter.toLowerCase()) ||
+                d.content.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            filtered.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = 'item-card';
+                el.innerHTML = `
+                    <div class="meta" style="margin-bottom: 4px;">
+                        <span style="color: ${item.badgeColor}; font-weight: 600;">${item.type}</span>
+                        <span>${item.pages}</span>
+                    </div>
+                    <h3>${item.titre}</h3>
+                    <div class="meta"><span style="color:#38bdf8;">${item.reference}</span></div>
+                `;
+                el.onclick = () => {
+                    document.querySelectorAll('.item-card').forEach(c => c.classList.remove('active'));
+                    el.classList.add('active');
+                    showDetail(item);
+                };
+                listEl.appendChild(el);
+                if(index === 0 && !filter) el.click();
+            });
+        }
+
+        function showDetail(item) {
+            detailEl.innerHTML = `
+                <div class="meta" style="margin-bottom: 8px; font-size: 0.85rem; color: #94a3b8;">${item.type} &bull; ${item.pages}</div>
+                <h2>${item.titre}</h2>
+                <div style="margin-bottom: 15px; color: #38bdf8; font-weight: 600; font-size: 0.95rem;">${item.reference}</div>
+                <div class="detail-box">${item.content}</div>
+            `;
+        }
+
+        searchEl.oninput = (e) => renderList(e.target.value);
+        renderList();
+    </script>
+</body>
+</html>

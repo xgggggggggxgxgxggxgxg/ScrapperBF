@@ -1,0 +1,931 @@
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4068-C (bis)_111513.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/PPM_BP_GC_GESTION_2025.pdf	text/plain	Feb 17, 2025	Jan 6, 2026	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/_Quotidien N°4076.pdf	text/plain	Feb 17, 2025	Jan 6, 2026	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/SYNTHESE CHR-FADA.pdf	text/plain	Jul 9, 2025	Aug 8, 2025	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien_N°4066_(bis)C_0.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien_N°4065_(bis).pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien_N°4062_(bis)Compresser.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4067.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4067 (bis).pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4066.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4065.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4064.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4064(bis)_Compresser.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4063_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4063 (bis)_Compresser-1_0.pdf	text/plain	Jul 9, 2025	Jan 23, 2026	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4063 (bis)_Compresser-1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4062.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4061 (bis)_Compresser.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4060.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4060 (bis).pdf	text/plain	Jan 22, 2025	Jan 6, 2026	11	8	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4059_1.pdf	text/plain	Jan 23, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4058.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4057.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4056.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4056 (bis).pdf	text/plain	Jan 22, 2025	Jan 6, 2026	11	8	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4055.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4055 (bis)_C.pdf	text/plain	Jan 22, 2025	Jan 7, 2026	11	8	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4054.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4053.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4053 (bis)_C.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4050 (bis)_C.pdf	text/plain	Apr 13, 2025	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4049.pdf	text/plain	Apr 13, 2025	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4047.pdf	text/plain	Apr 13, 2025	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien n°4045- 4046.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien n°3830 - 3831(bis).pdf	text/plain	Jul 9, 2025	Jan 23, 2026	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4043-4044C(bis).pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4043-4044.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4042.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4041.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4040.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4038.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4037.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4037 (bis)_C.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4036..pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4036 (bis).pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4035_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4034.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4033.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4033 (bis).pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4032_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2025-03/Quotidien N°4090.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-03/Quotidien N°4090 (bis).pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-03/Quotidien N°4089.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-03/Quotidien N°4089 (bis).pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-03/Quotidien N°4088.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-03/Quotidien N°4088 (bis).pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-03/PPM_BP_1_GESTION_2025.pdf	text/plain	Apr 20, 2025	Jul 16, 2025	7	5	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-03/PPM-2025 VF.pdf	text/plain	Apr 3, 2025	Jul 15, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2025-03/PPM exo 2025.pdf	text/plain	Apr 20, 2025	Jul 16, 2025	7	4	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-03/ppm 2025.pdf	text/plain	Apr 3, 2025	Jul 15, 2025	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-03/PPM 2025 définitif.pdf	text/plain	Apr 3, 2025	Jul 15, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2025-03/PPM 2025 CNSS.pdf	text/plain	Apr 20, 2025	Jul 16, 2025	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-03/PPM 2025 CARFO BON SCANNER (1)_0.pdf	text/plain	Apr 20, 2025	Jan 23, 2026	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2025-03/PPM 2025 CARFO BON SCANNER (1).pdf	text/plain	Apr 20, 2025	Jan 22, 2026	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-03/PPM - Primature 2025--- 10-02-2025 10.59_Compresser.pdf	text/plain	Apr 3, 2025	Jul 15, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/QUOTIDIEN_N°4078_(bis).pdf	text/plain	Feb 18, 2025	Jul 17, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4087.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4087 (bis)_Compresser.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4086_0.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4086 (bis).pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4085.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4085 (bis)_C..pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4084.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4084 (bis).pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4083.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4083 (bis).pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4082.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4082 (bis).pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4081.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4081 (bis)-C.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4080.pdf	text/plain	Feb 20, 2025	Jul 17, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4080 (bis).pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4079.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4078.pdf	text/plain	Feb 18, 2025	Jul 17, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4077.pdf	text/plain	Feb 17, 2025	Jan 6, 2026	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4077 (bis).pdf	text/plain	Feb 17, 2025	Jul 17, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4076-1.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4076 (bis).pdf	text/plain	Feb 17, 2025	Jan 14, 2026	11	8	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4075.pdf	text/plain	Feb 17, 2025	Jan 7, 2026	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4075 (bis).pdf	text/plain	Feb 17, 2025	Jan 17, 2026	11	8	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4074.pdf	text/plain	Feb 17, 2025	Jan 6, 2026	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4074 (bis).pdf	text/plain	Feb 17, 2025	Jan 8, 2026	12	9	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4073.pdf	text/plain	Feb 17, 2025	Jan 6, 2026	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4072.pdf	text/plain	Feb 17, 2025	Jan 6, 2026	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4071.pdf	text/plain	Feb 17, 2025	Jul 18, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4070.pdf	text/plain	Feb 17, 2025	Jul 18, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4070 (bis).pdf	text/plain	Feb 17, 2025	Jul 18, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4069.pdf	text/plain	Feb 17, 2025	Jul 18, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4069 (bis)-C.pdf	text/plain	Feb 17, 2025	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4068.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4185.pdf	text/plain	Jul 17, 2025	Aug 8, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4184_1.pdf	text/plain	Jul 17, 2025	Aug 8, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4183.pdf	text/plain	Jul 17, 2025	Aug 8, 2025	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4182_0.pdf	text/plain	Jul 18, 2025	Aug 8, 2025	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4182.pdf	text/plain	Jul 15, 2025	Aug 8, 2025	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4182(bis).pdf	text/plain	Jul 15, 2025	Aug 8, 2025	5	2	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4181_0.pdf	text/plain	Jul 15, 2025	Aug 8, 2025	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4180.pdf	text/plain	Jul 15, 2025	Aug 8, 2025	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4179_0.pdf	text/plain	Jul 8, 2025	Aug 8, 2025	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4178.pdf	text/plain	Jul 8, 2025	Aug 8, 2025	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4177.pdf	text/plain	Jul 8, 2025	Aug 8, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4176.pdf	text/plain	Jul 8, 2025	Aug 8, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4175.pdf	text/plain	Jul 8, 2025	Aug 8, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4174.pdf	text/plain	Jul 8, 2025	Aug 8, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4173.pdf	text/plain	Jul 8, 2025	Jul 20, 2025	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4172.pdf	text/plain	Jul 8, 2025	Jul 17, 2025	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4171_044524.pdf	text/plain	Jul 8, 2025	Jul 17, 2025	5	2	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4169.pdf	text/plain	Jul 8, 2025	Jul 17, 2025	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4170.pdf	text/plain	Jul 8, 2025	Jul 15, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4168.pdf	text/plain	Jul 8, 2025	Jul 16, 2025	2	1	1
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4167.pdf	text/plain	Jul 8, 2025	Jul 16, 2025	2	1	1
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4166.pdf	text/plain	Jul 8, 2025	Jan 22, 2026	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4165.pdf	text/plain	Jul 8, 2025	Jan 25, 2026	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4164.pdf	text/plain	Jul 9, 2025	Jan 22, 2026	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4163.pdf	text/plain	Jul 9, 2025	Jan 21, 2026	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4162.pdf	text/plain	Jul 9, 2025	Jan 22, 2026	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4161.pdf	text/plain	Jul 9, 2025	Feb 3, 2026	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4160.pdf	text/plain	Jul 9, 2025	Jan 22, 2026	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2025-06/Quotidien N°4159.pdf	text/plain	Jul 9, 2025	Jan 22, 2026	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien_word N°4133.pdf	text/plain	May 5, 2025	Jul 16, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien_word N°4132.pdf	text/plain	May 5, 2025	Jul 16, 2025	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4147_052421.pdf	text/plain	Jul 10, 2025	Jul 16, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4147(bis)_052521.pdf	text/plain	Jul 10, 2025	Jul 16, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4146_053649.pdf	text/plain	Jul 10, 2025	Jul 16, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4145_114332.pdf	text/plain	Jul 10, 2025	Jul 16, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4144_050858_0.pdf	text/plain	Jul 10, 2025	Jan 9, 2026	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4143_042129.pdf	text/plain	May 19, 2025	Jan 9, 2026	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4142.pdf	text/plain	May 19, 2025	Jan 18, 2026	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4141.pdf	text/plain	May 16, 2025	Jan 18, 2026	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4139-4140.pdf	text/plain	May 16, 2025	Jan 18, 2026	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4138.pdf	text/plain	May 17, 2025	Jan 18, 2026	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4137.pdf	text/plain	May 16, 2025	Jan 9, 2026	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4137(bis).pdf	text/plain	May 16, 2025	Jan 18, 2026	11	8	3
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4135.pdf	text/plain	May 8, 2025	Jan 18, 2026	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4134.pdf	text/plain	May 6, 2025	Jul 16, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4131.pdf	text/plain	May 5, 2025	Jul 16, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2025-05/Quotidien N°4131(bis).pdf	text/plain	May 5, 2025	Jan 18, 2026	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2025-04/Quotidien_word N°4129-4130.pdf	text/plain	Apr 30, 2025	Jul 16, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2025-04/Quotidien N°N°4117-4118(bis)_043447-2.pdf	text/plain	Apr 19, 2025	Jul 16, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2025-04/Quotidien N°4129-4130(bis).pdf	text/plain	Apr 30, 2025	Jan 18, 2026	11	8	3
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2026-02/Quotidien N°4328.pdf	text/plain	Feb 3, 2026	Apr 17, 2026	3	0	3
+http://dgcmef.gov.bf/sites/default/files/2026-02/Quotidien N°4327.pdf	text/plain	Feb 3, 2026	Feb 3, 2026	2	0	2
+http://dgcmef.gov.bf/sites/default/files/2026-02/Quotidien N°4326.pdf	text/plain	Feb 3, 2026	Feb 3, 2026	1	0	1
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4325.pdf	text/plain	Feb 2, 2026	May 19, 2026	3	0	3
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4325(bis).pdf	text/plain	Feb 2, 2026	Feb 2, 2026	2	0	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4324.pdf	text/plain	Feb 2, 2026	Feb 2, 2026	2	0	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4323.pdf	text/plain	Jan 28, 2026	Apr 17, 2026	3	1	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4322.pdf	text/plain	Jan 28, 2026	Apr 17, 2026	3	0	3
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4321.pdf	text/plain	Jan 22, 2026	Jan 23, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4320_1.pdf	text/plain	Jan 22, 2026	May 19, 2026	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4320.pdf	text/plain	Jan 21, 2026	Jan 22, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4319.pdf	text/plain	Jan 21, 2026	Jan 22, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4319(bis).pdf	text/plain	Jan 21, 2026	Jan 22, 2026	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4318.pdf	text/plain	Jan 22, 2026	Jan 23, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4317.pdf	text/plain	Jan 21, 2026	Jan 22, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4316.pdf	text/plain	Jan 16, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4315.pdf	text/plain	Jan 16, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4314.pdf	text/plain	Jan 16, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4313.pdf	text/plain	Jan 16, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4312.pdf	text/plain	Jan 16, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4311.pdf	text/plain	Jan 16, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4310.pdf	text/plain	Jan 8, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4309.pdf	text/plain	Jan 8, 2026	Jan 18, 2026	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4308-X.pdf	text/plain	Jan 18, 2026	Jan 18, 2026	2	0	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4307.pdf	text/plain	Jan 8, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4307 (bis).pdf	text/plain	Jan 8, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4306.pdf	text/plain	Jan 8, 2026	Jan 18, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4306 (bis).pdf	text/plain	Jan 8, 2026	Jan 18, 2026	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2026-01/Quotidien N°4304-4305.pdf	text/plain	Jan 18, 2026	Jan 18, 2026	2	0	2
+http://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4303.pdf	text/plain	Jan 6, 2026	Jan 6, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4302.pdf	text/plain	Jan 6, 2026	May 28, 2026	5	3	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4301.pdf	text/plain	Jan 6, 2026	Jan 6, 2026	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4299-4300.pdf	text/plain	Jan 6, 2026	Jan 7, 2026	2	0	2
+http://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4298.pdf	text/plain	Jan 6, 2026	Jan 6, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4297.pdf	text/plain	Jan 6, 2026	Jan 6, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4296.pdf	text/plain	Jan 6, 2026	Jan 7, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4295.pdf	text/plain	Jan 6, 2026	Jan 6, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4294.pdf	text/plain	Jan 6, 2026	Jan 6, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4293.pdf	text/plain	Jan 6, 2026	Jan 6, 2026	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-08/Quotidien N°4196.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	0	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4195.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	0	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4194.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	0	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4193.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	1	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4192_0.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	1	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4191.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	1	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4190-1.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	1	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4189.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	1	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4188_2.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	1	2
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4187.pdf	text/plain	Aug 2, 2025	Aug 8, 2025	3	0	3
+http://dgcmef.gov.bf/sites/default/files/2025-07/Quotidien N°4186_124439.pdf	text/plain	Aug 2, 2025	Sep 10, 2025	3	0	3
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2025-02/Quotidien N°4068-C (bis)_111513.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/PPM_BP_GC_GESTION_2025.pdf	text/plain	Feb 17, 2025	Jan 6, 2026	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-02/_Quotidien N°4076.pdf	text/plain	Feb 17, 2025	Jan 6, 2026	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/SYNTHESE CHR-FADA.pdf	text/plain	Jul 9, 2025	Aug 8, 2025	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien_N°4066_(bis)C_0.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien_N°4065_(bis).pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien_N°4062_(bis)Compresser.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4067.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4067 (bis).pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4066.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4065.pdf	text/plain	Jul 10, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4064.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4064(bis)_Compresser.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4063_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4063 (bis)_Compresser-1_0.pdf	text/plain	Jul 9, 2025	Jan 23, 2026	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4063 (bis)_Compresser-1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4062.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4061 (bis)_Compresser.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4060.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4060 (bis).pdf	text/plain	Jan 22, 2025	Jan 6, 2026	11	8	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4059_1.pdf	text/plain	Jan 23, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4058.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4057.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4056.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4056 (bis).pdf	text/plain	Jan 22, 2025	Jan 6, 2026	11	8	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4055.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4055 (bis)_C.pdf	text/plain	Jan 22, 2025	Jan 7, 2026	11	8	3
+http://www.dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4054.pdf	text/plain	Jan 22, 2025	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4053.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4053 (bis)_C.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4050 (bis)_C.pdf	text/plain	Apr 13, 2025	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4049.pdf	text/plain	Apr 13, 2025	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien N°4047.pdf	text/plain	Apr 13, 2025	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien n°4045- 4046.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2025-01/Quotidien n°3830 - 3831(bis).pdf	text/plain	Jul 9, 2025	Jan 23, 2026	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4043-4044C(bis).pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4043-4044.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4042.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4041.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4040.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4038.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4037.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4037 (bis)_C.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4036..pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4036 (bis).pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4035_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4034.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4033.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4033 (bis).pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4032_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4031.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4030.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4028-4029.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-12/Quotidien N°4027.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4021_043852.pdf	text/plain	Apr 13, 2025	Jul 20, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4019.pdf	text/plain	Apr 13, 2025	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4017.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4016.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4015.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4014.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4013.pdf	text/plain	Jul 11, 2025	Jul 24, 2025	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4012_045254.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4011_041940.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4010_042848.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4009_051703.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4008.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4007.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4006.pdf	text/plain	Nov 8, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4005.pdf	text/plain	Nov 8, 2024	Jul 18, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4004.pdf	text/plain	Nov 6, 2024	Jul 18, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-11/Quotidien N°4003.pdf	text/plain	Nov 6, 2024	Jul 18, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3999-4000-4001.pdf	text/plain	Nov 6, 2024	Jul 18, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3998.pdf	text/plain	Nov 6, 2024	Jul 18, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3997.pdf	text/plain	Nov 7, 2024	Jul 18, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3996.pdf	text/plain	Nov 6, 2024	Jul 18, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3995_0.pdf	text/plain	Nov 6, 2024	Jul 19, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3994_1.pdf	text/plain	Nov 6, 2024	Aug 2, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3991.pdf	text/plain	Apr 18, 2025	Aug 4, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3990.pdf	text/plain	Jul 11, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3989_1.pdf	text/plain	Jul 11, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3988.pdf	text/plain	Jul 11, 2025	Jul 19, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3987_0.pdf	text/plain	Apr 30, 2025	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3986.pdf	text/plain	Apr 30, 2025	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3985.pdf	text/plain	Apr 30, 2025	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3984.pdf	text/plain	Apr 30, 2025	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3983.pdf	text/plain	Apr 30, 2025	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3982.pdf	text/plain	Oct 5, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3981.pdf	text/plain	Oct 5, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3980.pdf	text/plain	Oct 5, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-10/Quotidien N°3979_0.pdf	text/plain	Oct 5, 2024	Jul 19, 2025	7	5	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3978_1.pdf	text/plain	Oct 2, 2024	Jul 19, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3977.pdf	text/plain	Oct 2, 2024	Jul 19, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3976.pdf	text/plain	Oct 2, 2024	Jul 19, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3975.pdf	text/plain	Sep 29, 2024	Jul 19, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3974.pdf	text/plain	Oct 2, 2024	Jul 19, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3973.pdf	text/plain	Sep 24, 2024	Jul 19, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3972.pdf	text/plain	Oct 2, 2024	Aug 4, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3971.pdf	text/plain	Oct 2, 2024	Jul 19, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3970.pdf	text/plain	Oct 2, 2024	Aug 10, 2025	8	5	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3969.pdf	text/plain	Oct 2, 2024	Aug 5, 2025	8	6	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3968.pdf	text/plain	Sep 17, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3966-3967.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3965_0.pdf	text/plain	Sep 12, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3965.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3964.pdf	text/plain	Sep 12, 2024	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3963.pdf	text/plain	Sep 10, 2024	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3962.pdf	text/plain	Sep 9, 2024	Aug 5, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3959_045424.pdf	text/plain	Sep 9, 2024	Jul 19, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-09/Quotidien N°3958_042203.pdf	text/plain	Sep 9, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3957.pdf	text/plain	Oct 6, 2024	Jul 19, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3956.pdf	text/plain	Sep 9, 2024	Jul 19, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3955.pdf	text/plain	Sep 9, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3954.pdf	text/plain	Sep 2, 2024	Jul 19, 2025	9	7	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3953_0.pdf	text/plain	Sep 9, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3952.pdf	text/plain	Sep 2, 2024	Jul 19, 2025	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3951.pdf	text/plain	Sep 2, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3950.pdf	text/plain	Sep 2, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3949.pdf	text/plain	Sep 2, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3948_0.pdf	text/plain	Oct 4, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3947_0.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3946.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3944-3945.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3943.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3942.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3941.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3940.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3939.pdf	text/plain	Aug 7, 2024	Jul 19, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3938.pdf	text/plain	Aug 7, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-08/Quotidien N°3936-3937.pdf	text/plain	Aug 1, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3935.pdf	text/plain	Aug 1, 2024	Oct 16, 2025	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3934.pdf	text/plain	Aug 1, 2024	Sep 10, 2025	10	7	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3933.pdf	text/plain	Aug 1, 2024	Aug 8, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3932.pdf	text/plain	Aug 1, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3931.pdf	text/plain	Aug 2, 2024	Sep 10, 2025	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3930.pdf	text/plain	Jul 24, 2024	Jul 19, 2025	10	8	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3929.pdf	text/plain	Jul 24, 2024	Jul 19, 2025	11	8	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3928.pdf	text/plain	Jul 22, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3927_0.pdf	text/plain	Jul 22, 2024	Aug 8, 2025	10	7	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3927.pdf	text/plain	Jul 22, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3926.pdf	text/plain	Jul 22, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3925_0.pdf	text/plain	Jul 22, 2024	Jul 19, 2025	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3925.pdf	text/plain	Jul 22, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3924.pdf	text/plain	Jul 22, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3923.pdf	text/plain	Jul 22, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3922.pdf	text/plain	Jul 22, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3921.pdf	text/plain	Jul 11, 2024	Jul 19, 2025	10	8	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3920_043437.pdf	text/plain	Jul 11, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3919_031509.pdf	text/plain	Jul 9, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3918.pdf	text/plain	Jul 9, 2024	Jul 19, 2025	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3917.pdf	text/plain	Jul 9, 2024	Jul 19, 2025	9	6	3
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3916.pdf	text/plain	Jul 9, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3915.pdf	text/plain	Jul 9, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3914.pdf	text/plain	Jul 9, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-07/Quotidien N°3913.pdf	text/plain	Jul 9, 2024	Jul 19, 2025	8	5	3
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3912.pdf	text/plain	Jul 3, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3910.pdf	text/plain	Jul 3, 2024	Jul 19, 2025	9	7	2
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3909.pdf	text/plain	Jul 3, 2024	Jul 19, 2025	5	3	2
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3908_0.pdf	text/plain	Jul 1, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3907.pdf	text/plain	Jul 3, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3906.pdf	text/plain	Jul 3, 2024	Jul 19, 2025	7	4	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3905.pdf	text/plain	Jun 20, 2024	Jul 19, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3904.pdf	text/plain	Jun 20, 2024	Jul 19, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3903.pdf	text/plain	Jun 20, 2024	Jul 19, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3901-3902.pdf	text/plain	Jun 20, 2024	Jul 19, 2025	10	7	3
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3900.pdf	text/plain	Jun 13, 2024	Jul 19, 2025	8	5	3
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3899.pdf	text/plain	Jun 11, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3898.pdf	text/plain	Jun 11, 2024	Jul 19, 2025	10	7	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3897_0.pdf	text/plain	Jun 12, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3897.pdf	text/plain	Jun 12, 2024	Jun 12, 2024	2	0	2
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3896.pdf	text/plain	Jun 9, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3895.pdf	text/plain	Jun 9, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3894_0.pdf	text/plain	Jun 9, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3894 (bis).pdf	text/plain	Jun 8, 2024	Jul 19, 2025	10	8	2
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3893.pdf	text/plain	Jun 8, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-06/Quotidien N°3892 (bis).pdf	text/plain	Jun 9, 2024	Jul 19, 2025	10	8	2
+http://dgcmef.gov.bf/sites/default/files/2024-06/PPM MEEA 2024 du 31 mai VF.pdf	text/plain	Jul 9, 2024	Jul 17, 2025	13	11	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3892.pdf	text/plain	Jun 9, 2024	Jul 19, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3891.pdf	text/plain	Jun 9, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3891 (bis).pdf	text/plain	Jun 9, 2024	Jul 19, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3890.pdf	text/plain	Jun 8, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3889.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3888.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3887.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3886.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3884.pdf	text/plain	May 2, 2025	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3877.pdf	text/plain	May 15, 2024	Jul 20, 2025	8	5	3
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3876.pdf	text/plain	May 15, 2024	Jul 20, 2025	7	4	3
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3876 (bis).pdf	text/plain	May 13, 2024	Jul 20, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3874-3875.pdf	text/plain	May 14, 2024	Jul 20, 2025	8	5	3
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3873.pdf	text/plain	May 13, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3873 (bis).pdf	text/plain	May 13, 2024	Jul 20, 2025	9	6	3
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3872.pdf	text/plain	May 14, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3872 (bis).pdf	text/plain	May 13, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3871.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3871 (bis).pdf	text/plain	May 14, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-05/Quotidien N°3868-3870 (bis).pdf	text/plain	May 15, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3870.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3868-3869.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3867.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3866.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3866 (bis).pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3865.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3865 (bis).pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3864.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3864 (bis).pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3863_0.pdf	text/plain	Apr 23, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3863 (bis).pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3862_0.pdf	text/plain	Apr 23, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3862 (bis).pdf	text/plain	Apr 23, 2024	Jul 20, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3861.pdf	text/plain	Apr 20, 2024	Jul 20, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3861 (bis).pdf	text/plain	Apr 20, 2024	Jul 20, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3860.pdf	text/plain	Apr 20, 2024	Jul 20, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3860 (bis).pdf	text/plain	Apr 20, 2024	Jul 20, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3859.pdf	text/plain	Apr 20, 2024	Jul 20, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3859 (bis)-C.pdf	text/plain	Apr 20, 2024	Jul 20, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3858.pdf	text/plain	Apr 20, 2024	Jul 20, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3858 (bis)-C.pdf	text/plain	Apr 20, 2024	Jul 20, 2025	8	6	2
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3857.pdf	text/plain	Apr 20, 2024	Jul 20, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3857 (bis)_0.pdf	text/plain	Apr 20, 2024	Jul 20, 2025	12	9	3
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3850.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3850 (bis)_C.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3849.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3849 (bis)_C.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-04/Quotidien N°3848 (bis)_C.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/STATISTIQUES MARCHÉS P. 2023_01.pdf	text/plain	Jul 11, 2024	Jul 16, 2025	11	9	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3848.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3846-387 (bis)-1_0.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3846-3847.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3845.pdf	text/plain	Mar 28, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3844.pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3843.pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3842.pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3842 (bis)_Compresser.pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3841.pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3841 (bis).pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3840 _0.pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3840 (bis)_0.pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3839.pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3839 (bis).pdf	text/plain	Mar 27, 2024	Jul 20, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3838.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3838 (bis).pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3837.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3837 (bis).pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3836.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3836 (bis)-Compresser.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien n°3835.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3835 (bis)_Compresser.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3834.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3833.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3833 bis_Compresser.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3832.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3830-3831_1.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien n°3830 - 3831(bis)_2.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/QUOTIDIEN N°3829_1.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien n°3828 (bis)_1.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3827.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien n°3826_1.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien n°3825_2.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-03/Quotidien N°3825 (bis)_2.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien n°3824.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3824 (bis).pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3823_4.pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3823 (bis).pdf	text/plain	Jul 13, 2025	Jul 20, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3816.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3816(bis).pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3815_0.pdf	text/plain	Jul 16, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3815.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3815 (bis).pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3814.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3814 (bis)1.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-02/Quotidien N°3806.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3805.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3805 bis.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3804_0.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3804 (bis).pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3803.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3802.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3802 (bis)_1.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3801.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3801 (bis).pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3800.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3799.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3799 (bis)_1.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3799 (bis).pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3798.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3797.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3796.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3795.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3794.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3793.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3792.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3791.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3790.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3789.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3788.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3787.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3786.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2024-01/Quotidien N°3784-3785.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3782-3783_0.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3781_0.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3780.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3779_2.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3779_1.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3777-3778_0.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3776.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3775_1.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3774-1.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3773_1.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3772.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3771.pdf	text/plain	Jul 13, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3770.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3769.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3768.pdf	text/plain	Aug 8, 2024	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3766-3667_1.pdf	text/plain	Aug 7, 2024	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3765.pdf	text/plain	Aug 7, 2024	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3764.pdf	text/plain	Aug 7, 2024	Jul 19, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2023-12/Quotidien N°3763_1.pdf	text/plain	Aug 7, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3751.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3750.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3749_0.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3748_1.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3747.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3746.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3745.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3744.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3743.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3742.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien N°3741_1.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-11/Quotidien n°3738-3739-3740.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien n°3737.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien n°3736.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien n°3735.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien n°3734.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3733.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3732.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3731.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3730.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3729_1.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3728.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3727.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3726_0.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3725_1.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3724.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3723.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3722_1.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3721.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3720.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3719.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-10/Quotidien N°3718.pdf	text/plain	Jul 12, 2025	Jul 19, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3717.pdf	text/plain	Aug 1, 2024	Jul 19, 2025	6	4	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3716.pdf	text/plain	Aug 1, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3714-3715.pdf	text/plain	Aug 1, 2024	Jul 19, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3713 _1.pdf	text/plain	Aug 1, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3712.pdf	text/plain	Aug 1, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3711.pdf	text/plain	Aug 1, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3710_1.pdf	text/plain	Aug 1, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3709.pdf	text/plain	Aug 1, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3708.pdf	text/plain	Aug 1, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3707.pdf	text/plain	Aug 1, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3706.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3705-1_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3704_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3703.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3702.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3701.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3700.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3699_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3698.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3697_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-09/Quotidien N°3696_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3695_2.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3694_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3693.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3692.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3691.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3690.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3689.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3688.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3687_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3686.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3685.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3684.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3682.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3681.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3680.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3679.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3678 _3.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3677_4.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3676.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3675.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3674.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-08/Quotidien N°3673.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3672_0.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3671_1.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3670.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3669.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3668.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3667.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3666.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3665.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3664.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3663.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3661.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3660.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3659.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3658.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3657.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3656.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3655.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3654.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3653-avec compression - Copie.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/Quotidien N°3652.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-07/DOC-20230714-WA0001.pdf	text/plain	Jul 12, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien N°3651.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien N°3650.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien N°3648-3649.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien N°3647.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien N°3646_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien N°3645.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien N°3644.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien N°3643.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien N°3642.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3641_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3640.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3639.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3638.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3637.pdf	text/plain	Jul 5, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3636.pdf	text/plain	Jul 5, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3635.pdf	text/plain	Jul 5, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3634.pdf	text/plain	Jul 5, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3633.pdf	text/plain	Jul 6, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3632.pdf	text/plain	Jun 3, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3631.pdf	text/plain	Jun 3, 2023	Jul 18, 2025	7	5	2
+http://dgcmef.gov.bf/sites/default/files/2023-06/Quotidien n°3630.pdf	text/plain	Jun 3, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3629.pdf	text/plain	Jun 1, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3628.pdf	text/plain	Jun 1, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3627.pdf	text/plain	May 27, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3626.pdf	text/plain	May 27, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3625.pdf	text/plain	May 27, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3624.pdf	text/plain	May 27, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3623.pdf	text/plain	May 27, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3622.pdf	text/plain	May 27, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3621.pdf	text/plain	May 27, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3619-3620.pdf	text/plain	May 27, 2023	Jul 18, 2025	8	6	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3618.pdf	text/plain	May 27, 2023	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3617.pdf	text/plain	May 27, 2023	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3616.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3615 _0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3614.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3613.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3612.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3611.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3610_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3610.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-05/Quotidien n°3609.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3608.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3598_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	2	1	1
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3598.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	2	1	1
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3597.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	2	1	1
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3596.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3595.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3594_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3593_2.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3591-3592.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3590.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3589.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3588.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/Quotidien n°3587.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/PPM_BP_1_GESTION_2023.pdf	text/plain	May 27, 2023	Jul 18, 2025	16	13	3
+http://dgcmef.gov.bf/sites/default/files/2023-04/_Quotidien n°3606-3607.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/_Quotidien n°3605.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/_Quotidien n°3604.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/_Quotidien n°3602.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/_Quotidien n°3600-3601.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-04/_Quotidien n°3599.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3586.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3585_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3584.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3583.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3582_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3581_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3580_2.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3579_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3578.pdf	text/plain	Jul 3, 2024	Jul 3, 2024	2	0	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3577.pdf	text/plain	Jul 2, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3576.pdf	text/plain	Jul 2, 2024	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3575.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3574.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3573.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3572.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3571.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3570.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3568 - 3569_2.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3567_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3566.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3565.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-03/Quotidien n°3378.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3564_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3563.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3562_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3561.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3560.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3559.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3558.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3557.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3556.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3555_1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3554.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3553.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3552.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3551.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3550.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3549.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3548_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://www.dgcmef.gov.bf/sites/default/files/2023-02/Quotidien n°3545.pdf	text/plain	Feb 2, 2023	Jul 18, 2025	9	6	3
+http://www.dgcmef.gov.bf/sites/default/files/2023-01/Quotidien n°3544.pdf	text/plain	Feb 2, 2023	Jul 18, 2025	6	4	2
+http://www.dgcmef.gov.bf/sites/default/files/2023-01/Quotidien n°3543_0.pdf	text/plain	Feb 2, 2023	Jul 18, 2025	6	4	2
+http://dgcmef.gov.bf/sites/default/files/2023-01/Quotidien n°3542-1.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-01/Quotidien n°3541_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-01/Quotidien n°3539-2.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2023-01/Quotidien n°3527_0.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2022-06/Publication-Covid 19_0002(nb).pdf	text/plain	Jun 15, 2022	May 17, 2026	27	25	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/PPM_2022 ONEA.pdf	text/plain	Jun 9, 2022	Oct 16, 2025	25	23	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/PPM 2022 SONABEL.pdf	text/plain	Jun 9, 2022	Jul 18, 2025	25	23	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/PPM 2022 SOGEMAB.pdf	text/plain	Jun 9, 2022	Oct 16, 2025	25	23	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/PPM 2022 LA POSTE BF.pdf	text/plain	Jun 9, 2022	Jul 19, 2025	23	21	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/PPM 2022 CNSS.pdf	text/plain	Jun 9, 2022	Oct 16, 2025	24	22	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/PLAN_DE_PASSATION_DES_MARCHES_2022_ARCEP.pdf	text/plain	Jun 9, 2022	Oct 16, 2025	25	23	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/directive_10_2009_CM_UEMOA.pdf	text/plain	Jun 9, 2022	Jul 18, 2025	14	12	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/directive_09_2009_CM_UEMOA.pdf	text/plain	Jun 9, 2022	Jul 15, 2025	25	23	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/directive_08_2009_CM_UEMOA.pdf	text/plain	Jun 9, 2022	Jul 15, 2025	25	23	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/directive_07_2009_CM_UEMOA.pdf	text/plain	Jun 9, 2022	Jul 15, 2025	25	23	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/directive_06_2009_CM_UEMOA.pdf	text/plain	Jun 9, 2022	Jul 15, 2025	25	23	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/directive_01_2009_CM_UEMOA.pdf	text/plain	Jun 9, 2022	Jul 15, 2025	25	23	2
+http://dgcmef.gov.bf/sites/default/files/2022-04/Avis_aux_utilisateurs.pdf	text/plain	Jun 9, 2022	Jul 18, 2025	15	13	2
+http://dgcmef.gov.bf/sites/default/files/2022-03/PPM_BP_1_GESTION_2022.pdf	text/plain	Jun 9, 2022	Jul 19, 2025	24	21	3
+http://dgcmef.gov.bf/sites/default/files/2022-03/Bulletin sur les statistiques ann. 2021.pdf	text/plain	Jun 25, 2022	Jul 16, 2025	20	18	2
+http://dgcmef.gov.bf/sites/default/files/2021-09/EnvironmentalandSocialCommitmentPlan (ESCP)-signing pkg_French version (1)(1).pdf	text/plain	Jun 25, 2022	Jan 22, 2026	23	21	2
+http://dgcmef.gov.bf/sites/default/files/2021-06/Quotidien n°3112.pdf	text/plain	Jan 23, 2026	Jan 23, 2026	2	0	2
+http://dgcmef.gov.bf/sites/default/files/2021-05/Quotidien n-3098-c.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-05/Quotidien n-3093-c.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-05/Quotidien n°3097-C.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-05/Quotidien n°3094-3095-3096-c pdf.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-05/Quotidien n°3090.pdf	text/plain	Jul 11, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-05/Quotidien n°-3092-c.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-05/Quotidien n°-3091-c.pdf	text/plain	Jul 11, 2025	Jul 18, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-05/Quotidien n°-3089-c.pdf	text/plain	Jul 11, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-05/Quotidien n°-3088-c.pdf	text/plain	Jul 11, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-04/Quotidien n°3087.pdf	text/plain	Jul 11, 2025	Jul 17, 2025	4	2	2
+http://dgcmef.gov.bf/sites/default/files/2021-04/Quotidien n°3085-C.pdf	text/plain	Jul 10, 2025	Jul 17, 2025	4	2	2
+
+URL
+MIME Type
+From
+To
+Captures
+Duplicates
+Uniques
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4289-4290_0.pdf	application/pdf	Jan 21, 2026	Jan 21, 2026	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4289-4290.pdf	application/pdf	Jan 21, 2026	Jan 21, 2026	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4288.pdf	application/pdf	Jan 21, 2026	Jan 21, 2026	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4287_0.pdf	application/pdf	Jan 21, 2026	Jan 21, 2026	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4287.pdf	application/pdf	Jan 21, 2026	Jan 21, 2026	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4286.pdf	application/pdf	Jan 21, 2026	Jan 21, 2026	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4285_0.pdf	application/pdf	Jan 21, 2026	Jan 21, 2026	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4285.pdf	application/pdf	Jan 21, 2026	Jan 21, 2026	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4284.pdf	application/pdf	Jan 21, 2026	Jan 21, 2026	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4283.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-12/Quotidien N°4282.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4281.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4280.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4279_0.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4279.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4278_0.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4278.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4276.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4275.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4265.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4264.pdf	application/pdf	Dec 14, 2025	Dec 14, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien N°4263.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien n°4262.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-11/Quotidien n°4260-4261.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4259.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4258.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4257.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4256.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4255.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4254.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4253.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4250.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4249_0.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4249.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4248.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4247.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4246.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4245.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4244 .pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4243.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4242.pdf	application/pdf	Nov 8, 2025	Nov 8, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4241.pdf	application/pdf	Oct 16, 2025	Oct 16, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4240.pdf	application/pdf	Oct 16, 2025	Oct 16, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-10/Quotidien N°4239.pdf	application/pdf	Oct 16, 2025	Oct 16, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-09/Quotidien N°4238.pdf	application/pdf	Oct 16, 2025	Oct 16, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-09/Quotidien N°4237.pdf	application/pdf	Oct 16, 2025	Oct 16, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-09/Quotidien N°4236.pdf	application/pdf	Oct 16, 2025	Oct 16, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-09/Quotidien N°4235.pdf	application/pdf	Oct 16, 2025	Oct 16, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-09/Quotidien N°4234.pdf	application/pdf	Oct 16, 2025	Oct 16, 2025	1	0	1
+https://dgcmef.gov.bf/sites/default/files/2025-09/Quotidien N°4233_0.pdf	application/pdf	Oct 16, 2025	Oct 16, 2025	1	0	1
+

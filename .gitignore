@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Secrets / env
+.env
+.env.local
+
+# SQLite / DB locale du pipeline
+*.db
+*.sqlite
+*.sqlite3
+ingestion.db
+
+# Outputs générés (relançables via pipeline.py)
+output/
+layer1_output.json
+layer2_output.json
+rapport_status_urls.csv
+resume_par_pattern.csv
+
+# Gros binaires / données locales (PDF, OCR, wordlists)
+*.pdf
+*.png
+*.jpg
+*.jpeg
+x_ocr.txt
+wordlist.txt
+urls_quotidien.txt
+urls_valides_verifiees.txt
+quotidien_*.md
+Quotidien*.md
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
