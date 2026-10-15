@@ -21,12 +21,23 @@ s'importe et se teste sans elles, et les moteurs sont injectables.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Protocol
 
 from ..core.text import normalize
 from ..qa.rules import looks_garbled
+
+# --- promotion des titres ---------------------------------------------------
+# Dans un PDF, un titre n'est pas balisé : il est seulement plus gros ou en
+# gras que le corps du texte. Comme tout le tri des annonces s'appuie sur les
+# titres, l'extraction doit les rendre visibles en Markdown, sinon la
+# plateforme ne voit plus un seul titre sur un bulletin réel.
+HEADING_SIZE_RATIO_H1 = 1.35   # au-delà : titre de premier niveau
+HEADING_SIZE_RATIO_H2 = 1.12   # au-delà : titre de second niveau
+HEADING_MAX_CHARS = 180        # un paragraphe en gros corps n'est pas un titre
+MIN_LINES_FOR_BODY_SIZE = 5    # sous ce nombre, la taille du corps n'est pas fiable
 
 # Seuils d'arbitrage. Une page A4 de bulletin fait plusieurs milliers de
 # caractères : en dessous de MIN_CHARS, la couche de texte est inexploitable.
@@ -36,8 +47,22 @@ OCR_DPI = 200          # compromis lisibilité / vitesse pour du texte de presse
 DEFAULT_LANG = "fra"
 
 
+@dataclass
+class Line:
+    """Une ligne de texte avec ce qu'il faut pour juger si c'est un titre."""
+
+    text: str
+    size: float = 0.0
+    bold: bool = False
+
+
 class PdfBackend(Protocol):
-    """Accès minimal à un PDF, pour pouvoir injecter un faux en test."""
+    """Accès minimal à un PDF, pour pouvoir injecter un faux en test.
+
+    ``page_lines`` est facultatif : un backend qui ne l'implémente pas donne du
+    texte brut, et les titres ne sont alors plus détectables par leur mise en
+    forme — l'extraction le signale au lieu de le taire.
+    """
 
     def page_count(self, path: str) -> int: ...
     def page_text(self, path: str, index: int) -> str: ...
@@ -95,8 +120,19 @@ class OcrReport:
     def to_markdown(self) -> str:
         """Concatène les pages en Markdown avec le pied de page numéroté
         attendu par ``core.pages.parse_pages`` — l'OCR alimente ainsi le reste
-        du pipeline sans format intermédiaire supplémentaire."""
-        return "\n".join(f"{p.text.strip()}\n\n**{p.index + 1}**\n" for p in self.pages)
+        du pipeline sans format intermédiaire supplémentaire.
+
+        Le numéro n'est injecté que si la page ne porte pas déjà le sien. Le
+        bulletin imprime son numéro en pied de page, et ce numéro-là est le bon
+        (c'est celui que l'opérateur lit dans le PDF) : en ajouter un second
+        fabriquerait une page vide à chaque frontière.
+        """
+        parts = []
+        for page in self.pages:
+            text = page.text.strip()
+            parts.append(text if _ends_with_page_number(text) else f"{text}\n\n**{page.index + 1}**")
+            parts.append("")
+        return "\n".join(parts)
 
     def to_dict(self) -> dict:
         return {
@@ -107,6 +143,76 @@ class OcrReport:
             "weak_pages": self.weak_pages,
             "pages": [p.to_dict() for p in self.pages],
         }
+
+
+# Un numéro de page imprimé tient seul sur sa ligne, en fin de page. On ne
+# regarde que les toutes dernières lignes : un "12" isolé en milieu de page
+# appartient à une énumération, pas au pied de page.
+TRAILING_LINES_CHECKED = 3
+PAGE_NUMBER_LINE_RE = re.compile(r"^\**\s*(\d{1,4})\s*\**$")
+
+
+def _ends_with_page_number(text: str) -> bool:
+    """La page porte-t-elle déjà son numéro imprimé en pied de page ?"""
+    lignes = [l.strip() for l in text.strip().splitlines() if l.strip()]
+    return any(PAGE_NUMBER_LINE_RE.match(l) for l in lignes[-TRAILING_LINES_CHECKED:])
+
+
+def body_text_size(lines: list[Line]) -> float:
+    """Taille du corps de texte de la page : la médiane pondérée par longueur.
+
+    Pondérer par le nombre de caractères évite qu'une page couverte de petits
+    titres fasse passer le corps pour du titre, et inversement.
+    """
+    weighted: list[float] = []
+    for line in lines:
+        if line.size > 0 and line.text.strip():
+            weighted.extend([line.size] * max(1, len(line.text.strip()) // 10))
+    if not weighted:
+        return 0.0
+    weighted.sort()
+    return weighted[len(weighted) // 2]
+
+
+def heading_level(line: Line, body_size: float) -> int:
+    """Niveau de titre d'une ligne, 0 si c'est du corps de texte."""
+    text = line.text.strip()
+    if not text or len(text) > HEADING_MAX_CHARS or not body_size:
+        return 0
+    if PAGE_NUMBER_LINE_RE.match(text):
+        # Le numéro de page imprimé est en gras et plus gros que le corps : le
+        # promouvoir en titre le rendrait invisible comme pied de page, et la
+        # numérotation réelle du bulletin serait perdue.
+        return 0
+    ratio = line.size / body_size if line.size else 0.0
+    if ratio >= HEADING_SIZE_RATIO_H1:
+        return 1
+    if ratio >= HEADING_SIZE_RATIO_H2:
+        return 2
+    # Le gras seul, à corps égal, sert aussi de titre dans le bulletin — mais
+    # seulement sur une ligne courte, sinon un paragraphe entier mis en gras
+    # (fréquent dans les avis) serait promu titre.
+    if line.bold and ratio >= 0.98 and len(text) <= 120:
+        return 2
+    return 0
+
+
+def lines_to_markdown(lines: list[Line]) -> str:
+    """Rend les lignes en Markdown, titres promus selon leur mise en forme."""
+    body_size = body_text_size(lines)
+    if len([l for l in lines if l.text.strip()]) < MIN_LINES_FOR_BODY_SIZE:
+        # Trop peu de lignes pour établir une référence : on ne devine pas.
+        return "\n".join(l.text for l in lines)
+
+    out: list[str] = []
+    for line in lines:
+        text = line.text.strip()
+        if not text:
+            out.append("")
+            continue
+        level = heading_level(line, body_size)
+        out.append(f"{'#' * level} {text}" if level else text)
+    return "\n".join(out)
 
 
 def text_layer_confidence(text: str) -> tuple[float, str]:
@@ -157,6 +263,29 @@ def _default_pdf_backend() -> PdfBackend | None:
         def page_image(self, path: str, index: int, dpi: int):
             with pymupdf.open(path) as doc:
                 return doc[index].get_pixmap(dpi=dpi).tobytes("png")
+
+        def page_lines(self, path: str, index: int) -> list[Line]:
+            """Lignes avec leur corps et leur graisse, pour promouvoir les titres."""
+            with pymupdf.open(path) as doc:
+                data = doc[index].get_text("dict")
+            lines: list[Line] = []
+            for block in data.get("blocks", []):
+                for line in block.get("lines", []):
+                    spans = line.get("spans", [])
+                    text = "".join(s.get("text", "") for s in spans)
+                    if not text.strip():
+                        continue
+                    # La taille retenue est celle du span le plus long : un
+                    # exposant ou une puce ne doit pas décider du niveau.
+                    main = max(spans, key=lambda s: len(s.get("text", "")), default={})
+                    flags = main.get("flags", 0)
+                    lines.append(Line(
+                        text=text,
+                        size=float(main.get("size", 0.0)),
+                        bold=bool(flags & 16) or "bold" in str(main.get("font", "")).lower(),
+                    ))
+                lines.append(Line(text=""))  # frontière de bloc = ligne vide
+            return lines
 
     return _PyMuPdf()
 
@@ -217,6 +346,28 @@ def extract_pdf(
     return report
 
 
+def _render_text_layer(
+    pdf: PdfBackend, path: str, index: int, plain: str
+) -> tuple[str, bool]:
+    """Rend la couche de texte en Markdown, titres promus si possible.
+
+    Retourne (markdown, titres_promus). Un backend sans ``page_lines`` ne donne
+    pas la mise en forme : on rend alors le texte brut et on le dit, car sans
+    titres le tri des annonces perd son principal discriminant.
+    """
+    lecteur = getattr(pdf, "page_lines", None)
+    if lecteur is None:
+        return plain, False
+    try:
+        lines = lecteur(path, index)
+    except Exception:
+        # La mise en forme est un bonus : son échec ne doit pas coûter la page.
+        return plain, False
+    if not lines:
+        return plain, False
+    return lines_to_markdown(lines), True
+
+
 def _extract_one(
     pdf: PdfBackend,
     ocr: OcrBackend | None,
@@ -226,19 +377,24 @@ def _extract_one(
     dpi: int,
     force_ocr: bool,
 ) -> PageText:
-    text, confidence, note = "", 0.0, ""
+    text, rendu, confidence, note = "", "", 0.0, ""
     if not force_ocr:
         try:
             text = pdf.page_text(path, index) or ""
         except Exception as exc:  # PDF partiellement corrompu : page isolée, pas tout le document
             return PageText(index, "", "erreur", 0.0, note=f"lecture impossible : {exc}")
         confidence, note = text_layer_confidence(text)
+        # La confiance se juge sur le texte brut ; c'est le rendu Markdown, avec
+        # ses titres promus, qui part vers la suite du pipeline.
+        rendu, promu = _render_text_layer(pdf, path, index, text)
+        if not promu:
+            note += " — mise en forme indisponible, titres non promus"
 
     needs_ocr = force_ocr or confidence < 0.6
     if needs_ocr:
         if ocr is None:
             return PageText(
-                index, text, "texte_integre" if text.strip() else "vide", confidence,
+                index, rendu or text, "texte_integre" if text.strip() else "vide", confidence,
                 char_count=len(text),
                 note=note + " — OCR souhaitable mais aucun moteur OCR installé "
                             "(pip install pytesseract pillow + tesseract-ocr-fra)",
@@ -248,7 +404,7 @@ def _extract_one(
             ocr_text, ocr_conf = ocr.image_to_text(image, lang)
         except Exception as exc:
             return PageText(
-                index, text, "texte_integre" if text.strip() else "erreur", confidence,
+                index, rendu or text, "texte_integre" if text.strip() else "erreur", confidence,
                 char_count=len(text), note=f"{note} — OCR en échec : {exc}",
             )
         # On ne garde l'OCR que s'il apporte vraiment plus de matière : sur une
@@ -259,8 +415,9 @@ def _extract_one(
                 note=f"OCR appliqué ({note})",
             )
         return PageText(
-            index, text, "texte_integre", max(confidence, 0.6), char_count=len(text),
+            index, rendu or text, "texte_integre", max(confidence, 0.6), char_count=len(text),
             note=f"{note} — OCR tenté, sans gain",
         )
 
-    return PageText(index, text, "texte_integre", confidence, char_count=len(text), note=note)
+    return PageText(index, rendu or text, "texte_integre", confidence,
+                    char_count=len(text), note=note)

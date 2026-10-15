@@ -103,3 +103,124 @@ def test_les_pages_faibles_sont_listees():
     report = extract_pdf("b.pdf", FakePdf(), FakeOcr(conf=0.4))
     assert report.weak_pages == [2, 3]
     assert report.confidence_by_page()[1] > 0.7
+
+
+# --- promotion des titres d'après la mise en forme --------------------------
+
+from scrapperbf.ocr.light_ocr import Line, body_text_size, heading_level, lines_to_markdown
+
+
+def corps(texte, taille=9.0, gras=False):
+    return Line(text=texte, size=taille, bold=gras)
+
+
+CORPS_DE_PAGE = [corps(f"Ligne de corps de texte numero {i} de l'annonce.") for i in range(8)]
+
+
+def test_la_taille_du_corps_est_la_mediane_ponderee():
+    lignes = [*CORPS_DE_PAGE, corps("TITRE", 16.0)]
+    # Un titre isolé ne doit pas déplacer la référence du corps de texte.
+    assert body_text_size(lignes) == 9.0
+
+
+def test_un_corps_plus_grand_devient_titre():
+    assert heading_level(corps("AVIS DE DEMANDE DE PRIX", 14.0), 9.0) == 1
+    assert heading_level(corps("Fournitures et Services courants", 10.5), 9.0) == 2
+    assert heading_level(corps("Une ligne de corps de texte ordinaire.", 9.0), 9.0) == 0
+
+
+def test_le_gras_sur_ligne_courte_sert_de_titre():
+    assert heading_level(corps("MINISTERE DE LA SANTE", 9.0, gras=True), 9.0) == 2
+
+
+def test_un_paragraphe_en_gras_n_est_pas_un_titre():
+    # Les avis mettent des paragraphes entiers en gras : les promouvoir tous
+    # noierait le classement sous de faux titres.
+    long = corps("Les soumissionnaires resteront engages par leurs offres pendant " * 3, 9.0, gras=True)
+    assert heading_level(long, 9.0) == 0
+
+
+def test_le_rendu_markdown_promeut_les_titres():
+    md = lines_to_markdown([
+        corps("MINISTERE DE L'ECONOMIE", 15.0),
+        corps("Avis de demande de prix N°2026-012", 11.0),
+        *CORPS_DE_PAGE,
+    ])
+    assert md.startswith("# MINISTERE DE L'ECONOMIE")
+    assert "## Avis de demande de prix N°2026-012" in md
+    assert "Ligne de corps de texte numero 0" in md
+
+
+def test_une_page_trop_courte_n_est_pas_devinee():
+    md = lines_to_markdown([corps("DEUX LIGNES", 20.0), corps("seulement")])
+    assert "#" not in md
+
+
+class FakePdfMiseEnForme(FakePdf):
+    """Backend qui expose la mise en forme, comme PyMuPDF."""
+
+    def page_lines(self, path, index):
+        return [
+            Line("AVIS DE DEMANDE DE PRIX N°2026-012/MEF", 15.0, True),
+            *[Line(f"{i}. Point numero {i} de l'annonce en cours de publication.", 9.0)
+              for i in range(1, 9)],
+        ]
+
+
+def test_les_titres_promus_arrivent_dans_le_markdown():
+    report = extract_pdf("b.pdf", FakePdfMiseEnForme(), FakeOcr())
+    assert report.pages[0].text.startswith("# AVIS DE DEMANDE DE PRIX")
+
+
+def test_les_titres_promus_sont_reclasses_par_la_plateforme():
+    # Boucle complète : mise en forme du PDF → titre Markdown → nature d'annonce.
+    from scrapperbf.core.pages import parse_pages
+    from scrapperbf.core.segment import segment
+    from scrapperbf.core.titles import TitleKind
+
+    report = extract_pdf("b.pdf", FakePdfMiseEnForme(), FakeOcr())
+    notices = segment(parse_pages(report.to_markdown()))
+    assert any(n.kind is TitleKind.DEMANDE_PRIX for n in notices)
+
+
+def test_un_backend_sans_mise_en_forme_le_signale():
+    report = extract_pdf("b.pdf", FakePdf(), FakeOcr())
+    assert "titres non promus" in report.pages[0].note
+
+
+def test_un_echec_de_lecture_de_mise_en_forme_ne_perd_pas_la_page():
+    class PdfMiseEnFormeCassee(FakePdf):
+        def page_lines(self, path, index):
+            raise RuntimeError("structure dict illisible")
+
+    report = extract_pdf("b.pdf", PdfMiseEnFormeCassee(), FakeOcr())
+    assert report.pages[0].source == "texte_integre" and report.pages[0].text
+
+
+# --- pied de page : ne pas doubler le numéro imprimé ------------------------
+
+def test_le_numero_imprime_n_est_pas_double():
+    from scrapperbf.core.pages import parse_pages
+
+    pdf = FakePdf([PAGE_PROPRE + "\n12\n", PAGE_PROPRE + "\n13\n"])
+    report = extract_pdf("b.pdf", pdf, FakeOcr())
+    doc = parse_pages(report.to_markdown())
+    # Sans ce contrôle, le pied injecté s'ajoutait au pied imprimé et créait
+    # une page vide à chaque frontière.
+    assert [p.page_number for p in doc.pages] == [12, 13]
+
+
+def test_le_numero_est_injecte_quand_la_page_n_en_a_pas():
+    from scrapperbf.core.pages import parse_pages
+
+    report = extract_pdf("b.pdf", FakePdf([PAGE_PROPRE, PAGE_PROPRE]), FakeOcr())
+    doc = parse_pages(report.to_markdown())
+    assert [p.page_number for p in doc.pages] == [1, 2]
+
+
+def test_le_numero_de_page_n_est_jamais_promu_en_titre():
+    # Le pied de page du bulletin est en gras et plus gros que le corps :
+    # promu en titre, il cesserait d'être reconnu comme frontière de page.
+    assert heading_level(corps("12", 14.0, gras=True), 9.0) == 0
+    md = lines_to_markdown([corps("AVIS", 15.0), *CORPS_DE_PAGE, corps("12", 14.0, gras=True)])
+    assert md.rstrip().endswith("\n12")

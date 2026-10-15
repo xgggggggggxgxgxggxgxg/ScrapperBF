@@ -140,6 +140,14 @@ reste parfois vrai. Sans cela, l'opérateur finit par ignorer toutes les alertes
 
 ## OCR léger
 
+Dans un PDF, **un titre n'est pas balisé** : il est seulement plus gros ou en
+gras que le corps du texte. Comme tout le tri s'appuie sur les titres,
+l'extraction les promeut en titres Markdown — corps de texte estimé par médiane
+pondérée par la longueur des lignes, puis `#` / `##` selon le ratio de taille,
+le gras ne servant de titre que sur une ligne courte (les avis mettent des
+paragraphes entiers en gras). Le numéro de page imprimé, lui aussi en gras et
+plus gros, n'est jamais promu : il doit rester reconnaissable comme pied de page.
+
 `scrapperbf ocr` procède page par page, du moins cher au plus cher : il lit la
 couche de texte intégrée, et ne lance l'OCR que sur les pages dont cette couche est
 trop pauvre ou visiblement abîmée. Chaque page ressort avec sa provenance et une
@@ -160,7 +168,7 @@ scrapperbf/
   feedback/store.py
   dashboard/build.py
   cli.py
-tests/     171 tests, sans accès réseau
+tests/     184 tests, sans accès réseau
 ```
 
 Couches historiques conservées : `layer1_extract.py` (Markdown → blocs),
@@ -214,6 +222,12 @@ numérotation, titre non classable, annonce tronquée.
 - `extract_unit()` plantait l'appelant si le modèle rendait un JSON valide mais pas
   un objet (liste, chaîne) ; c'est désormais un échec de provider, donc un repli.
 - `init_db(db_path=DB_PATH)` capturait le chemin à la définition de la fonction.
+- Sur un vrai PDF, aucun titre n'était détecté (la couche de texte n'a pas de
+  `#`) : tout le tri par titre s'effondrait. Corrigé par la promotion des titres
+  d'après leur mise en forme.
+- `OcrReport.to_markdown()` ajoutait son pied de page numéroté alors que la page
+  portait déjà le numéro imprimé : une page vide était fabriquée à chaque
+  frontière.
 
 ## Données locales (non versionnées)
 
