@@ -35,6 +35,7 @@ de la dernière bande rouge rencontrée.
 
 from __future__ import annotations
 
+import difflib
 import re
 from dataclasses import dataclass, field
 from enum import Enum
@@ -88,6 +89,38 @@ NATIONAL_RE = re.compile(
 LOCAL_RE = re.compile(r"region|commune|mairie|province|conseil regional|arrondissement|village")
 
 
+# Les trois catégories du bulletin. La bande rouge les imprime, mais elle est
+# composée à la main : le N°4505 porte « Furnitures et Services courants ».
+# Une faute de frappe ne doit pas faire perdre son profil de champs à une
+# annonce, donc le libellé lu est rapproché de sa forme canonique.
+CATEGORIES = (
+    "Fournitures et Services courants",
+    "Travaux",
+    "Prestations intellectuelles",
+)
+CATEGORY_MATCH_CUTOFF = 0.82
+
+
+def canonical_category(label: str | None) -> str | None:
+    """Ramène un libellé de catégorie à sa forme canonique, fautes comprises.
+
+    Retourne ``None`` si le libellé ne ressemble à aucune catégorie connue :
+    inventer un rattachement serait pire que d'avouer l'inconnu.
+    """
+    if not label:
+        return None
+    lu = normalize(label)
+    for canonique in CATEGORIES:
+        if lu == normalize(canonique):
+            return canonique
+    proches = difflib.get_close_matches(
+        lu, [normalize(c) for c in CATEGORIES], n=1, cutoff=CATEGORY_MATCH_CUTOFF
+    )
+    if not proches:
+        return None
+    return next(c for c in CATEGORIES if normalize(c) == proches[0])
+
+
 @dataclass
 class Band:
     """Une bande colorée et le texte qu'elle porte."""
@@ -126,6 +159,11 @@ class NoticeHeader:
         return " ".join(self.objet).strip()
 
     @property
+    def categorie_canonique(self) -> str | None:
+        """Catégorie ramenée à sa forme de référence (fautes de frappe comprises)."""
+        return canonical_category(self.categorie)
+
+    @property
     def portee(self) -> str:
         """« NATIONAL » (appel d'offres simple) ou « REGIONAL » (collectivité).
 
@@ -145,6 +183,7 @@ class NoticeHeader:
         return {
             "emetteur": self.emetteur,
             "categorie": self.categorie,
+            "categorie_canonique": self.categorie_canonique,
             "objet": self.objet_text,
             "portee": self.portee,
             "page_debut": self.page_debut,

@@ -31,9 +31,16 @@ CURRENCY_RE = re.compile(r"f\s*cfa|fcfa|\bxof\b|\bfrancs?\b|\beuros?\b|\busd\b|\
 DATE_TEXT_RE = re.compile(r"(\d{1,2})\s*(?:er)?\s+([a-z]+)\s+(\d{4})")
 DATE_NUM_RE = re.compile(r"(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})")
 TIME_RE = re.compile(r"(\d{1,2})\s*(?:h|:)\s*(\d{2})?")
-REFERENCE_RE = re.compile(r"n\s*[°ºo]?\s*\d{2,4}\s*[-/]")
+# Les références du bulletin s'écrivent « N°2026-012/MEF/SG/DMP », mais la
+# valeur extraite d'une étiquette « n° : … » arrive sans son « n° ». Les deux
+# formes sont donc acceptées : exiger le préfixe reviendrait à juger suspecte
+# une référence que l'on vient soi-même de nettoyer.
+REFERENCE_RE = re.compile(r"(?:n\s*[°ºo]\s*)?\d{2,4}\s*[-/]\s*\w")
 PHONE_RE = re.compile(r"(?:\+?226)?\s*(\d[\d\s.\-]{6,}\d)")
-DELAI_RE = re.compile(r"(\d+)\s*(jours?|mois|semaines?|ans?|annees?)")
+# Le corpus écrit ses quantités en lettres puis en chiffres entre parenthèses :
+# « un délai de soixante (60) jours ». La parenthèse fermante se glisse donc
+# entre le nombre et son unité.
+DELAI_RE = re.compile(r"(\d+)\s*\)?\s*(jours?|mois|semaines?|ans?|annees?)")
 PLACEHOLDER_RE = re.compile(
     r"^(n\s*/?\s*a|na|nc|neant|non\s+(precise|renseigne|mentionne|disponible|specifie)"
     r"|inconnu|voir\s+(ci[- ]dessus|ci[- ]dessous|tableau|plus\s+haut)|idem|id\.?"
@@ -202,9 +209,24 @@ def _check_amount(field: str, value: object) -> FieldCheck:
     return FieldCheck(field, Status.OK, normalized=amount)
 
 
+# L'ouverture des plis est très souvent fixée non pas à une date, mais par
+# rapport au dépôt : « sera faite immédiatement en présence des candidats ».
+# C'est une échéance réglementaire valable, et la refuser ferait crier une
+# alerte sur les trois quarts des annonces du bulletin.
+RELATIVE_DEADLINE_RE = re.compile(
+    r"imm[ée]diatement|aussit[ôo]t|dans\s+la\s+foul[ée]e|[àa]\s+la\s+m[êe]me\s+heure"
+    r"|le\s+m[êe]me\s+jour|s[ée]ance\s+publique"
+)
+
+
 def _check_date(field: str, value: object) -> FieldCheck:
     text = str(value)
     parsed = parse_date(text)
+    if parsed is None and RELATIVE_DEADLINE_RE.search(normalize(text)):
+        return FieldCheck(
+            field, Status.OK, normalized="relatif: à la suite du dépôt",
+            reason="échéance exprimée par rapport au dépôt, non par une date",
+        )
     if parsed is None:
         return FieldCheck(field, Status.INVALID, f"date illisible dans « {text[:60]} »",
                           hint="Vérifier la ligne correspondante : l'OCR coupe souvent le mois.")
