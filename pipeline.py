@@ -29,6 +29,13 @@ from layer2_segment import segment_document, unit_to_text
 from layer3_extract_llm import extract_unit
 from layer4_review import review_and_complete, _is_empty
 import feedback_store
+import config
+
+# Chaîne PDF déterministe (1re passe sans LLM) + routage vers l'API.
+from pdf_avis_extract import extract_avis_from_pdf, enrich_coverage, CORE_FIELDS
+from pdf_resultats_extract import segment_resultats
+from resultats_llm import extract_resultats_unit
+from decision_model import refine_if_needed, decide
 
 DB_PATH = BASE_DIR / "ingestion.db"
 OUTPUT_DIR = BASE_DIR / "output"
@@ -37,6 +44,11 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # Couche 4 (auto-analyse + auto-complétion) activée par défaut ; désactivable
 # (ENABLE_REVIEW=0) pour un run purement déterministe/première passe.
 ENABLE_REVIEW = os.environ.get("ENABLE_REVIEW", "1") not in ("0", "false", "False", "")
+
+# On n'appelle l'API que si la révision est activée ET qu'au moins un provider
+# est configuré (sinon : chaîne 100 % déterministe, aucune erreur réseau).
+def _use_api() -> bool:
+    return ENABLE_REVIEW and config.is_configured()
 
 
 def init_db():
@@ -159,6 +171,95 @@ def process_document(md_path: str, numero: str):
     print(f"[{numero}] {nb_ok} unités OK, {nb_echec} échecs -> {out_file}")
 
 
+def _resultat_deterministe(unit: dict) -> dict:
+    """Vue déterministe d'une unité RÉSULTATS quand l'API n'est pas appelée :
+    émetteur + lots repérés + texte brut (pour affichage), sans structuration fine."""
+    return {
+        "autorite_contractante": unit.get("emetteur"),
+        "macro_section": unit.get("macro_section"),
+        "nombre_lots": unit.get("nb_lots_detectes"),
+        "lots": [{"intitule": l} for l in (unit.get("lots") or [])],
+        "texte_brut": (unit.get("flat_text") or "")[:4000],
+        "_mode": "deterministe",
+        "page_debut": unit.get("page_debut"), "page_fin": unit.get("page_fin"),
+        "_numero": unit.get("_numero"), "_source_pdf": unit.get("_source_pdf"),
+        "_source": unit.get("_source"),
+    }
+
+
+def process_pdf(pdf_path: str, numero: str = None):
+    """Chaîne complète directement sur un PDF de Quotidien :
+      AVIS      : regex (1re passe) -> modèle de décision -> API (si nécessaire)
+      RÉSULTATS : segmentation (cadres noirs) -> chunk -> API -> fusion
+    Écrit output/<numero>.json = {AVIS, RESULTATS, meta}, trace l'idempotence en
+    SQLite. 100 % déterministe si aucun provider n'est configuré."""
+    pdf_path = str(pdf_path)
+    if numero is None:
+        import re as _re
+        name = Path(pdf_path).stem.replace("_", " ")
+        m = _re.search(r"quotidien\s*n?[°o]?\s*(\d{3,4})\s*(bis)?", name, _re.I)
+        numero = ("N" + m.group(1) + ("bis" if m.group(2) else "")) if m else Path(pdf_path).stem
+
+    conn = init_db()
+    if already_processed(conn, numero):
+        print(f"[SKIP] {numero} déjà traité avec succès.")
+        conn.close()
+        return
+
+    conn.execute("INSERT OR REPLACE INTO documents VALUES (?, 'en_cours', ?, 0, 0)",
+                 (numero, datetime.now().isoformat()))
+    conn.commit()
+
+    use_api = _use_api()
+    print(f"[{numero}] mode = {'API (' + str(len(config.provider_specs())) + ' provider(s))' if use_api else 'déterministe (aucune clé)'}")
+
+    # ---- AVIS : regex -> décision -> API --------------------------------
+    avis_out = []
+    feedback_hint = feedback_store.build_hint("AVIS") if use_api else ""
+    for a in extract_avis_from_pdf(pdf_path, numero=numero):
+        enrich_coverage(a)
+        if use_api:
+            refined, dec = refine_if_needed(a, a.get("flat_text", ""), "AVIS")
+            a = refined if refined else a
+            a["_decision"] = {"needs_llm": dec["needs_llm"],
+                              "champs_a_reprendre": dec["champs_a_reprendre"]}
+            score = a.get("_score_exactitude")
+            if score is not None and score < 100:
+                feedback_store.record(a.get("_raisons_ecart", []), numero, "AVIS", score=score)
+        else:
+            a["_decision"] = {"needs_llm": decide(a, a.get("flat_text", ""))["needs_llm"]}
+        a.pop("flat_text", None)  # allège la sortie
+        avis_out.append(a)
+
+    # ---- RÉSULTATS : segmentation -> chunk -> API -> fusion -------------
+    resultats_out = []
+    for unit in segment_resultats(pdf_path, numero=numero):
+        if use_api:
+            structured = extract_resultats_unit(unit)
+            resultats_out.append(structured or _resultat_deterministe(unit))
+        else:
+            resultats_out.append(_resultat_deterministe(unit))
+
+    # ---- Stockage -------------------------------------------------------
+    payload = {
+        "meta": {"numero": numero, "source": Path(pdf_path).name,
+                 "date_traitement": datetime.now().isoformat(),
+                 "mode": "api" if use_api else "deterministe",
+                 "nb_avis": len(avis_out), "nb_resultats_emetteurs": len(resultats_out)},
+        "AVIS": avis_out,
+        "RESULTATS": resultats_out,
+    }
+    out_file = OUTPUT_DIR / f"{numero}.json"
+    out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    conn.execute("UPDATE documents SET statut='ok', nb_unites_ok=?, nb_unites_echec=0 WHERE numero=?",
+                 (len(avis_out) + len(resultats_out), numero))
+    conn.commit()
+    conn.close()
+    print(f"[{numero}] {len(avis_out)} avis, {len(resultats_out)} émetteurs résultats -> {out_file}")
+    return payload
+
+
 def _is_valid(extracted: dict, section: str) -> bool:
     """Validation minimale : les champs marqués 'required' dans le YAML doivent
     être présents et non vides. Rejette silencieusement les extractions creuses
@@ -197,6 +298,10 @@ def reprocess_failures(numero: str):
 
 if __name__ == "__main__":
     import sys
-    md_path = sys.argv[1] if len(sys.argv) > 1 else str(Path(__file__).parent / "quotidien_4466.md")
-    numero = sys.argv[2] if len(sys.argv) > 2 else "N4466"
-    process_document(md_path, numero)
+    src = sys.argv[1] if len(sys.argv) > 1 else str(Path(__file__).parent / "quotidien_4466.md")
+    numero = sys.argv[2] if len(sys.argv) > 2 else None
+    # .pdf -> chaîne PDF complète (AVIS + RÉSULTATS) ; .md -> ancienne chaîne AVIS.
+    if src.lower().endswith(".pdf"):
+        process_pdf(src, numero)
+    else:
+        process_document(src, numero or "N4466")

@@ -61,7 +61,13 @@ python check_llm.py --ping   # teste réellement la connexion à chacun (chez vo
 ## Usage
 
 ```bash
-# Pipeline complet sur un Markdown
+# Chaîne complète directement sur un PDF (AVIS + RÉSULTATS)
+python pipeline.py "Quotidien_N_4503.pdf"
+#   AVIS      : regex (1re passe) → modèle de décision → API (si clé configurée)
+#   RÉSULTATS : segmentation (cadres noirs) → chunk → API → fusion
+# → output/N4503.json = {meta, AVIS, RESULTATS} ; 100 % déterministe sans clé.
+
+# Ancienne chaîne AVIS depuis un Markdown
 python pipeline.py quotidien_4466.md N4466
 # → output/N4466.json + ingestion.db
 
