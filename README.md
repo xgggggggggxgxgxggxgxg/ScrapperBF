@@ -19,6 +19,11 @@ Extraction déterministe directe (sans LLM ni OCR externe) :
 - **`pdf_avis_extract.py`** : lit un PDF de Quotidien avec `pdfplumber`, localise la section AVIS, découpe chaque avis sur son en-tête de type et extrait par regex les champs lisibles (émetteur, objet, type, référence, financement, montant, délai, date limite) + la provenance (bulletin, page). C'est une « première passe » : les champs non trouvés sont signalés `_champs_a_verifier` (jamais inventés), et la couche 4 peut ensuite compléter. `enrich_coverage()` ajoute un indicateur de complétude.
 - **`search_avis.py`** : recherche d'avis par mots-clés, insensible à la casse **et aux accents**, multi mots-clés en ET/OU, pondérée par champ (objet > financement), avec score, champs matchés et extrait. `simulate()` rejoue une batterie de recherches types (`--simulate`) pour vérifier la pertinence sur un vrai jeu de données. Même logique de normalisation que la recherche de la plateforme.
 
+Section RÉSULTATS (tableaux de dépouillement) :
+
+- **`pdf_resultats_extract.py`** : segmente la section RÉSULTATS. Deux macro-sections (*Ministères/institutions/MOD*, puis *Régions/collectivités*). Chaque émetteur est ouvert par une **barre noire** pleine largeur (texte blanc) détectée via `pdfplumber` ; une unité = tout ce qui va d'une barre noire à la suivante (même sur plusieurs pages). Les **bandes orange « Lot N : … »** sont comptées comme indice de lots. La macro-section bascule sur *Régions* dès le premier émetteur « RÉGION/COMMUNE/… » (les en-têtes décoratifs ne sont pas du texte sélectionnable). Produit `{emetteur, macro_section, page_debut/fin, nb_lots_detectes, lots, flat_text}`.
+- **`resultats_llm.py`** : **instructions à l'IA** pour restructurer ces tableaux multi-colonnes (Soumissionnaire · Montant lu HTVA/TTC min/max · Montant corrigé HTVA/TTC min/max · Observations), lot par lot, avec attributaire provisoire. Le prompt système décrit la structure exacte, et on passe au modèle l'indice déterministe `nb_lots_detectes` (combien de sous-tableaux attendre). `extract_resultats_unit()` appelle la rotation de providers et vérifie la cohérence du nombre de lots. `python resultats_llm.py <pdf>` affiche le prompt exact, sans appel réseau.
+
 Outils annexes :
 
 | Script | Rôle |
@@ -69,6 +74,10 @@ python pdf_avis_extract.py Quotidien_N_4500.pdf Quotidien_N_4502.pdf -o dataset_
 # Recherche par mots-clés + simulation d'un lecteur (sur le JSON produit)
 python search_avis.py dataset_avis.json "matériel informatique"
 python search_avis.py dataset_avis.json --simulate
+
+# RÉSULTATS : segmentation par cadres noirs + aperçu du prompt LLM (hors-ligne)
+python pdf_resultats_extract.py Quotidien_N_4503.pdf
+python resultats_llm.py Quotidien_N_4503.pdf
 
 # Tests hors-ligne (providers LLM injectés, sans réseau ni clé)
 pip install pytest && python -m pytest tests/ -q
