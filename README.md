@@ -33,7 +33,8 @@ Outils annexes :
 | `generate_wordlist.py` | Génère URLs candidates des PDF par régression linéaire (n° édition ~ +21.7/mois) × patterns de nommage × domaines |
 | `check_url.py` | Vérifie status HTTP (HEAD → fallback GET, retries, 10 workers), rapport CSV détaillé + résumé par pattern |
 | `new_logic/pdf_to_md.py`, `split_pdf.py`, `tab_pdf_detector.py`, `detection2page.py`, `doublon_detection.py`, `separate.py`, `extract_single_page.py` | Pré-traitement PDF → MD, split, détection tableaux/doublons |
-| `viewdashboard.py` + `dashboard.html` | Explorateur HTML des avis (sidebar + recherche) |
+| `web/portail.html` | **Site pro** (onglets Avis / Résultats / Qualité, filtre par bulletin, recherche, thème clair/sombre). Ouvrir dans un navigateur et charger un `output/<numero>.json` (bouton « Charger un .json » ou « Coller »). |
+| `viewdashboard.py` + `dashboard.html` | Ancien explorateur HTML local des avis |
 | `extract_page_2.py`, `extract_pdf.py` | Extraction ponctuelle PDF |
 
 ## Installation

@@ -1,0 +1,422 @@
+<title>Marchés Publics BF</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Portail DGCMEF — onglets Avis / Résultats / Qualité ; barre d'outils fixe ;
+     liste filtrable + fiche détaillée ; palette verte institutionnelle. */
+  :root {
+    --bg: #f4f5f3; --surface: #ffffff; --surface-2: #eceeea;
+    --fg: #1c211d; --muted: #5e665f; --faint: #8b938b; --border: #d8ddd6;
+    --accent: #1f7a4d; --accent-weak: #e2f0e7;
+    --ok: #1f7a4d; --info: #2563a8; --info-weak: #e1ecf7;
+    --warn: #b06a00; --warn-weak: #faecd4; --crit: #b5312b; --crit-weak: #f7e1df;
+    --neutral: #6b726b; --neutral-weak: #e7e9e5;
+    --mini: #7a3fb0; --mini-weak: #efe6f7; --regi: #156b63; --regi-weak: #dcefeccc;
+    --shadow: 0 1px 2px rgba(20,30,22,.06), 0 8px 24px rgba(20,30,22,.05);
+    --font-display: "Archivo", "Segoe UI", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #12140f; --surface: #1b1e18; --surface-2: #23271f;
+    --fg: #e7eae2; --muted: #a4ab9f; --faint: #767c70; --border: #333830;
+    --accent: #4bbd82; --accent-weak: #1d2e24;
+    --ok: #4bbd82; --info: #6ab0f0; --info-weak: #17283a;
+    --warn: #e2a74e; --warn-weak: #332715; --crit: #e8756d; --crit-weak: #37201e;
+    --neutral: #9aa094; --neutral-weak: #272b23;
+    --mini: #c08ce8; --mini-weak: #2a1f36; --regi: #6fd0c4; --regi-weak: #15302c;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #12140f; --surface: #1b1e18; --surface-2: #23271f;
+    --fg: #e7eae2; --muted: #a4ab9f; --faint: #767c70; --border: #333830;
+    --accent: #4bbd82; --accent-weak: #1d2e24;
+    --ok: #4bbd82; --info: #6ab0f0; --info-weak: #17283a;
+    --warn: #e2a74e; --warn-weak: #332715; --crit: #e8756d; --crit-weak: #37201e;
+    --neutral: #9aa094; --neutral-weak: #272b23;
+    --mini: #c08ce8; --mini-weak: #2a1f36; --regi: #6fd0c4; --regi-weak: #15302c;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark; }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 700; margin: 0; }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  button { font: inherit; }
+
+  .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); border-bottom: 1px solid var(--border);
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .toprow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-block: 10px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+  .brand h1 { font-size: 1.14rem; letter-spacing: -.01em; }
+  .brand .sub { color: var(--faint); font-size: .76rem; white-space: nowrap; }
+  .src-tag { font-size: .72rem; padding: 3px 9px; border-radius: 999px; background: var(--accent-weak); color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .btn { font-size: .8rem; font-weight: 600; color: var(--fg); background: var(--surface-2); border: 1px solid var(--border); padding: 7px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  select, input[type=search] { font-family: var(--font-body); font-size: .82rem; color: var(--fg); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .tabs { display: flex; gap: 4px; }
+  .tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); padding: 10px 14px; font-weight: 600; font-size: .9rem; cursor: pointer; }
+  .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: 36px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; padding-block: 14px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow); min-width: 0; }
+  .stat .k { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .stat .v { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; margin-top: 2px; }
+  .stat .v small { font-size: .85rem; color: var(--faint); font-weight: 600; }
+
+  .layout { display: grid; grid-template-columns: 380px 1fr; gap: 16px; align-items: start; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); }
+  aside { position: sticky; top: 108px; }
+  .filters { padding: 12px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--border); }
+  .filters .row { display: flex; gap: 8px; }
+  .filters .row > * { flex: 1; min-width: 0; }
+  .chk { display: flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--muted); cursor: pointer; }
+  .list { max-height: 64vh; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .item { text-align: left; width: 100%; cursor: pointer; border: 1px solid transparent; background: var(--bg); border-radius: 10px; padding: 11px 12px; display: grid; gap: 5px; color: inherit; }
+  .item:hover { border-color: var(--border); }
+  .item.active { border-color: var(--accent); background: var(--accent-weak); }
+  .item .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .item .title { font-weight: 600; font-size: .85rem; line-height: 1.3; min-width: 0; }
+  .item .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: .72rem; color: var(--faint); }
+  .src-chip { color: var(--accent); font-weight: 600; }
+
+  .pill { font-size: .68rem; padding: 2px 7px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+  .p-ok { background: var(--accent-weak); color: var(--ok); } .p-warn { background: var(--warn-weak); color: var(--warn); } .p-crit { background: var(--crit-weak); color: var(--crit); }
+  .sec-mini { background: var(--mini-weak); color: var(--mini); } .sec-regi { background: var(--regi-weak); color: var(--regi); }
+  .flag { font-size: .7rem; padding: 1px 6px; border-radius: 6px; background: var(--crit-weak); color: var(--crit); font-weight: 600; }
+
+  .detail { padding: 20px; min-width: 0; }
+  .detail h2 { font-size: 1.22rem; line-height: 1.25; text-wrap: balance; max-width: 60ch; }
+  .detail .emetteur { color: var(--muted); font-size: .9rem; margin-top: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { font-size: .72rem; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+  .chip.strong { background: var(--accent-weak); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+  .gauge { text-align: center; flex-shrink: 0; }
+  .gauge .num { font-family: var(--font-display); font-size: 2rem; font-weight: 700; line-height: 1; }
+  .gauge .lbl { font-size: .66rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 3px; }
+  .section-title { font-family: var(--font-display); font-size: .76rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 22px 0 10px; }
+
+  .fields { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .field { background: var(--surface); padding: 10px 12px; display: grid; grid-template-columns: 180px 1fr auto; gap: 12px; align-items: start; min-width: 0; }
+  .field .k { font-size: .78rem; color: var(--muted); font-weight: 600; word-break: break-word; }
+  .field .val { font-size: .86rem; min-width: 0; word-break: break-word; white-space: pre-wrap; }
+  .field .val.empty { color: var(--faint); font-style: italic; }
+  .badge { font-size: .68rem; padding: 2px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+  .b-confirme { background: var(--accent-weak); color: var(--ok); } .b-complete { background: var(--info-weak); color: var(--info); }
+  .b-corrige { background: var(--warn-weak); color: var(--warn); } .b-absent { background: var(--neutral-weak); color: var(--neutral); } .b-verifier { background: var(--crit-weak); color: var(--crit); }
+
+  .lot { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: var(--bg); }
+  .lot h4 { font-family: var(--font-display); font-size: .9rem; margin: 0 0 6px; }
+  .rawbox { white-space: pre-wrap; font-family: var(--font-mono); font-size: .76rem; line-height: 1.5; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; max-height: 420px; overflow: auto; }
+  table.soum { width: 100%; border-collapse: collapse; font-size: .78rem; }
+  table.soum th, table.soum td { border: 1px solid var(--border); padding: 5px 7px; text-align: left; vertical-align: top; }
+  table.soum th { background: var(--surface-2); font-weight: 600; }
+  .scroll-x { overflow-x: auto; }
+  .reasons { display: flex; flex-direction: column; gap: 8px; }
+  .reason { border: 1px solid var(--border); border-left: 3px solid var(--warn); border-radius: 8px; padding: 10px 12px; background: var(--warn-weak); }
+  .reason.crit { border-left-color: var(--crit); background: var(--crit-weak); }
+  .reason .rf { font-family: var(--font-mono); font-weight: 600; font-size: .78rem; }
+  .perfect { border: 1px dashed var(--border); border-radius: 10px; padding: 14px; text-align: center; color: var(--ok); background: var(--accent-weak); font-weight: 600; }
+  .empty-state { padding: 60px 20px; text-align: center; color: var(--muted); }
+  dialog { border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--fg); max-width: 640px; width: 92vw; box-shadow: var(--shadow); padding: 0; }
+  dialog::backdrop { background: rgba(10,14,11,.5); }
+  .dlg { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  textarea { width: 100%; min-height: 220px; font-family: var(--font-mono); font-size: .8rem; border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--bg); color: var(--fg); resize: vertical; }
+  .dlg-act { display: flex; justify-content: flex-end; gap: 8px; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .err { color: var(--crit); font-size: .8rem; min-height: 1em; }
+  .bar { height: 9px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: var(--accent); }
+
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } aside { position: static; } .list { max-height: none; } .field { grid-template-columns: 1fr; gap: 4px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<div class="topbar">
+  <div class="toprow">
+    <div class="brand"><h1>Marchés Publics BF</h1><span class="sub">Portail DGCMEF — avis &amp; résultats</span></div>
+    <span class="src-tag" id="srcTag">—</span>
+    <select id="bulletinFilter" aria-label="Filtrer par bulletin"></select>
+    <label class="btn" for="fileInput">Charger un .json</label>
+    <input id="fileInput" type="file" accept="application/json,.json" hidden>
+    <button class="btn" id="pasteBtn">Coller</button>
+    <button class="btn" id="themeBtn" aria-label="Thème">◐</button>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="avis" aria-selected="true">Avis</button>
+    <button class="tab" role="tab" data-tab="resultats" aria-selected="false">Résultats</button>
+    <button class="tab" role="tab" data-tab="qualite" aria-selected="false">Qualité</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+
+  <!-- AVIS -->
+  <div id="tab-avis">
+    <div class="layout">
+      <aside class="panel">
+        <div class="filters">
+          <input type="search" id="avisSearch" placeholder="Mots-clés (ex. travaux Ouagadougou)…" aria-label="Rechercher un avis">
+          <div class="row">
+            <select id="avisCat" aria-label="Catégorie"></select>
+            <select id="avisType" aria-label="Type d'avis"></select>
+          </div>
+          <label class="chk"><input type="checkbox" id="avisFlagged"> Seulement « à vérifier »</label>
+        </div>
+        <div class="list" id="avisList" role="listbox" aria-label="Avis"></div>
+      </aside>
+      <main class="panel detail" id="avisDetail"><div class="empty-state">Sélectionnez un avis.</div></main>
+    </div>
+  </div>
+
+  <!-- RESULTATS -->
+  <div id="tab-resultats" hidden>
+    <div class="layout">
+      <aside class="panel">
+        <div class="filters">
+          <input type="search" id="resSearch" placeholder="Émetteur, lot, mot-clé…" aria-label="Rechercher un émetteur">
+          <select id="resSection" aria-label="Section">
+            <option value="">Toutes sections</option>
+            <option value="MINISTERES">Ministères / institutions</option>
+            <option value="REGIONS">Régions / collectivités</option>
+          </select>
+        </div>
+        <div class="list" id="resList" role="listbox" aria-label="Émetteurs de résultats"></div>
+      </aside>
+      <main class="panel detail" id="resDetail"><div class="empty-state">Sélectionnez un émetteur.</div></main>
+    </div>
+  </div>
+
+  <!-- QUALITE -->
+  <div id="tab-qualite" hidden>
+    <div class="panel detail" id="qualite"></div>
+  </div>
+</div>
+
+<dialog id="pasteDlg"><form method="dialog" class="dlg">
+  <h3>Coller un output JSON</h3>
+  <p style="margin:0;color:var(--muted);font-size:.82rem">Colle le contenu d'un <span class="mono">output/&lt;numero&gt;.json</span> produit par <span class="mono">pipeline.py</span> (objet avec <span class="mono">AVIS</span> et/ou <span class="mono">RESULTATS</span>), ou plusieurs concaténés dans un tableau.</p>
+  <textarea id="pasteArea" placeholder='{ "AVIS": [...], "RESULTATS": [...] }'></textarea>
+  <div class="err" id="pasteErr"></div>
+  <div class="dlg-act"><button class="btn" value="x" type="submit">Annuler</button><button class="btn primary" id="pasteLoad" type="button">Charger</button></div>
+</form></dialog>
+
+<script>
+"use strict";
+const DATA = {"avis": [], "resultats": [], "meta": {"source": "—"}}; /*__DATA__*/
+
+const AVIS_FIELDS = {
+  autorite_emettrice: "Autorité émettrice", categorie: "Catégorie", objet: "Objet",
+  type_avis: "Type d'avis", numero_reference: "Référence", financement: "Financement",
+  montant_previsionnel_global: "Montant prévisionnel", est_en_lots: "Marché alloti", lots: "Lots",
+  conditions_eligibilite_generales: "Conditions d'éligibilité", acquisition_dossier: "Acquisition du dossier",
+  date_limite_depot: "Date limite de dépôt", date_ouverture_plis: "Ouverture des plis",
+  delai_validite_offres: "Validité des offres", delai_execution: "Délai d'exécution",
+  renseignements_et_contact: "Renseignements / contact", signataire: "Signataire",
+};
+const AVIS_ORDER = Object.keys(AVIS_FIELDS);
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fold = (s) => (s == null ? "" : String(s)).normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const STOP = new Set(["de","des","du","la","le","les","et","a","au","aux","en","un","une","pour","par","sur","d","l"]);
+const tokens = (q) => fold(q).split(/[^0-9a-z]+/).filter((t) => t && !STOP.has(t));
+const isEmpty = (v) => v == null || (typeof v === "string" && !v.trim()) || (Array.isArray(v) && !v.length) || (typeof v === "object" && !Array.isArray(v) && Object.values(v).every(isEmpty));
+
+let state = { tab: "avis", bulletin: "", avisSel: null, resSel: null };
+
+function sourceOf(x) { return x._source_pdf || x._numero || x._source || DATA.meta.source || "—"; }
+function fmt(v) {
+  if (isEmpty(v)) return null;
+  if (Array.isArray(v)) return v.map((e) => (typeof e === "object" && e) ? Object.entries(e).filter(([,x]) => !isEmpty(x)).map(([k,x]) => `${AVIS_FIELDS[k]||k} : ${x}`).join(" · ") : String(e)).join("\n");
+  if (typeof v === "object") return Object.entries(v).filter(([,x]) => !isEmpty(x)).map(([k,x]) => `${AVIS_FIELDS[k]||k} : ${Array.isArray(x)?x.join(", "):x}`).join("\n");
+  if (typeof v === "boolean") return v ? "Oui" : "Non";
+  return String(v);
+}
+function scoreCls(s){ return s>=95?"p-ok":s>=80?"p-warn":"p-crit"; }
+function bulletins() { return Array.from(new Set([...DATA.avis, ...DATA.resultats].map(sourceOf))).sort(); }
+function inBulletin(x){ return !state.bulletin || sourceOf(x) === state.bulletin; }
+
+/* ---------- AVIS ---------- */
+function avisStatut(a, key){ const e=(a._analyse||[]).find(x=>x&&x.champ===key); if(e&&e.statut)return e.statut; if((a._champs_a_verifier||[]).includes(key))return "verifier"; if((a._champs_absents||[]).includes(key))return "absent"; return null; }
+function badge(st){ const m={confirme:["b-confirme","confirmé"],complete:["b-complete","complété"],corrige:["b-corrige","corrigé"],absent:["b-absent","absent"],verifier:["b-verifier","à vérifier"]}[st]; return m?`<span class="badge ${m[0]}">${m[1]}</span>`:""; }
+
+function avisVisible() {
+  const q = tokens($("#avisSearch").value), cat=$("#avisCat").value, typ=$("#avisType").value, fl=$("#avisFlagged").checked;
+  return DATA.avis.filter(a => {
+    if (!inBulletin(a)) return false;
+    if (cat && a.categorie!==cat) return false;
+    if (typ && a.type_avis!==typ) return false;
+    if (fl && !(a._champs_a_verifier||[]).length) return false;
+    if (q.length){ const h=fold([a.objet,a.autorite_emettrice,a.numero_reference,a.type_avis,a.financement].join(" ")); if(!q.every(t=>h.includes(t)))return false; }
+    return true;
+  });
+}
+function renderAvisList() {
+  const el=$("#avisList"), items=avisVisible();
+  if(!items.length){ el.innerHTML='<div style="padding:16px;color:var(--faint);font-size:.85rem">Aucun avis.</div>'; return; }
+  el.innerHTML = items.map(a=>{
+    const s=a._score_exactitude, sc=typeof s==="number"?`<span class="pill ${scoreCls(s)}">${s}%</span>`:"";
+    const fl=(a._champs_a_verifier||[]).length?`<span class="flag">${(a._champs_a_verifier||[]).length} à vérifier</span>`:"";
+    return `<button class="item ${state.avisSel===a._uid?"active":""}" data-uid="${a._uid}" role="option">
+      <div class="top"><span class="title">${esc(a.objet||a.autorite_emettrice||"Avis")}</span>${sc}</div>
+      ${a.numero_reference?`<span class="mono" style="font-size:.72rem;color:var(--info)">${esc(a.numero_reference)}</span>`:""}
+      <div class="foot"><span class="src-chip">${esc(sourceOf(a))}</span><span>·</span><span>p.${a._page_debut??"?"}</span><span>·</span><span>${esc(a.categorie||"—")}</span>${fl}</div>
+    </button>`;
+  }).join("");
+  el.querySelectorAll(".item").forEach(n=>n.onclick=()=>{ state.avisSel=n.dataset.uid; renderAvisList(); renderAvisDetail(); });
+}
+function renderAvisDetail() {
+  const a=DATA.avis.find(x=>x._uid===state.avisSel), d=$("#avisDetail");
+  if(!a){ d.innerHTML='<div class="empty-state">Sélectionnez un avis.</div>'; return; }
+  const s=a._score_exactitude;
+  const reasons=a._raisons_ecart || (a._champs_a_verifier||[]).map(c=>({champ:c,statut:"verifier",fiabilite:0,raison:"champ vide en 1re passe — à vérifier / compléter par l'API"}));
+  const chips=[`<span class="chip strong">${esc(sourceOf(a))}</span>`,a.categorie,a.type_avis,a._categorie_autorite,
+    a._page_debut?`p. ${a._page_debut}`:null, a._mode==="deterministe"?"extraction déterministe (sans LLM)":null,
+    a._decision&&a._decision.needs_llm?"signalé au modèle de décision":null]
+    .filter(Boolean).map(c=>c.startsWith("<")?c:`<span class="chip">${esc(c)}</span>`).join("");
+  const reasonsHtml = (typeof s==="number"&&s>=100)||!reasons.length ? `<div class="perfect">✓ ${typeof s==="number"?s:100}% — aucune anomalie signalée</div>`
+    : `<div class="reasons">`+reasons.map(r=>`<div class="reason ${r.fiabilite!=null&&r.fiabilite<=.3?"crit":""}"><div><span class="rf">${esc(r.champ)}</span> <span style="font-size:.72rem;color:var(--muted)">${esc(r.statut||"")}${r.confiance!=null?" · conf "+(+r.confiance).toFixed(2):""}${r.fiabilite!=null?" · fiab "+(+r.fiabilite).toFixed(2):""}</span></div><div style="font-size:.82rem;margin-top:4px">${esc(r.raison||"")}</div></div>`).join("")+`</div>`;
+  const fieldsHtml = AVIS_ORDER.map(k=>{ const val=fmt(a[k]), st=avisStatut(a,k);
+    return `<div class="field"><div class="k">${esc(AVIS_FIELDS[k])}</div>${val==null?`<span class="val empty">${st==="absent"?"— absent du texte":st==="verifier"?"— vide, à vérifier":"—"}</span>`:`<span class="val">${esc(val)}</span>`}${st?badge(st):"<span></span>"}</div>`;
+  }).join("");
+  d.innerHTML=`<div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><div style="min-width:0">
+      <h2>${esc(a.objet||a.autorite_emettrice||"Avis")}</h2>
+      <div class="emetteur">${esc(a.autorite_emettrice||"—")}${a.numero_reference?` — <span class="mono">${esc(a.numero_reference)}</span>`:""}</div>
+      <div class="chips">${chips}</div></div>
+      ${typeof s==="number"?`<div class="gauge"><div class="num" style="color:var(--${s>=95?"ok":s>=80?"warn":"crit"})">${s}%</div><div class="lbl">Complétude</div></div>`:""}</div>
+    <div class="section-title">Raisons de l'écart</div>${reasonsHtml}
+    <div class="section-title">Toutes les variables</div><div class="fields">${fieldsHtml}</div>`;
+}
+
+/* ---------- RESULTATS ---------- */
+function resVisible() {
+  const q=tokens($("#resSearch").value), sec=$("#resSection").value;
+  return DATA.resultats.filter(r=>{
+    if(!inBulletin(r)) return false;
+    if(sec && r.macro_section!==sec) return false;
+    if(q.length){ const lots=(r.lots||[]).map(l=>typeof l==="object"?(l.intitule||""):l).join(" ");
+      const h=fold([r.autorite_contractante,lots].join(" ")); if(!q.every(t=>h.includes(t)))return false; }
+    return true;
+  });
+}
+function secBadge(sec){ return sec==="REGIONS"?`<span class="pill sec-regi">Régions</span>`:`<span class="pill sec-mini">Ministères</span>`; }
+function renderResList() {
+  const el=$("#resList"), items=resVisible();
+  if(!items.length){ el.innerHTML='<div style="padding:16px;color:var(--faint);font-size:.85rem">Aucun émetteur.</div>'; return; }
+  el.innerHTML=items.map(r=>`<button class="item ${state.resSel===r._uid?"active":""}" data-uid="${r._uid}" role="option">
+      <div class="top"><span class="title">${esc(r.autorite_contractante||"Émetteur")}</span>${secBadge(r.macro_section)}</div>
+      <div class="foot"><span class="src-chip">${esc(sourceOf(r))}</span><span>·</span><span>p.${r.page_debut??"?"}–${r.page_fin??"?"}</span><span>·</span><span>${r.nombre_lots||0} lot(s)</span></div>
+    </button>`).join("");
+  el.querySelectorAll(".item").forEach(n=>n.onclick=()=>{ state.resSel=n.dataset.uid; renderResList(); renderResDetail(); });
+}
+function soumTable(lot) {
+  const S=lot.soumissionnaires||[]; if(!S.length) return "";
+  const cell=(m)=> m?`${m.min||"—"} / ${m.max||"—"}`:"—";
+  return `<div class="scroll-x"><table class="soum"><thead><tr><th>Soumissionnaire</th><th>Lu HTVA (min/max)</th><th>Corrigé HTVA</th><th>Lu TTC</th><th>Corrigé TTC</th><th>Observations</th></tr></thead><tbody>`+
+    S.map(s=>`<tr><td>${esc(s.nom||"—")}</td><td>${esc(cell(s.montant_lu_htva))}</td><td>${esc(cell(s.montant_corrige_htva))}</td><td>${esc(cell(s.montant_lu_ttc))}</td><td>${esc(cell(s.montant_corrige_ttc))}</td><td>${esc(s.observations||s.conformite||"")}</td></tr>`).join("")+
+    `</tbody></table></div>`;
+}
+function renderResDetail() {
+  const r=DATA.resultats.find(x=>x._uid===state.resSel), d=$("#resDetail");
+  if(!r){ d.innerHTML='<div class="empty-state">Sélectionnez un émetteur.</div>'; return; }
+  const chips=[`<span class="chip strong">${esc(sourceOf(r))}</span>`, r.macro_section==="REGIONS"?"Régions / collectivités":"Ministères / institutions",
+    `p. ${r.page_debut??"?"}–${r.page_fin??"?"}`, r._mode==="deterministe"?"segmentation déterministe (structuration LLM à venir)":null,
+    r._nb_chunks?`${r._nb_chunks} chunk(s)`:null].filter(Boolean).map(c=>c.startsWith("<")?c:`<span class="chip">${esc(c)}</span>`).join("");
+  const lots=r.lots||[];
+  const lotsHtml = lots.length ? lots.map((l,i)=>{ const o=typeof l==="object"?l:{intitule:l};
+    const att=o.attributaire_provisoire; const attHtml=att?`<div style="margin-top:6px;font-size:.82rem"><b>Attributaire provisoire :</b> ${esc(att.nom||"")} ${att.montant_max_ttc?`— ${esc(att.montant_max_ttc)} TTC`:""} ${att.delai_execution?`— délai ${esc(att.delai_execution)}`:""}</div>`:(o.infructueux?`<div style="margin-top:6px;color:var(--crit)">Lot infructueux</div>`:"");
+    return `<div class="lot"><h4>${esc(o.intitule||("Lot "+(o.numero??(i+1))))}</h4>${soumTable(o)}${attHtml}</div>`;
+  }).join("") : `<div style="color:var(--faint)">Aucun lot détecté.</div>`;
+  const raw = r.texte_brut ? `<div class="section-title">Tableau brut (extrait)</div><div class="rawbox">${esc(r.texte_brut)}</div>` : "";
+  d.innerHTML=`<div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><div style="min-width:0">
+      <h2>${esc(r.autorite_contractante||"Émetteur")}</h2><div class="chips">${chips}</div></div>
+      <div class="gauge"><div class="num">${r.nombre_lots||lots.length||0}</div><div class="lbl">Lots</div></div></div>
+    <div class="section-title">Lots</div>${lotsHtml}${raw}`;
+}
+
+/* ---------- STATS + QUALITE ---------- */
+function renderStats() {
+  const el=$("#stats");
+  if(state.tab==="avis"){ const A=DATA.avis.filter(inBulletin); const ws=A.filter(a=>typeof a._score_exactitude==="number");
+    const avg=ws.length?Math.round(ws.reduce((s,a)=>s+a._score_exactitude,0)/ws.length):"—";
+    const fl=A.filter(a=>(a._champs_a_verifier||[]).length).length;
+    el.innerHTML=cells([["Avis",A.length],["Complétude moy.",typeof avg==="number"?`${avg}<small>%</small>`:"—"],["À vérifier",`${fl}<small>/${A.length}</small>`],["Bulletins",new Set(A.map(sourceOf)).size]]);
+  } else if(state.tab==="resultats"){ const R=DATA.resultats.filter(inBulletin);
+    const mini=R.filter(r=>r.macro_section!=="REGIONS").length, regi=R.length-mini;
+    const lots=R.reduce((s,r)=>s+(r.nombre_lots||0),0);
+    el.innerHTML=cells([["Émetteurs",R.length],["Ministères",mini],["Régions",regi],["Lots détectés",lots]]);
+  } else { el.innerHTML=""; }
+}
+function cells(arr){ return arr.map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join(""); }
+
+function renderQualite() {
+  const A=DATA.avis.filter(inBulletin);
+  const bands=[["100 %",a=>a._score_exactitude===100,"p-ok"],["80–99 %",a=>a._score_exactitude>=80&&a._score_exactitude<100,"p-warn"],["< 80 %",a=>a._score_exactitude<80,"p-crit"]];
+  const n=A.length||1;
+  const dist=bands.map(([lbl,f,c])=>{ const k=A.filter(f).length; return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:.8rem"><span>${lbl}</span><span class="mono">${k} (${Math.round(100*k/n)}%)</span></div><div class="bar"><span style="width:${Math.round(100*k/n)}%;background:var(--${c==='p-ok'?'ok':c==='p-warn'?'warn':'crit'})"></span></div></div>`; }).join("");
+  const routed=A.filter(a=>a._decision&&a._decision.needs_llm).length;
+  const cov={}; ["montant_previsionnel_global","date_limite_depot","financement","numero_reference"].forEach(k=>{ cov[k]=Math.round(100*A.filter(a=>!isEmpty(a[k])).length/n); });
+  const covHtml=Object.entries(cov).map(([k,v])=>`<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:.8rem"><span>${esc(AVIS_FIELDS[k]||k)}</span><span class="mono">${v}%</span></div><div class="bar"><span style="width:${v}%"></span></div></div>`).join("");
+  const faulty={}; A.forEach(a=>(a._raisons_ecart||[]).forEach(r=>{ faulty[r.champ]=(faulty[r.champ]||0)+1; }));
+  const top=Object.entries(faulty).sort((x,y)=>y[1]-x[1]).slice(0,6);
+  $("#qualite").innerHTML=`<h2>Qualité de l'extraction</h2>
+    <div class="section-title">Répartition des scores (avis)</div>${dist}
+    <div class="section-title">Couverture des champs clés</div>${covHtml}
+    <div class="section-title">Routage vers l'API</div><p style="font-size:.9rem">${routed} avis sur ${A.length} seraient renvoyés à l'API par le modèle de décision (les autres sont jugés propres).</p>
+    ${top.length?`<div class="section-title">Champs les plus souvent en écart</div>`+top.map(([c,k])=>`<div style="display:flex;justify-content:space-between;font-size:.85rem;padding:3px 0;border-bottom:1px solid var(--border)"><span class="mono">${esc(c)}</span><span>${k}×</span></div>`).join(""):""}`;
+}
+
+/* ---------- Tabs / filters / data ---------- */
+function showTab(t) {
+  state.tab=t;
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t));
+  $("#tab-avis").hidden=t!=="avis"; $("#tab-resultats").hidden=t!=="resultats"; $("#tab-qualite").hidden=t!=="qualite";
+  renderStats();
+  if(t==="qualite") renderQualite();
+}
+function fillSelect(sel, values, allLabel){ sel.innerHTML=`<option value="">${allLabel}</option>`+values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join(""); }
+
+function loadData(obj, label) {
+  // Accepte {AVIS,RESULTATS}, un tableau d'objets de ce type, ou {avis,resultats}
+  let avis=[], res=[];
+  const docs = Array.isArray(obj) ? obj : [obj];
+  for(const dcc of docs){
+    if(Array.isArray(dcc.AVIS)) avis=avis.concat(dcc.AVIS);
+    if(Array.isArray(dcc.avis)) avis=avis.concat(dcc.avis);
+    if(Array.isArray(dcc.RESULTATS)) res=res.concat(dcc.RESULTATS);
+    if(Array.isArray(dcc.resultats)) res=res.concat(dcc.resultats);
+  }
+  avis.forEach((a,i)=>a._uid="a"+i); res.forEach((r,i)=>r._uid="r"+i);
+  DATA.avis=avis; DATA.resultats=res; DATA.meta=(docs[0]&&docs[0].meta)||{source:label};
+  state.avisSel=avis[0]?avis[0]._uid:null; state.resSel=res[0]?res[0]._uid:null; state.bulletin="";
+  $("#srcTag").textContent=label;
+  fillSelect($("#bulletinFilter"), bulletins(), `Tous les bulletins (${bulletins().length})`);
+  fillSelect($("#avisCat"), Array.from(new Set(avis.map(a=>a.categorie).filter(Boolean))).sort(), "Toutes catégories");
+  fillSelect($("#avisType"), Array.from(new Set(avis.map(a=>a.type_avis).filter(Boolean))).sort(), "Tous types");
+  renderStats(); renderAvisList(); renderAvisDetail(); renderResList(); renderResDetail();
+}
+
+$("#bulletinFilter").onchange=(e)=>{ state.bulletin=e.target.value; renderStats(); renderAvisList(); renderAvisDetail(); renderResList(); renderResDetail(); if(state.tab==="qualite")renderQualite(); };
+["#avisSearch","#avisCat","#avisType","#avisFlagged"].forEach(s=>$(s).addEventListener("input",renderAvisList));
+["#resSearch","#resSection"].forEach(s=>$(s).addEventListener("input",renderResList));
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+$("#fileInput").addEventListener("change",(e)=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{ try{ loadData(JSON.parse(r.result), f.name); }catch(err){ $("#avisDetail").innerHTML=`<div class="empty-state" style="color:var(--crit)">JSON invalide.<br><span class="mono">${esc(err.message)}</span></div>`; } }; r.readAsText(f); });
+$("#pasteBtn").onclick=()=>{ $("#pasteErr").textContent=""; $("#pasteDlg").showModal(); };
+$("#pasteLoad").onclick=()=>{ try{ loadData(JSON.parse($("#pasteArea").value),"JSON collé"); $("#pasteDlg").close(); }catch(err){ $("#pasteErr").textContent="Erreur : "+err.message; } };
+
+(function theme(){ let s=null; try{ s=localStorage.getItem("mpbf-theme"); }catch(e){} if(s)document.documentElement.setAttribute("data-theme",s);
+  $("#themeBtn").onclick=()=>{ const cur=document.documentElement.getAttribute("data-theme"); const dark=cur?cur==="dark":matchMedia("(prefers-color-scheme: dark)").matches; const nx=dark?"light":"dark"; document.documentElement.setAttribute("data-theme",nx); try{ localStorage.setItem("mpbf-theme",nx); }catch(e){} }; })();
+
+loadData(DATA, DATA.meta.source || "Jeu d'exemple");
+showTab("avis");
+</script>
