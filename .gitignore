@@ -40,3 +40,10 @@ Quotidien*.md
 Thumbs.db
 .vscode/
 .idea/
+
+# Base des retours humains (locale, non versionnée)
+feedback.db
+*_qa.json
+*_dashboard.html
+.pytest_cache/
+__pycache__/

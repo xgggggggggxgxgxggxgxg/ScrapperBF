@@ -22,8 +22,11 @@ def launch_ui(json_path: Path):
 
             pages_str = f"Pages {u.get('page_debut')} - {u.get('page_fin')}"
             if sec_name == "AVIS":
-                cat = u.get("avis_category", "MINISTERES")
-                typ = u.get("avis_type", "Fournitures et Services courants")
+                # Clés telles qu'écrites par la segmentation ; les anciens noms
+                # (`avis_category`/`avis_type`) n'étaient jamais produits, donc
+                # l'affichage retombait toujours sur les valeurs par défaut.
+                cat = u.get("category") or u.get("categorie") or "MINISTERES"
+                typ = u.get("marche_type") or u.get("type_marche") or "Fournitures et Services courants"
                 pages_str += f" | {cat} | {typ}"
 
             items.append({

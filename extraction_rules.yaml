@@ -1,0 +1,425 @@
+# Consignes d'extraction, champ par champ.
+#
+# Ce fichier est la seule chose à modifier pour changer ce que le modèle
+# comprend. Il est pensé pour être PRÉCIS sans être RIGIDE :
+#
+#   * précis      — chaque champ dit ce qu'il est, où le chercher, et comment
+#                   le distinguer de ses voisins qui se ressemblent ;
+#   * mesurable   — chaque champ porte des critères de vérification que le juge
+#                   applique ensuite pour noter la fiabilité en pourcentage ;
+#   * non rigide  — le modèle garde le droit de recopier tel quel ce qu'il lit,
+#                   de rendre `null`, et de signaler son propre doute. On ne lui
+#                   impose jamais un format qui l'obligerait à inventer.
+#   * modulable   — on peut ne demander qu'un sous-ensemble de champs, et
+#                   ajouter un champ sans toucher au code.
+#
+# Clés reconnues pour chaque champ :
+#   intitule          nom lisible, repris dans le prompt
+#   definition        ce que la valeur désigne, en une phrase
+#   ou_chercher       tournures du bulletin qui portent la valeur
+#   desambiguisation  comment choisir quand plusieurs valeurs se présentent
+#   confusions        champs voisins avec lesquels la confusion est fréquente
+#   format            forme souhaitée, toujours « sinon, recopier tel quel »
+#   exemples          couples texte → valeur, pris dans les bulletins réels
+#   doute             signes qui doivent faire baisser la confiance
+#   verification      critères que le juge peut contrôler mécaniquement
+#   si_absent         ce qu'il faut rendre quand l'information n'y est pas
+
+version: 1
+
+# Règles valant pour tous les champs. Elles ouvrent le prompt.
+generales:
+  - "Tu lis UNE annonce de marché public du Quotidien de la DGCMEF (Burkina Faso)."
+  - "Tu n'extrais que ce qui est écrit. Si une information est absente, tu rends null.
+     Une valeur inventée coûte plus cher qu'une valeur manquante : la seconde se voit,
+     la première se propage."
+  - "Tu recopies les montants, dates, références et numéros TELS QU'ÉCRITS, sans
+     convertir, sans arrondir, sans reformater. Le bulletin écrit souvent ses nombres
+     deux fois, en lettres puis en chiffres : garde les deux si les deux sont là."
+  - "Pour chaque champ, tu rends aussi un indice de confiance entre 0 et 1 et la
+     citation exacte du texte qui porte la valeur. La citation doit être copiée
+     littéralement : c'est elle qui permet de te vérifier."
+  - "Quand plusieurs valeurs peuvent convenir à un même champ, tu appliques la règle
+     de désambiguïsation du champ. Si elle ne tranche pas, tu choisis la plus probable,
+     tu baisses la confiance, et tu listes les autres candidats."
+
+champs:
+
+  autorite_emettrice:
+    intitule: "Autorité qui publie l'annonce"
+    definition: "Organisme public qui lance le marché et à qui les offres sont adressées."
+    ou_chercher:
+      - "bandeau en tête d'annonce (fourni séparément, à privilégier)"
+      - "« Identifiant de l'Autorité contractante : … »"
+      - "« Maître d'Ouvrage : … »"
+    desambiguisation:
+      regle: "Si un maître d'ouvrage et un maître d'ouvrage délégué sont tous deux
+        nommés, l'autorité émettrice est le MAÎTRE D'OUVRAGE (le propriétaire du
+        marché), et le délégué va dans son propre champ."
+    confusions:
+      - champ: maitre_ouvrage_delegue
+        distinguer: "Le délégué agit « pour le compte de » quelqu'un d'autre. Cette
+          tournure le désigne lui, pas l'autorité."
+    format: "Nom complet tel qu'écrit, sigle conservé."
+    exemples:
+      - texte: "Maître d'Ouvrage : Institut Deen Kanu (IDK)\nMaître d'Ouvrage Délégué : Focus Sahel Development"
+        valeur: "Institut Deen Kanu (IDK)"
+    verification:
+      - "la valeur apparaît littéralement dans le texte ou dans le bandeau fourni"
+    si_absent: null
+
+  objet:
+    intitule: "Objet du marché"
+    definition: "Ce qui est acheté, construit ou commandé."
+    ou_chercher:
+      - "bandeau en tête d'annonce (fourni séparément, à privilégier)"
+      - "« … lance une demande de prix pour … »"
+      - "« Les prestations se décomposent en lot unique : … »"
+    desambiguisation:
+      regle: "Prendre la formulation la plus complète, celle qui nomme la nature de la
+        prestation ET son bénéficiaire. Ne pas se limiter au premier lot quand le
+        marché est alloti : l'objet est le marché entier."
+    confusions:
+      - champ: lots
+        distinguer: "Un lot est une subdivision de l'objet, introduit par « Lot N : »."
+    format: "Phrase recopiée, sans numérotation de clause."
+    exemples:
+      - texte: "Acquisition de motos au profit des VDP et de la mairie de Bissiga"
+        valeur: "Acquisition de motos au profit des VDP et de la mairie de Bissiga"
+    doute:
+      - "objet réduit à un seul mot"
+      - "objet identique au nom de l'autorité"
+    verification:
+      - "la valeur apparaît littéralement dans le texte ou dans le bandeau fourni"
+    si_absent: null
+
+  numero_reference:
+    intitule: "Numéro de référence de l'avis"
+    definition: "Identifiant administratif de la procédure, propre à cette annonce."
+    ou_chercher:
+      - "« n° : … » en tête d'annonce"
+      - "« Avis de demande de prix : N°… »"
+      - "ligne isolée commençant par N° (fréquent sur les avis à manifestation d'intérêt)"
+    desambiguisation:
+      regle: "Un bulletin contient plusieurs numéros. Celui de l'avis suit la forme
+        « N°ANNÉE-NUMÉRO/SIGLES » avec des barres obliques séparant des sigles
+        d'administration. À ne PAS confondre avec : le numéro du quotidien
+        (« N°4503 »), un numéro de page, un numéro de compte bancaire, un numéro
+        de prêt ou de don d'un bailleur (« BMZ N° 2022 67 490 »), un numéro IFU
+        ou RCCM d'entreprise, un numéro de téléphone."
+      si_plusieurs: "Retenir celui qui est le plus proche de l'intitulé de l'avis, en
+        tête d'annonce. Lister les autres comme candidats."
+    confusions:
+      - champ: rectificatif_de
+        distinguer: "Un rectificatif cite DEUX références : la sienne, et celle de
+          l'avis qu'il corrige, cette dernière accompagnée d'un numéro de quotidien
+          et d'une page."
+    format: "Référence recopiée telle quelle, « N° » compris s'il y est."
+    exemples:
+      - texte: "n° : 2026-23/MSECU/SG/ONASER/DMP"
+        valeur: "2026-23/MSECU/SG/ONASER/DMP"
+      - texte: "Avis de demande de prix : N°2026-00010/FSD/ FEJ-PEFJ/APA/DT du 1er Octobre 2026"
+        valeur: "N°2026-00010/FSD/ FEJ-PEFJ/APA/DT"
+    doute:
+      - "référence sans aucune barre oblique"
+      - "référence dont l'année ne correspond pas à l'exercice mentionné"
+    verification:
+      - "la valeur apparaît littéralement dans le texte"
+      - "la valeur contient au moins un chiffre et une barre oblique ou un tiret"
+    si_absent: null
+
+  date_limite_depot:
+    intitule: "Date et heure limites de dépôt des offres"
+    definition: "Moment au-delà duquel une offre n'est plus recevable."
+    ou_chercher:
+      - "« … devront parvenir ou être remises … au plus tard le … »"
+      - "« Date limite de dépôt … »"
+      - "« avant le … à … heures »"
+    desambiguisation:
+      regle: "C'est la date introduite par « au plus tard le » ou « avant le », dans la
+        clause qui parle de l'acheminement des offres. Une annonce contient
+        plusieurs dates : date du jour de signature, date du plan de passation,
+        date de l'exercice budgétaire, date d'ouverture des plis, délai de validité.
+        Aucune de celles-là n'est la date limite de dépôt."
+      si_plusieurs: "Quand des dates limites différentes sont données par lot, retenir
+        la date commune si elle existe, sinon la plus proche et signaler le doute."
+    confusions:
+      - champ: date_ouverture_plis
+        distinguer: "L'ouverture des plis est SIMULTANÉE ou POSTÉRIEURE au dépôt, et sa
+          clause parle d'ouverture, de dépouillement ou de séance publique. Si une
+          seule date est donnée pour les deux, la recopier dans les deux champs."
+      - champ: delai_validite_offres
+        distinguer: "La validité est une DURÉE en jours, pas une date."
+    format: "« JJ/MM/AAAA à HHh MM » si le texte le permet, sinon recopier tel quel.
+      Conserver l'heure et la mention de fuseau (« TU ») si elles y sont."
+    exemples:
+      - texte: "devront parvenir ou être remises à l'adresse à la mairie de Pissila, au plus tard le 12/10/2026 à 09 heures 00 TU"
+        valeur: "12/10/2026 à 09 heures 00 TU"
+    doute:
+      - "date sans heure : l'heure est réglementairement indiquée, son absence signale
+         une lecture tronquée"
+      - "date antérieure à la date de parution du bulletin"
+    verification:
+      - "la valeur apparaît littéralement dans le texte"
+      - "la date est postérieure ou égale à la date de parution du bulletin"
+      - "la date est antérieure ou égale à la date d'ouverture des plis"
+    si_absent: null
+
+  date_ouverture_plis:
+    intitule: "Date et heure d'ouverture des plis"
+    definition: "Séance où les offres reçues sont ouvertes devant les soumissionnaires."
+    ou_chercher:
+      - "« L'ouverture des plis sera faite … »"
+      - "« … dépouillement … »"
+    desambiguisation:
+      regle: "Très souvent le bulletin n'écrit pas de date ici mais une échéance
+        RELATIVE : « immédiatement en présence des candidats », « aussitôt après ».
+        C'est une valeur valable : la recopier telle quelle, ne pas la remplacer par
+        la date de dépôt et ne pas rendre null."
+    confusions:
+      - champ: date_limite_depot
+        distinguer: "Le dépôt précède l'ouverture. La clause de dépôt parle de faire
+          parvenir ou remettre ; celle d'ouverture, d'ouvrir ou de dépouiller."
+    format: "Date et heure si elles sont données, sinon la formule relative recopiée."
+    exemples:
+      - texte: "L'ouverture des plis sera faite immédiatement en présence des Candidats"
+        valeur: "immédiatement en présence des Candidats"
+    verification:
+      - "la valeur apparaît littéralement dans le texte"
+      - "si c'est une date, elle est postérieure ou égale à la date limite de dépôt"
+    si_absent: null
+
+  montant_previsionnel_global:
+    intitule: "Montant prévisionnel du marché"
+    definition: "Enveloppe que l'autorité prévoit de consacrer au marché."
+    ou_chercher:
+      - "« Montant prévisionnel : … »"
+      - "« Le montant prévisionnel de la présente demande de prix est : … »"
+    desambiguisation:
+      regle: "Une annonce cite plusieurs montants : le prévisionnel, le coût d'achat du
+        dossier (« montant non remboursable »), la garantie de soumission, et parfois
+        un montant par lot. Le prévisionnel est celui annoncé en tête, rattaché à
+        l'ensemble du marché."
+      si_plusieurs: "Quand HTVA et TTC sont donnés, renseigner les deux séparément.
+        Quand des montants par lot sont donnés sans total, les mettre dans les lots et
+        laisser ce champ à null plutôt que d'additionner soi-même."
+    confusions:
+      - champ: acquisition_dossier
+        distinguer: "Le coût du dossier est petit (10 000 à 200 000 FCFA) et qualifié de
+          « non remboursable »."
+      - champ: garantie_soumission
+        distinguer: "La garantie est qualifiée de « garantie de soumission » ou de
+          « caution »."
+    format: >-
+      objet {"htva": "…", "ttc": "…", "lettres": "…"} ; recopier les chiffres tels
+      qu'écrits, espaces de milliers compris, et garder la version en lettres si elle
+      est présente.
+    exemples:
+      - texte: "Montant prévisionnel : vingt un million cent quatre vingt six mille quatre cent quarante un (21 186 441) FCFA HTVA, soit vingt cinq millions (25 000 000) FCFA TTC."
+        valeur: {htva: "21 186 441", ttc: "25 000 000", lettres: "vingt un million cent quatre vingt six mille quatre cent quarante un"}
+    doute:
+      - "montant en lettres et montant en chiffres qui ne concordent pas"
+      - "montant inférieur à 100 000 FCFA pour un marché de travaux"
+    verification:
+      - "les chiffres apparaissent littéralement dans le texte"
+      - "le montant en lettres, converti, égale le montant en chiffres"
+    si_absent: null
+
+  garantie_soumission:
+    intitule: "Garantie de soumission"
+    definition: "Caution exigée du soumissionnaire pour que son offre soit recevable."
+    ou_chercher:
+      - "« accompagnées d'une garantie de soumission d'un montant de … »"
+      - "« caution de soumission … »"
+    desambiguisation:
+      regle: "Ne pas confondre avec le montant prévisionnel ni avec le coût du dossier.
+        La garantie peut aussi être une « déclaration de garantie » sans montant :
+        dans ce cas recopier la formule, sans inventer de chiffre."
+      si_plusieurs: "Si une garantie est donnée par lot, les lister toutes avec leur
+        numéro de lot."
+    format: "Montant tel qu'écrit avec sa devise, ou la formule employée."
+    exemples:
+      - texte: "une garantie de soumission d'un montant de deux millions neuf cents mille (2 900 000) FCFA"
+        valeur: "deux millions neuf cents mille (2 900 000) FCFA"
+      - texte: "garantie de soumission sous la forme d'une déclaration de garantie"
+        valeur: "déclaration de garantie (sans montant)"
+    verification:
+      - "la valeur apparaît littéralement dans le texte"
+      - "le montant est inférieur au montant prévisionnel s'il est connu"
+    si_absent: null
+
+  delai_execution:
+    intitule: "Délai d'exécution"
+    definition: "Temps accordé au titulaire pour exécuter la prestation."
+    ou_chercher:
+      - "« Le délai d'exécution est de … »"
+      - "« Le délai de livraison est de … »"
+      - "« ne doit pas excéder … »"
+    desambiguisation:
+      regle: "Plusieurs durées figurent dans une annonce : le délai d'exécution, le
+        délai de validité des offres, et parfois un délai de garantie. Le délai
+        d'exécution est celui de la clause qui parle d'exécution, de livraison ou de
+        réalisation."
+      si_plusieurs: "Pour un marché à commandes, le délai vaut « pour chaque commande » :
+        recopier la mention entière."
+    confusions:
+      - champ: delai_validite_offres
+        distinguer: "La validité engage le SOUMISSIONNAIRE avant l'attribution
+          (« resteront engagés ») ; l'exécution engage le TITULAIRE après."
+    format: "Durée telle qu'écrite, en lettres et en chiffres si les deux y sont."
+    exemples:
+      - texte: "Le délai d'exécution est de : vingt un (21) jours pour chaque commande."
+        valeur: "vingt un (21) jours pour chaque commande"
+    verification:
+      - "la valeur apparaît littéralement dans le texte"
+      - "la valeur contient un nombre et une unité de temps"
+    si_absent: null
+
+  delai_validite_offres:
+    intitule: "Délai de validité des offres"
+    definition: "Durée pendant laquelle le soumissionnaire reste engagé par son offre."
+    ou_chercher:
+      - "« Les soumissionnaires resteront engagés par leurs offres pour un délai de … »"
+    desambiguisation:
+      regle: "Toujours une durée en jours, comptée à partir de la date limite de dépôt.
+        Ne pas y mettre le délai d'exécution."
+    format: "Durée telle qu'écrite."
+    exemples:
+      - texte: "resteront engagés par leurs offres pour un délai de soixante (60) jours"
+        valeur: "soixante (60) jours"
+    verification:
+      - "la valeur contient un nombre et une unité de temps"
+    si_absent: null
+
+  acquisition_dossier:
+    intitule: "Retrait du dossier : lieu et coût"
+    definition: "Où obtenir le dossier d'appel d'offres, et contre quel paiement."
+    ou_chercher:
+      - "« doit retirer un jeu complet du dossier … moyennant paiement d'un montant non remboursable de … »"
+    desambiguisation:
+      regle: "Le montant « non remboursable » est le prix du dossier, jamais le montant
+        prévisionnel ni la garantie. Le lieu de retrait peut différer du lieu de dépôt :
+        ne pas les confondre."
+    format: >-
+      objet {"lieu": "…", "frais": "…", "modalite": "…"} ; chaque partie recopiée.
+    exemples:
+      - texte: "doit retirer un jeu complet du dossier à la Direction des Marchés Publics de l'ONASER … moyennant paiement d'un montant non remboursable vingt cinq mille (25 000) FCFA à l'Agence Comptable."
+        valeur: {lieu: "Direction des Marchés Publics de l'ONASER", frais: "vingt cinq mille (25 000) FCFA", modalite: "paiement à l'Agence Comptable"}
+    verification:
+      - "les frais apparaissent littéralement dans le texte"
+    si_absent: null
+
+  renseignements_et_contact:
+    intitule: "Point de contact"
+    definition: "Personne, adresse, téléphones et courriels pour se renseigner."
+    ou_chercher:
+      - "clause « peuvent obtenir des informations supplémentaires … »"
+      - "« Téléphone : … », « E-mail : … »"
+    desambiguisation:
+      regle: "Une annonce contient des suites de huit chiffres qui NE SONT PAS des
+        téléphones : numéros de référence, numéros de prêt de bailleur, IFU, RCCM,
+        boîte postale, numéros de compte. Ne retenir un numéro que s'il est introduit
+        par « Téléphone », « Tél », « Cel », « Mobile », « Contact » ou s'il figure dans
+        une suite de numéros ainsi introduite."
+      si_plusieurs: "Retenir TOUS les téléphones du point de contact, dans l'ordre du
+        texte. Un numéro burkinabè a huit chiffres, parfois précédé de +226 ou 00226."
+    confusions:
+      - champ: numero_reference
+        distinguer: "La référence porte des barres obliques et des sigles."
+    format: >-
+      objet {"point_de_contact": "…", "telephones": ["…"], "courriels": ["…"],
+      "adresse": "…", "horaires": "…"}.
+    exemples:
+      - texte: "Téléphone : (00226) 25 37 44 78 , E-mail : onaser.bf@gmail.com, 3ème étage de l'immeuble R+4 … de 07 heures 30 minutes à 16 heures 00"
+        valeur: {telephones: ["(00226) 25 37 44 78"], courriels: ["onaser.bf@gmail.com"], horaires: "07 heures 30 à 16 heures 00"}
+    doute:
+      - "numéro de téléphone n'ayant pas huit chiffres"
+    verification:
+      - "chaque téléphone retenu a huit chiffres hors indicatif"
+      - "chaque téléphone apparaît littéralement dans le texte"
+    si_absent: null
+
+  conditions_eligibilite_generales:
+    intitule: "Conditions de participation"
+    definition: "Qui peut soumissionner : agréments, situation administrative, réservations."
+    ou_chercher:
+      - "« La participation à la concurrence est ouverte à … »"
+    desambiguisation:
+      regle: "Recopier la phrase entière : l'agrément exigé (par exemple « B2, B3 ou B4
+        du Ministère de la Construction ») et les réservations (« réservée aux petites
+        et moyennes entreprises », « à Direction féminine ») en font partie."
+    format: "Phrase recopiée."
+    exemples:
+      - texte: "La participation à la concurrence est ouverte à toutes les personnes physiques ou morales agréées (B2 B3 ou B4) du Ministère de la Construction de la Patrie"
+        valeur: "toutes les personnes physiques ou morales agréées (B2 B3 ou B4) du Ministère de la Construction de la Patrie"
+    si_absent: null
+
+  financement:
+    intitule: "Source de financement"
+    definition: "Budget ou bailleur qui finance le marché, et l'exercice concerné."
+    ou_chercher:
+      - "« Financement : … »"
+    desambiguisation:
+      regle: "Si un bailleur extérieur est cité avec un numéro de prêt ou de don,
+        conserver le tout : c'est le financement, pas une référence d'avis."
+    format: "Texte recopié, exercice compris."
+    exemples:
+      - texte: "Financement : Budget ONASER, exercice 2026"
+        valeur: "Budget ONASER, exercice 2026"
+    verification:
+      - "la valeur apparaît littéralement dans le texte"
+    si_absent: null
+
+  lots:
+    intitule: "Lots du marché"
+    definition: "Subdivisions du marché, chacune attribuable séparément."
+    ou_chercher:
+      - "« Lot N : désignation »"
+      - "« Les prestations se décomposent en lot unique : … »"
+    desambiguisation:
+      regle: "Un « lot unique » n'est pas un allotissement : renseigner alors
+        est_en_lots à false et laisser lots vide. Ne pas confondre les lots de l'avis
+        avec les lots cités dans un tableau de résultats d'une autre annonce."
+    format: >-
+      liste d'objets {"numero": N, "designation": "…", "montant_previsionnel": "…",
+      "garantie_soumission": "…", "delai_execution": "…"} ; omettre les clés absentes.
+    exemples:
+      - texte: "Lot 1 : acquisition de consommables informatique au profit de la DGI"
+        valeur: [{numero: 1, designation: "acquisition de consommables informatique au profit de la DGI"}]
+    verification:
+      - "les numéros de lot sont uniques et consécutifs à partir de 1"
+    si_absent: []
+
+  type_avis:
+    intitule: "Nature de la procédure"
+    definition: "Forme réglementaire de l'appel à concurrence."
+    ou_chercher:
+      - "intitulé en tête d'annonce"
+    desambiguisation:
+      regle: "Valeurs attendues : demande de prix, demande de prix à commandes, appel
+        d'offres ouvert, appel d'offres ouvert accéléré, avis à manifestation
+        d'intérêt, demande de propositions, avis de recrutement, rectificatif, avis
+        d'annulation. Si l'intitulé en annonce deux (un rectificatif PORTANT SUR une
+        demande de prix), retenir la nature de la procédure et signaler le
+        rectificatif dans son champ."
+    format: "Un des libellés ci-dessus, recopié tel qu'écrit dans l'annonce."
+    exemples:
+      - texte: "Avis de demande de prix à commandes"
+        valeur: "demande de prix à commandes"
+    si_absent: null
+
+  rectificatif_de:
+    intitule: "Avis rectifié"
+    definition: "Référence de l'annonce antérieure que celle-ci corrige."
+    ou_chercher:
+      - "« Rectificatif du Quotidien N°… du … page … portant sur … »"
+    desambiguisation:
+      regle: "Ne renseigner que si l'annonce se présente explicitement comme un
+        rectificatif ou un additif. Conserver le numéro du quotidien, la date et la
+        page, car c'est ce triplet qui identifie l'avis corrigé."
+    format: >-
+      objet {"quotidien": "…", "date": "…", "page": "…", "porte_sur": "…"}.
+    exemples:
+      - texte: "Rectificatif du Quotidien N°4502 – Lundi 05 octobre 2026, page 49, potant sur les références de l'avis"
+        valeur: {quotidien: "N°4502", date: "Lundi 05 octobre 2026", page: "49", porte_sur: "les références de l'avis"}
+    si_absent: null

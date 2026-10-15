@@ -1,3 +1,16 @@
+# Dépendances du pipeline d'extraction et du contrôle qualité
 requests>=2.31
 pyyaml>=6.0
 urllib3>=2.0
+
+# --- OCR léger (optionnel) -------------------------------------------------
+# Sans ces paquets, `scrapperbf ocr` reste utilisable sur les PDF qui portent
+# déjà une couche de texte, et le signale pour les pages qui auraient eu
+# besoin d'OCR. Pytesseract requiert aussi le binaire système tesseract-ocr
+# et son modèle français (paquet `tesseract-ocr-fra`).
+# pymupdf>=1.24
+# pytesseract>=0.3.10
+# pillow>=10.0
+
+# --- Développement ---------------------------------------------------------
+# pytest>=8.0

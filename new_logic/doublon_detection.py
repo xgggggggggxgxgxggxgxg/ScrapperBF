@@ -1,4 +1,14 @@
+"""Détection de mise en page multi-colonnes d'une page PDF.
+
+Utile en amont de la conversion en Markdown : une page à deux colonnes mal
+découpée entremêle deux annonces, ce qui produit ensuite des extractions
+mélangées impossibles à rattraper en aval.
+"""
+
+import argparse
+
 import pymupdf
+
 
 def check_pdf_has_multiple_columns(pdf_path: str, page_number: int = 0) -> bool:
     doc = pymupdf.open(pdf_path)
@@ -22,6 +32,12 @@ def check_pdf_has_multiple_columns(pdf_path: str, page_number: int = 0) -> bool:
     # S'il y a un nombre significatif de blocs à gauche ET à droite, la page est multi-colonnes
     return left_blocks >= 2 and right_blocks >= 2
 
-# Exemple :
-is_multicolumn = check_pdf_has_multiple_columns("C:\\Users\\ASUS\\Downloads\\t_page_46.pdf")
-print(is_multicolumn)
+if __name__ == "__main__":
+    # Le script exécutait cet appel à l'import, sur un chemin Windows en dur :
+    # tout import du module échouait.
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("pdf")
+    parser.add_argument("--page", type=int, default=0, help="Index de page, 0-based")
+    args = parser.parse_args()
+    multi = check_pdf_has_multiple_columns(args.pdf, args.page)
+    print(f"page {args.page} : {'multi-colonnes' if multi else 'une seule colonne'}")
