@@ -36,6 +36,8 @@ from pdf_avis_extract import extract_avis_from_pdf, enrich_coverage, CORE_FIELDS
 from pdf_resultats_extract import segment_resultats
 from resultats_llm import extract_resultats_unit
 from decision_model import refine_if_needed, decide
+from format_validator import validate_format
+from consensus_extract import consensus_extract
 import judge
 
 DB_PATH = BASE_DIR / "ingestion.db"
@@ -214,25 +216,63 @@ def process_pdf(pdf_path: str, numero: str = None):
     use_api = _use_api()
     print(f"[{numero}] mode = {'API (' + str(len(config.provider_specs())) + ' provider(s))' if use_api else 'déterministe (aucune clé)'}")
 
-    # ---- AVIS : regex -> décision -> API --------------------------------
+    # ---- AVIS : garde-fou FORMAT -> extraction (consensus 3 modèles, sinon
+    #      regex) -> JUGE. L'extraction par consensus remplace le regex dès qu'une
+    #      API est configurée ; sinon le regex sert de repli déterministe.
     avis_out = []
     feedback_hint = feedback_store.build_hint("AVIS") if use_api else ""
-    for a in extract_avis_from_pdf(pdf_path, numero=numero):
-        enrich_coverage(a)
+
+    def _finalize_avis(rec, text, fmt_info):
+        enrich_coverage(rec)
         if use_api:
-            refined, dec = refine_if_needed(a, a.get("flat_text", ""), "AVIS")
-            a = refined if refined else a
-            a["_decision"] = {"needs_llm": dec["needs_llm"],
-                              "champs_a_reprendre": dec["champs_a_reprendre"]}
-            score = a.get("_score_exactitude")
-            if score is not None and score < 100:
-                feedback_store.record(a.get("_raisons_ecart", []), numero, "AVIS", score=score)
+            # Extraction par CONSENSUS (2 extracteurs + 1 arbitre).
+            ex = consensus_extract(text, "AVIS")
+            if ex is not None:
+                rec["_consensus"] = ex.pop("_consensus", None)
+                for k, v in ex.items():
+                    if not k.startswith("_"):
+                        rec[k] = v
+                enrich_coverage(rec)
+            else:  # providers indisponibles -> repli Couche 4 (décision + révision)
+                refined, dec = refine_if_needed(rec, text, "AVIS")
+                rec = refined if refined else rec
+                rec["_decision"] = {"needs_llm": dec["needs_llm"],
+                                    "champs_a_reprendre": dec["champs_a_reprendre"]}
+            sc = rec.get("_score_exactitude")
+            if sc is not None and sc < 100:
+                feedback_store.record(rec.get("_raisons_ecart", []), numero, "AVIS", score=sc)
         else:
-            a["_decision"] = {"needs_llm": decide(a, a.get("flat_text", ""))["needs_llm"]}
-        # JUGE : vérification de cohérence (texte source vs valeurs) -> confiance.
-        a["_judge"] = judge.judge_avis(a, a.get("flat_text", ""))
-        a.pop("flat_text", None)  # allège la sortie
-        avis_out.append(a)
+            rec["_decision"] = {"needs_llm": decide(rec, text)["needs_llm"]}
+        rec["_format"] = fmt_info
+        rec["_judge"] = judge.judge_avis(rec, text)
+        rec.pop("flat_text", None)
+        return rec
+
+    for unit in extract_avis_from_pdf(pdf_path, numero=numero):
+        fmt = validate_format(unit)
+        fmt_info = {k: fmt[k] for k in ("action", "pages", "nb_annonces", "alerte_humaine", "raisons")}
+
+        if fmt["action"] == "bloquer":
+            unit.pop("flat_text", None)
+            unit["_format"] = fmt_info
+            unit["_bloque"] = True
+            unit["_judge"] = {"verdict": "rejete", "confiance": 0.0, "revue_humaine": True,
+                              "checks": [], "anomalies": [{"nom": "format", "statut": "fail", "detail": r}
+                                                          for r in fmt["raisons"]]}
+            avis_out.append(unit)
+            continue
+
+        if use_api and fmt["action"] == "diviser" and fmt.get("sous_annonces"):
+            # Deux annonces détectées : division automatique, une extraction par sous-annonce.
+            for sub in fmt["sous_annonces"]:
+                rec = {k: unit.get(k) for k in ("_numero", "_source_pdf", "_source",
+                                                "_page_debut", "_page_fin")}
+                rec["flat_text"] = sub
+                avis_out.append(_finalize_avis(rec, sub, fmt_info))
+        else:
+            if fmt["action"] == "diviser":
+                fmt_info = dict(fmt_info, alerte_humaine=True)  # non divisé hors API -> revue humaine
+            avis_out.append(_finalize_avis(unit, unit.get("flat_text", ""), fmt_info))
 
     # ---- RÉSULTATS : segmentation -> chunk -> API -> fusion -------------
     resultats_out = []

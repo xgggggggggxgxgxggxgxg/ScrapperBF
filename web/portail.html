@@ -264,6 +264,23 @@ function bulletins() { return Array.from(new Set([...DATA.avis, ...DATA.resultat
 function inBulletin(x){ return !state.bulletin || sourceOf(x) === state.bulletin; }
 
 /* ---------- AVIS ---------- */
+function formatSection(a){
+  const f=a._format, c=a._consensus; if(!f&&!c) return "";
+  let h=`<div class="section-title">Format &amp; extraction</div>`;
+  if(f){
+    const cls=f.action==="extraire"?"j-pass":f.action==="diviser"?"j-warn":"j-fail";
+    h+=`<div class="jchecks"><div class="jcheck ${cls}"><span class="jname">format : ${esc(f.action)}</span><span class="jdetail">pages ${esc(f.pages||"?")}${f.alerte_humaine?" · alerte":""}</span></div>`;
+    (f.raisons||[]).forEach(r=>{ h+=`<div class="jcheck j-na"><span class="jname">·</span><span class="jdetail">${esc(r)}</span></div>`; });
+    h+=`</div>`;
+  }
+  if(c){
+    h+=`<div style="margin-top:8px;font-size:.85rem">Extraction par consensus — <b>${c.n_modeles} modèle(s)</b>, divergence <b>${Math.round((c.divergence||0)*100)}%</b>${c.alerte_humaine?` <span class="pill p-crit">alerte revue</span>`:``}${c.arbitre?` · arbitre : ${esc(c.arbitre)}`:``}</div>`;
+    if((c.desaccords||[]).length){
+      h+=`<div class="reasons" style="margin-top:6px">`+c.desaccords.slice(0,8).map(d=>`<div class="reason"><div><span class="rf">${esc(d.champ||"")}</span></div><div style="font-size:.78rem;margin-top:3px">A : ${esc(d.a||"—")} | B : ${esc(d.b||"—")}${d.choisi?` → <b>${esc(d.choisi)}</b>`:``}</div></div>`).join("")+`</div>`;
+    }
+  }
+  return h;
+}
 function avisStatut(a, key){ const e=(a._analyse||[]).find(x=>x&&x.champ===key); if(e&&e.statut)return e.statut; if((a._champs_a_verifier||[]).includes(key))return "verifier"; if((a._champs_absents||[]).includes(key))return "absent"; return null; }
 function badge(st){ const m={confirme:["b-confirme","confirmé"],complete:["b-complete","complété"],corrige:["b-corrige","corrigé"],absent:["b-absent","absent"],verifier:["b-verifier","à vérifier"]}[st]; return m?`<span class="badge ${m[0]}">${m[1]}</span>`:""; }
 
@@ -290,7 +307,7 @@ function renderAvisList() {
     return `<button class="item ${state.avisSel===a._uid?"active":""}" data-uid="${a._uid}" role="option">
       <div class="top"><span class="title">${esc(a.objet||a.autorite_emettrice||"Avis")}</span>${sc}</div>
       ${a.numero_reference?`<span class="mono" style="font-size:.72rem;color:var(--info)">${esc(a.numero_reference)}</span>`:""}
-      <div class="foot"><span class="src-chip">${esc(sourceOf(a))}</span><span>·</span><span>p.${a._page_debut??"?"}</span><span>·</span><span>${esc(a.categorie||"—")}</span>${fl}</div>
+      <div class="foot"><span class="src-chip">${esc(sourceOf(a))}</span><span>·</span><span>p.${esc((a._format&&a._format.pages)||a._page_debut||"?")}</span><span>·</span><span>${esc(a.categorie||"—")}</span>${a._bloque?`<span class="flag">bloqué</span>`:fl}</div>
     </button>`;
   }).join("");
   el.querySelectorAll(".item").forEach(n=>n.onclick=()=>{ state.avisSel=n.dataset.uid; renderAvisList(); renderAvisDetail(); });
@@ -315,6 +332,7 @@ function renderAvisDetail() {
       <div class="chips">${chips}</div></div>
       ${a._judge?`<div class="gauge"><div class="num" style="color:var(--${a._judge.verdict==="valide"?"ok":a._judge.verdict==="a_verifier"?"warn":"crit"})">${judgePct(a._judge)}%</div><div class="lbl">Confiance juge</div></div>`:(typeof s==="number"?`<div class="gauge"><div class="num">${s}%</div><div class="lbl">Complétude</div></div>`:"")}</div>
     ${judgeSection(a._judge)}
+    ${formatSection(a)}
     <div class="section-title">Complétude de la 1re passe</div>${reasonsHtml}
     <div class="section-title">Toutes les variables</div><div class="fields">${fieldsHtml}</div>`;
 }

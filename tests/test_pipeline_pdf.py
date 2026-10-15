@@ -8,9 +8,13 @@ def _fake_avis(path, numero=None):
         "autorite_emettrice": "MINISTERE X", "objet": "Acquisition de PC",
         "categorie": "Fournitures et Services courants", "type_avis": "Avis De Demande De Prix",
         "numero_reference": "N° 2026-1", "financement": "Budget de l'État 2026",
-        "montant_previsionnel_global": {"htva": "50M", "ttc": "60M"},
+        "montant_previsionnel_global": {"htva": "(50 000 000) HTVA", "ttc": "(60 000 000) TTC"},
         "date_limite_depot": "avant le 19/10/2026 à 09 heure",
-        "flat_text": "texte de l'annonce", "_numero": numero, "_source_pdf": "Quotidien N°4503",
+        "flat_text": ("Fournitures et Services courants COMMUNE X Acquisition de PC "
+                      "Avis de demande de prix n° : 2026-1/COMMUNE/DMP Financement : Budget de l'État 2026. "
+                      "Montant prévisionnel : (60 000 000) TTC. devront parvenir avant le 19/10/2026 à 09 heure. "
+                      "Le Président de la Commission d'attribution des marchés"),
+        "_numero": numero, "_source_pdf": "Quotidien N°4503", "_page_debut": 3, "_page_fin": 3,
     }]
 
 
