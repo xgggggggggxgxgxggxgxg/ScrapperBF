@@ -137,6 +137,9 @@ def process_document(md_path: str, numero: str):
 
             extracted["_page_debut"] = unit["page_debut"]
             extracted["_page_fin"] = unit["page_fin"]
+            # Provenance : de quel bulletin / fichier PDF vient cette annonce.
+            extracted["_numero"] = numero
+            extracted["_source"] = Path(md_path).name
             results[section].append(extracted)
             nb_ok += 1
 
