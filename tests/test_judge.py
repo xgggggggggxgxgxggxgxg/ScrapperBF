@@ -1,8 +1,24 @@
 """Tests hors-ligne du juge (vérificateur de cohérence déterministe)."""
 from judge import (
     parse_amounts, garbling_score, declared_lot_count, has_date,
-    judge_avis, judge_resultats, montant_amounts,
+    judge_avis, judge_resultats, montant_amounts, amount_near,
 )
+
+
+def test_montant_amounts_rejects_phone_numbers():
+    # Ligne de contact fourrée dans le champ montant -> aucun montant (pas de faux budget)
+    a = {"montant_previsionnel_global": {"brut": "72 19 13 88/ 78 93 63 62, du lundi au vendredi de 7H30 à 16H"}}
+    assert montant_amounts(a) == []
+
+
+def test_montant_amounts_keeps_grouped_and_parenthesized():
+    assert 80000000 in montant_amounts({"montant_previsionnel_global": {"ttc": "(80 000 000) F CFA"}})
+    assert 500 in montant_amounts({"montant_previsionnel_global": {"ttc": "cinq cents (500) FCFA"}})
+
+
+def test_amount_near_returns_closest_not_max():
+    t = "garantie de soumission d'un montant de un million (1 000 000) FCFA pour le lot 2 : (750 000)"
+    assert amount_near(t, r"garantie\s+de\s+soumission") == 1000000
 
 
 # --- primitives ------------------------------------------------------------

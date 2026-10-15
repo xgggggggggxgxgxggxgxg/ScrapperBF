@@ -66,13 +66,15 @@ def parse_amounts(text: str) -> list:
     return out
 
 
-def amount_near(text: str, keyword_re: str, window: int = 160) -> Optional[int]:
+def amount_near(text: str, keyword_re: str, window: int = 100) -> Optional[int]:
+    """Montant le PLUS PROCHE du mot-clé (et non le plus gros) dans une fenêtre
+    courte — évite de rattacher un budget global voisin à « caution »."""
     m = re.search(keyword_re, text or "", re.I)
     if not m:
         return None
     seg = text[m.start(): m.start() + window]
     a = parse_amounts(seg)
-    return max(a) if a else None
+    return a[0] if a else None
 
 
 def garbling_score(text: str) -> float:
@@ -136,17 +138,19 @@ def _mk(nom, statut, poids, detail=""):
 
 
 def montant_amounts(avis: dict) -> list:
-    """Nombres du champ montant. Contexte connu = un montant -> on capte aussi
-    les petites valeurs (détecte un « 500 » au lieu de « 500 000 »)."""
+    """Montants du champ montant : groupes de milliers « 80 000 000 » (via
+    parse_amounts) ET nombres entre parenthèses « (500) ». Exclut les suites
+    façon téléphone « 72 19 13 88 » (groupes de 2) et les années/délais isolés,
+    pour ne pas prendre une ligne de contact pour un budget."""
     v = avis.get("montant_previsionnel_global")
     s = " ".join(str(x) for x in v.values() if x) if isinstance(v, dict) else str(v or "")
-    out = []
-    for m in re.finditer(r"\d[\d . ]*\d|\d", s):
+    out = set(parse_amounts(s))
+    for m in re.finditer(r"\(\s*(\d{3,})\s*\)", s):  # (500), (50000000) sans séparateur
         try:
-            out.append(int(re.sub(r"[ . ]", "", m.group(0))))
+            out.add(int(m.group(1)))
         except ValueError:
             pass
-    return out
+    return sorted(out)
 
 
 def judge_avis(avis: dict, flat_text: str = "",
@@ -156,14 +160,20 @@ def judge_avis(avis: dict, flat_text: str = "",
     text = flat_text or avis.get("flat_text", "") or ""
     f = fold(text)
     checks = []
+    amts = montant_amounts(avis)           # montants réels du champ (calcul unique)
+    declared = declared_lot_count(text)    # nb de lots annoncé dans le texte
 
-    # 1. Complétude (champs clés présents)
+    # 1. Complétude (champs clés présents). Pour le montant, « présent » exige un
+    #    vrai montant parsé (un champ rempli de n° de téléphone ne compte pas).
     for field, poids, dur in [("autorite_emettrice", 1.0, True), ("objet", 1.0, True),
                               ("date_limite_depot", 0.9, True),
                               ("montant_previsionnel_global", 0.6, False),
                               ("numero_reference", 0.5, False),
                               ("type_avis", 0.4, False)]:
-        present = not is_empty(avis.get(field))
+        if field == "montant_previsionnel_global":
+            present = bool(amts)
+        else:
+            present = not is_empty(avis.get(field))
         checks.append(_mk(f"present:{field}", "pass" if present else ("fail" if dur else "warn"),
                           poids, "présent" if present else "manquant"))
 
@@ -173,7 +183,6 @@ def judge_avis(avis: dict, flat_text: str = "",
                       0.8, f"indice corruption {g}"))
 
     # 3. Montant plausible (détecte un facteur 1000)
-    amts = montant_amounts(avis)
     if amts:
         mx = max(amts)
         ok = 50_000 <= mx <= 500_000_000_000
@@ -182,17 +191,17 @@ def judge_avis(avis: dict, flat_text: str = "",
     else:
         checks.append(_mk("montant_plausible", "na", 0.7, "montant absent"))
 
-    # 4. Ratio caution / budget (≈ 1–2 % ; marge 0,2 %–5 %)
-    caution = amount_near(text, r"garantie\s+de\s+soumission|caution")
-    if caution and amts:
+    # 4. Ratio caution / budget (≈ 1–2 % ; marge 0,2 %–5 %). On s'abstient sur
+    #    les avis multi-lots (caution par lot vs budget global = comparaison faussée).
+    caution = amount_near(text, r"garantie\s+de\s+soumission|garantie\s+financi[èe]re|caution")
+    if caution and amts and not (declared and declared > 1):
         ratio = caution / max(amts)
         statut = "pass" if 0.002 <= ratio <= 0.05 else "warn"
         checks.append(_mk("ratio_caution", statut, 0.5, f"{ratio*100:.2f}% du budget"))
     else:
-        checks.append(_mk("ratio_caution", "na", 0.5, "caution ou budget absent"))
+        checks.append(_mk("ratio_caution", "na", 0.5, "n/a (multi-lots ou caution/budget absent)"))
 
     # 5. Cohérence des lots (annoncé vs extrait)
-    declared = declared_lot_count(text)
     lots = avis.get("lots")
     n_extr = len(lots) if isinstance(lots, list) and lots else (
         1 if avis.get("est_en_lots") in (False, None) and declared == 1 else None)

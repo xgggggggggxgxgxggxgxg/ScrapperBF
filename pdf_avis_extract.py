@@ -215,7 +215,9 @@ def extract_avis_from_pdf(path: str, numero: Optional[str] = None,
             "montant_previsionnel_global": mont_val,
             "delai_execution": norm(delai.group(1))[:120] if delai else None,
             "date_limite_depot": find_depot(body),
-            "flat_text": norm(body)[:2000],  # contexte pour le modèle de décision / l'API
+            # Contexte pour décision / juge / API. Cap large (4500) : la clause de
+            # garantie de soumission des appels d'offres est au-delà de 2000 car.
+            "flat_text": norm(body)[:4500],
             "_page_debut": pg, "_page_fin": pg,
             "_numero": numero, "_source_pdf": label, "_source": Path(path).name,
         })
