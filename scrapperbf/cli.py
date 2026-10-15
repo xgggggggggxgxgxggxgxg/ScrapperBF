@@ -128,6 +128,35 @@ def cmd_titles(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_bands(args: argparse.Namespace) -> int:
+    """Index des annonces lu dans la maquette (bandes colorées du PDF)."""
+    from .core.layout import default_backend, describe, extract_bands, group_notices
+
+    backend = default_backend()
+    if backend is None:
+        print("PyMuPDF requis pour lire la maquette : pip install pymupdf", file=sys.stderr)
+        return 1
+
+    bands = extract_bands(args.pdf, backend)
+    notices = group_notices(bands)
+    if args.json:
+        Path(args.json).write_text(
+            json.dumps({
+                "pdf": args.pdf,
+                "bandes": [b.to_dict() for b in bands],
+                "annonces": [n.to_dict() for n in notices],
+            }, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        print(f"Index JSON -> {args.json}")
+    print(describe(notices))
+    if not notices:
+        # Un supplément « (bis) » ne contient que des résultats : aucune bande
+        # d'annonce n'y est donc attendue.
+        print("\nAucune annonce : document de résultats seuls, ou maquette différente.")
+    return 0
+
+
 def cmd_feedback(args: argparse.Namespace) -> int:
     store = FeedbackStore(args.feedback_db)
     if args.action == "import":
@@ -193,6 +222,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("fields", help="Champs attendus pour une nature d'annonce")
     p.add_argument("kind", help="ex: DEMANDE_PRIX, APPEL_OFFRES, RESULTATS")
     p.set_defaults(func=cmd_fields)
+
+    p = sub.add_parser("bands", help="Index des annonces lu dans la maquette du PDF")
+    p.add_argument("pdf")
+    p.add_argument("--json", help="Écrire l'index en JSON")
+    p.set_defaults(func=cmd_bands)
 
     p = sub.add_parser("feedback", help="Gérer les retours humains")
     p.add_argument("action", choices=["import", "stats", "prompt"])

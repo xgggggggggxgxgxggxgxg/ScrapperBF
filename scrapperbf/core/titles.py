@@ -17,7 +17,7 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .text import normalize
+from .text import normalize, strip_markup
 
 
 class TitleKind(str, Enum):
@@ -135,8 +135,18 @@ class TitleAnalysis:
         return self.kind in SECTION_OF_KIND
 
 
+# Balises posées par ``core.layout`` quand le titre vient d'une bande colorée
+# de la maquette. La couleur est un choix explicite du metteur en page : c'est
+# une preuve, pas un indice, et elle court-circuite toute heuristique.
+LAYOUT_MARKER_RE = re.compile(r"^\[(CATEGORIE|EMETTEUR|OBJET|INSTITUTION)\]\s*(.*)$", re.IGNORECASE)
+
+
 def analyze_title(raw_title: str) -> TitleAnalysis:
     """Classe un titre et déduit section, type de marché et catégorie."""
+    marker = LAYOUT_MARKER_RE.match(strip_markup(raw_title).strip())
+    if marker:
+        return _analyze_layout_title(marker.group(1).upper(), marker.group(2).strip())
+
     text = normalize(raw_title)
     if not text:
         return TitleAnalysis(TitleKind.UNKNOWN, 0.0, ["titre vide"])
@@ -183,6 +193,32 @@ def analyze_title(raw_title: str) -> TitleAnalysis:
         return TitleAnalysis(TitleKind.AUTORITE, 0.6, ["nom d'institution reconnu"])
 
     return TitleAnalysis(TitleKind.UNKNOWN, 0.15, ["aucun motif connu"])
+
+
+def _analyze_layout_title(role: str, text: str) -> TitleAnalysis:
+    """Classe un titre dont le rôle est connu par la couleur de sa bande."""
+    preuve = f"bande {role.lower()} de la maquette"
+    if role == "CATEGORIE":
+        return TitleAnalysis(
+            TitleKind.SECTION_MARKER, 1.0, [preuve],
+            marche_type=text, marker_value=text,
+        )
+    if role in ("EMETTEUR", "INSTITUTION"):
+        return TitleAnalysis(TitleKind.AUTORITE, 1.0, [preuve])
+
+    # Bande cyan : c'est l'objet de l'annonce. Sa nature précise (demande de
+    # prix, appel d'offres, AMI) n'est pas dans la bande mais dans le corps,
+    # alors on garde OBJET et on laisse le corps l'affiner.
+    nature = analyze_title(text) if text else TitleAnalysis(TitleKind.UNKNOWN, 0.0)
+    if nature.starts_notice and nature.kind is not TitleKind.OBJET:
+        return TitleAnalysis(
+            nature.kind, min(1.0, nature.confidence + 0.05), [preuve, *nature.evidence],
+            section=nature.section, marche_type=nature.marche_type,
+        )
+    return TitleAnalysis(
+        TitleKind.OBJET, 0.95, [preuve], section="AVIS",
+        marche_type=infer_marche_type(text),
+    )
 
 
 def infer_marche_type(raw_title: str) -> str | None:

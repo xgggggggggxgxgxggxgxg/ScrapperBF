@@ -322,6 +322,8 @@ def extract_pdf(
     dpi: int = OCR_DPI,
     force_ocr: bool = False,
     on_page: Callable[[PageText], None] | None = None,
+    layout_backend=None,
+    read_layout: bool = True,
 ) -> OcrReport:
     """Extrait le texte d'un PDF page par page, en n'OCRisant que le nécessaire.
 
@@ -336,14 +338,42 @@ def extract_pdf(
             "ou passez un backend explicite."
         )
     ocr = ocr_backend if ocr_backend is not None else _default_ocr_backend()
+    if read_layout and layout_backend is None:
+        from ..core.layout import default_backend as _layout_default
+
+        layout_backend = _layout_default()
 
     report = OcrReport(path=path)
     for index in range(pdf.page_count(path)):
-        page = _extract_one(pdf, ocr, path, index, lang, dpi, force_ocr)
+        page = _extract_one(pdf, ocr, path, index, lang, dpi, force_ocr,
+                            layout_backend if read_layout else None)
         report.pages.append(page)
         if on_page:
             on_page(page)
     return report
+
+
+def _layout_headings(path: str, index: int, layout_backend) -> list[str]:
+    """Titres issus des bandes colorées de la page, s'ils sont lisibles.
+
+    Ils sont placés en tête du rendu Markdown : la maquette compose justement
+    ces bandes en tête d'annonce, et leur rôle est balisé pour que la
+    classification des titres n'ait rien à deviner.
+    """
+    if layout_backend is None:
+        return []
+    try:
+        from ..core.layout import bands_on_page, bands_to_markdown
+
+        bands = bands_on_page(
+            layout_backend.page_fills(path, index),
+            layout_backend.page_words(path, index),
+            index + 1,
+        )
+    except Exception:
+        # La maquette est un bonus : son échec ne doit pas coûter la page.
+        return []
+    return bands_to_markdown(bands).get(index + 1, [])
 
 
 def _render_text_layer(
@@ -376,8 +406,10 @@ def _extract_one(
     lang: str,
     dpi: int,
     force_ocr: bool,
+    layout_backend=None,
 ) -> PageText:
     text, rendu, confidence, note = "", "", 0.0, ""
+    entetes = _layout_headings(path, index, layout_backend)
     if not force_ocr:
         try:
             text = pdf.page_text(path, index) or ""
@@ -387,7 +419,13 @@ def _extract_one(
         # La confiance se juge sur le texte brut ; c'est le rendu Markdown, avec
         # ses titres promus, qui part vers la suite du pipeline.
         rendu, promu = _render_text_layer(pdf, path, index, text)
-        if not promu:
+        if entetes:
+            # Les bandes portent déjà leur texte dans le corps de la page ; les
+            # ajouter en tête le duplique, mais c'est ce doublon qui donne à la
+            # segmentation un titre dont le rôle est certain.
+            rendu = "\n".join([*entetes, "", rendu])
+            note += f" — {len(entetes)} bande(s) de maquette lue(s)"
+        elif not promu:
             note += " — mise en forme indisponible, titres non promus"
 
     needs_ocr = force_ocr or confidence < 0.6
