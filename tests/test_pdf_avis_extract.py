@@ -1,7 +1,7 @@
 """Tests hors-ligne des fonctions pures de l'extracteur PDF (sans PDF réel)."""
 from pdf_avis_extract import (
     detect_type, trim_reference, is_emetteur, find_depot,
-    split_financement, enrich_coverage, CORE_FIELDS,
+    split_financement, enrich_coverage, parse_montant, CORE_FIELDS,
 )
 
 
@@ -40,6 +40,28 @@ def test_find_depot_patterns():
     assert "au plus tard le" in find_depot("Les offres devront parvenir au plus tard le 28 octobre 2026 à 09h00.").lower()
     assert find_depot("jusqu'au 15 novembre 2026 à 9 heures") is not None
     assert find_depot("Aucune date ici") is None
+
+
+def test_find_depot_avant_le():
+    # cas réel signalé : « … Tél. : … avant le 19/10/2026 à 09 heure »
+    txt = "remises au Secrétariat de la DMP, Tél. : (00226) 25 40 86 52, avant le 19/10/2026 à 09 heure ."
+    d = find_depot(txt)
+    assert d is not None and "19/10/2026" in d
+
+
+def test_parse_montant_classifies_htva_ttc():
+    raw = ("cinquante millions (50 847 458) francs CFA HTVA soit soixante millions "
+           "(60 000 000) francs CFA TTC Cet Avis de demande de prix fait suite")
+    m = parse_montant(raw)
+    assert "HTVA" in m["htva"] and "50 847 458" in m["htva"]
+    assert "TTC" in m["ttc"] and "60 000 000" in m["ttc"]
+    assert "Cet" not in (m["htva"] + m["ttc"])  # queue parasite coupée
+
+
+def test_parse_montant_brut_fallback():
+    m = parse_montant("un montant global de 10 000 000 FCFA")
+    assert "brut" in m and "10 000 000" in m["brut"]
+    assert parse_montant("") is None
 
 
 def test_split_financement_stops_at_next_field():

@@ -40,15 +40,21 @@ REF_STOP_RE = re.compile(r"\s+(financement|montant|identifiant|ma[îi]tre|la\s+p
 FIN_RE = re.compile(r"financement\s*:?\s*(.+)", re.I)
 FIN_STOP_RE = re.compile(r"\s+(?:Identifiant|Cet\s+avis|La\s+participation|Montant\s+pr[ée]visionnel|fait\s+suite|\d+\.\s)", re.I)
 MONTANT_RE = re.compile(r"montant\s+pr[ée]visionnel[^:]*:?\s*(.+)", re.I)
-MONTANT_STOP_RE = re.compile(r"\s+(?:Cet avis|Identifiant|\d+\.\s)", re.I)
 DELAI_RE = re.compile(r"d[ée]lai\s+d[’'`]?\s*ex[ée]cution[^:]*:?\s*(.+)", re.I)
 AC_RE = re.compile(r"identifiant\s+de\s+l[’'`]?\s*autorit[ée]\s+contractante\s*:?\s*(.+)", re.I)
 DEPOT_RES = [
     re.compile(r"au\s+plus\s+tard\s+le[^.;\n]{4,55}", re.I),
+    # « … devront parvenir … avant le 19/10/2026 à 09 heure »
+    re.compile(r"avant\s+le\s+\d{1,2}[/\s][^.;\n]{3,45}", re.I),
+    re.compile(r"(?:devront\s+parvenir|d[ée]pos[ée]es?|remises?)[^.;\n]{0,140}?avant\s+le\s+[^.;\n]{4,45}", re.I),
     re.compile(r"date\s+limite[^.;\n]{0,45}?(?:fix[ée]e?\s+)?(?:au|le)\s+[^.;\n]{4,45}", re.I),
     re.compile(r"jusqu[’'`]au\s+[^.;\n]{4,45}", re.I),
     re.compile(r"(?:remise|d[ée]p[ôo]t)\s+des\s+offres[^.;\n]{0,45}?(?:au|le)\s+[^.;\n]{4,45}", re.I),
 ]
+# Montant prévisionnel : souvent DEUX valeurs justes (HTVA puis « soit » TTC).
+_MONT_STOP_RE = re.compile(r"\s+(?:Cet\b|La\s+participation|Le\s+pr[ée]sent|\d+\.\s)", re.I)
+_MONT_HTVA_RE = re.compile(r"(.+?\bHTVA)\b", re.I)
+_MONT_TTC_RE = re.compile(r"soit\s+(.+?\bTTC)\b", re.I)
 STOP_LINE_RE = re.compile(r"www\.dgcmef|^\s*\d{1,3}\s*$|quotidien\s+n", re.I)
 
 CORE_FIELDS = ["autorite_emettrice", "objet", "type_avis", "numero_reference",
@@ -104,6 +110,23 @@ def find_depot(body: str) -> Optional[str]:
         if m:
             return norm(m.group(0))[:120]
     return None
+
+
+def parse_montant(raw: str):
+    """Classe le montant prévisionnel en {htva, ttc} quand les deux valeurs sont
+    présentes (« … HTVA soit … TTC »), sinon {brut}. Coupe le « Cet … » parasite."""
+    blob = _MONT_STOP_RE.split(norm(raw))[0].strip() if raw else ""
+    if not blob:
+        return None
+    htva = ttc = None
+    mh = _MONT_HTVA_RE.search(blob)
+    if mh:
+        htva = norm(mh.group(1))
+    mt = _MONT_TTC_RE.search(blob)
+    if mt:
+        ttc = norm(mt.group(1))
+    out = {k: v for k, v in (("htva", htva), ("ttc", ttc)) if v}
+    return out or {"brut": blob[:160]}
 
 
 def _lines_with_pages(pdf) -> list:
@@ -180,10 +203,7 @@ def extract_avis_from_pdf(path: str, numero: Optional[str] = None,
         ac = AC_RE.search(body)
         fin = FIN_RE.search(body)
 
-        mont_val = None
-        if mont:
-            mv = MONTANT_STOP_RE.split(norm(mont.group(1)))[0]
-            mont_val = {"brut": mv[:160]} if mv else None
+        mont_val = parse_montant(mont.group(1)) if mont else None
 
         avis.append({
             "autorite_emettrice": emetteur or (norm(ac.group(1))[:160] if ac else None),
@@ -195,6 +215,7 @@ def extract_avis_from_pdf(path: str, numero: Optional[str] = None,
             "montant_previsionnel_global": mont_val,
             "delai_execution": norm(delai.group(1))[:120] if delai else None,
             "date_limite_depot": find_depot(body),
+            "flat_text": norm(body)[:2000],  # contexte pour le modèle de décision / l'API
             "_page_debut": pg, "_page_fin": pg,
             "_numero": numero, "_source_pdf": label, "_source": Path(path).name,
         })
