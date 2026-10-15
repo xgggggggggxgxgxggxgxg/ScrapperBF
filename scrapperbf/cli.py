@@ -157,6 +157,32 @@ def cmd_bands(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_catalogue(args: argparse.Namespace) -> int:
+    """Catalogue et dashboard de recherche, à partir d'un ou plusieurs PDF."""
+    from .catalogue import build_catalogue
+    from .dashboard.catalogue_view import write_catalogue
+
+    catalogue = build_catalogue(args.pdfs, with_judge=not args.sans_juge)
+    stats = catalogue.stats
+    print(f"{stats['annonces']} annonces — {', '.join(stats['documents'])}")
+    if stats["fiabilite_moyenne"] is not None:
+        print(f"  fiabilité moyenne {stats['fiabilite_moyenne']:.0%} "
+              f"| {stats['a_relire']} annonce(s) à relire")
+    print("  secteurs : " + ", ".join(f"{k} {v}" for k, v in list(stats["secteurs"].items())[:6]))
+    regions = {k: v for k, v in stats["regions"].items() if k != "—"}
+    print("  régions  : " + (", ".join(f"{k} {v}" for k, v in list(regions.items())[:6]) or "aucune"))
+
+    if args.json:
+        Path(args.json).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.json).write_text(
+            json.dumps(catalogue.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        print(f"\nCatalogue JSON -> {args.json}")
+    sortie = args.dashboard or "catalogue.html"
+    print(f"Dashboard      -> {write_catalogue(catalogue, sortie)}")
+    return 0
+
+
 def cmd_prompt(args: argparse.Namespace) -> int:
     """Affiche le prompt qui serait envoyé, sans rien envoyer.
 
@@ -246,6 +272,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("pdf")
     p.add_argument("--json", help="Écrire l'index en JSON")
     p.set_defaults(func=cmd_bands)
+
+    p = sub.add_parser("catalogue", help="Catalogue + dashboard de recherche depuis des PDF")
+    p.add_argument("pdfs", nargs="+")
+    p.add_argument("--dashboard", help="Fichier HTML de sortie (défaut : catalogue.html)")
+    p.add_argument("--json", help="Écrire aussi le catalogue en JSON")
+    p.add_argument("--sans-juge", action="store_true",
+                   help="Ne pas noter la fiabilité (plus rapide)")
+    p.set_defaults(func=cmd_catalogue)
 
     p = sub.add_parser("prompt", help="Afficher le prompt d'extraction, sans appeler d'API")
     p.add_argument("fichier", help="Fichier texte contenant le corps d'une annonce")

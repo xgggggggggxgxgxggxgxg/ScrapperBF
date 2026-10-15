@@ -196,6 +196,39 @@ python -m scrapperbf fields DEMANDE_PRIX
 `audit --fail-on-critical` rend un code de sortie 2 s'il reste une alerte
 critique : exploitable en cron ou en CI pour bloquer un bulletin douteux.
 
+## Dashboard de recherche
+
+C'est la réponse au problème d'origine : un bulletin fait soixante pages, le
+lecteur en cherche deux annonces, et les trouver à l'œil prend une heure.
+
+```bash
+python -m scrapperbf catalogue bulletin1.pdf bulletin2.pdf --dashboard recherche.html
+```
+
+Fichier HTML autonome, sans serveur ni ressource réseau. Les filtres sont sur
+une seule rangée au-dessus du tableau et **se combinent par ET** : secteur,
+région, catégorie, portée (nationale ou régionale), type d'émetteur, bulletin,
+fiabilité minimale, et recherche plein texte sur l'objet, l'émetteur et le corps
+de l'annonce. Les filtres actifs s'affichent en pastilles retirables d'un clic,
+pour qu'on ne cherche jamais pourquoi la liste est vide. La sélection courante
+s'exporte en CSV (point-virgule et BOM, pour un tableur configuré en français).
+
+Deux choix de présentation sont assumés :
+
+- **les secteurs ne sont pas colorés.** Dix-huit secteurs demanderaient de
+  recycler les teintes, ce qui rend l'identité illisible ; ils sont donc rendus
+  en pastilles de texte. Les seules couleurs porteuses de sens sont celles de la
+  fiabilité, et elles accompagnent toujours le pourcentage chiffré — jamais la
+  couleur seule.
+- **quand c'est un secteur secondaire qui retient une annonce**, c'est lui qui
+  s'affiche en premier, en accent, avec le secteur principal en gris à côté :
+  sinon on se demande ce que fait une annonce « Transport » sous un filtre
+  « Santé ».
+
+Mesuré sur les cinq bulletins fournis : 98 annonces, 16 secteurs, 9 régions,
+fiabilité moyenne 79 %, et un filtre « Bâtiment + régional + forage » ramène
+l'unique annonce qui correspond.
+
 ## Dashboard de vérification
 
 Fichier HTML autonome (aucun serveur, aucune ressource réseau), à ouvrir à côté du
@@ -247,13 +280,15 @@ signalées. Installation : `pip install -e '.[ocr]'` plus `tesseract-ocr-fra`.
 
 ```
 scrapperbf/
-  core/    text.py pages.py titles.py priority.py segment.py
+  catalogue.py            chaîne complète : PDF → annonces classées, notées, filtrables
+  core/    text.py pages.py titles.py priority.py segment.py layout.py notices.py taxonomy.py
   qa/      rules.py scoring.py alerts.py duplicates.py multipage.py report.py
   ocr/     light_ocr.py
   feedback/store.py
-  dashboard/build.py
+  extract/ labels.py numerals.py prompt.py providers.py cascade.py
+  dashboard/build.py catalogue_view.py
   cli.py
-tests/     365 tests, sans accès réseau
+tests/     391 tests, sans accès réseau
 ```
 
 Couches historiques conservées : `layer1_extract.py` (Markdown → blocs),
