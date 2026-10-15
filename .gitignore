@@ -16,6 +16,9 @@ env/
 *.sqlite3
 ingestion.db
 
+# Historique de rétroaction (généré localement, boucle d'amélioration)
+feedback_store.json
+
 # Outputs générés (relançables via pipeline.py)
 output/
 layer1_output.json

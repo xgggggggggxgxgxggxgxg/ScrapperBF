@@ -53,11 +53,15 @@ Ta mission est une AUTO-ANALYSE puis une AUTO-COMPLÉTION de TOUTES les variable
 2. Tu ne dois JAMAIS inventer. Une valeur ne doit provenir que du texte de l'annonce.
    Une valeur vide est acceptable UNIQUEMENT si le champ est réellement absent ("absent").
 3. Recopie les montants, numéros et dates tels qu'écrits (pas de conversion d'unité).
+4. Pour CHAQUE champ, donne une "confiance" entre 0 et 1. Si tu n'es pas certain à 100 %,
+   tu DOIS expliquer précisément POURQUOI dans "justification" (ambiguïté, texte illisible,
+   plusieurs valeurs candidates, formulation inhabituelle...). Ces raisons servent à
+   améliorer les extractions futures : sois concret et actionnable.
 
 Réponds UNIQUEMENT par un objet JSON de la forme :
 {
   "champs": { <tous les champs du schéma avec leur valeur finale ou null> },
-  "analyse": [ { "champ": "<nom>", "statut": "confirme|corrige|complete|absent", "justification": "<courte raison citant le texte>" } ]
+  "analyse": [ { "champ": "<nom>", "statut": "confirme|corrige|complete|absent", "confiance": <0..1>, "justification": "<raison citant le texte ; obligatoire si confiance < 1>" } ]
 }
 L'objet "champs" doit contenir TOUS les champs demandés, et "analyse" une entrée par champ.
 """
@@ -99,6 +103,7 @@ def build_review_schema(field_defs: dict) -> dict:
                     "properties": {
                         "champ": {"type": "string"},
                         "statut": {"type": "string", "enum": list(STATUTS)},
+                        "confiance": {"type": "number"},
                         "justification": {"type": "string"},
                     },
                 },
@@ -121,9 +126,20 @@ def _format_extracted(extracted: dict, field_defs: dict) -> str:
     return "\n".join(lines)
 
 
-def build_review_prompt(unit_text: str, extracted: dict, field_defs: dict) -> str:
+def build_review_prompt(unit_text: str, extracted: dict, field_defs: dict,
+                        feedback_hint: str = "") -> str:
     schema = build_review_schema(field_defs)
+    hint_block = ""
+    if feedback_hint:
+        # Rétroaction : les écarts des traitements précédents sont réinjectés ici
+        # pour que le modèle évite de reproduire les mêmes erreurs.
+        hint_block = (
+            "Retour d'expérience des extractions précédentes "
+            "(erreurs récurrentes à éviter cette fois) :\n"
+            f"{feedback_hint}\n\n"
+        )
     return (
+        f"{hint_block}"
         "Texte intégral de l'annonce à analyser :\n"
         "------------------------------------------------------------\n"
         f"{unit_text}\n"
@@ -171,9 +187,84 @@ def merge_review(extracted: dict, review_result: dict, field_defs: dict) -> dict
     return completed
 
 
+def _confiance_of(entry: dict) -> Optional[float]:
+    c = entry.get("confiance")
+    if isinstance(c, bool):  # bool est un int en Python -> on l'exclut
+        return None
+    if isinstance(c, (int, float)):
+        return max(0.0, min(1.0, float(c)))
+    return None
+
+
+def compute_exactitude(completed: dict, field_defs: dict) -> dict:
+    """Calcule un score d'exactitude déterministe [0..100] et, si < 100,
+    la LISTE DES RAISONS de l'écart (champ par champ), exploitable comme
+    signal d'amélioration pour les traitements suivants.
+
+    Philosophie : la confiance auto-déclarée ne fait que moduler un champ
+    déjà présent ; les vrais zéros viennent de faits vérifiables (champ requis
+    absent, champ vide non résolu). Un champ corrigé reste fiable MAIS génère
+    une raison (le modèle s'est trompé en 1re passe -> à apprendre)."""
+    analyse = completed.get("_analyse") or []
+    info = {a.get("champ"): a for a in analyse if isinstance(a, dict) and a.get("champ")}
+    absents = set(completed.get("_champs_absents") or [])
+    a_verifier = set(completed.get("_champs_a_verifier") or [])
+
+    fiabilites = []
+    raisons = []
+    for name, spec in field_defs.items():
+        entry = info.get(name, {})
+        statut = entry.get("statut")
+        conf = _confiance_of(entry)
+        justif = (entry.get("justification") or "").strip()
+        required = bool(spec.get("required"))
+
+        fiab = 1.0
+        raison = None
+
+        if name in a_verifier:
+            fiab = 0.0
+            raison = "champ vide non résolu (ni trouvé dans le texte, ni déclaré absent)"
+        elif name in absents:
+            if required:
+                fiab = 0.0
+                raison = "champ REQUIS absent du texte de l'annonce"
+            else:
+                fiab = 1.0  # absence légitime d'un champ optionnel : pas un défaut
+        elif statut == STATUT_CORRIGE:
+            fiab = conf if conf is not None else 0.9
+            raison = f"valeur de 1re passe erronée puis corrigée : {justif}".strip()
+        elif statut in (STATUT_CONFIRME, STATUT_COMPLETE):
+            fiab = conf if conf is not None else 1.0
+            if conf is not None and conf < 1.0:
+                raison = f"confiance déclarée {conf:.2f} : {justif}".strip()
+        else:
+            # Aucune analyse explicite pour ce champ.
+            if _is_empty(completed.get(name)):
+                fiab = 0.0 if required else 0.7
+                raison = "champ non analysé et laissé vide"
+            else:
+                fiab = 0.9
+                raison = "champ renseigné mais non analysé explicitement"
+
+        fiabilites.append(fiab)
+        if fiab < 1.0 and raison:
+            raisons.append({
+                "champ": name,
+                "statut": statut,
+                "confiance": conf,
+                "fiabilite": round(fiab, 2),
+                "raison": raison,
+            })
+
+    score = round(100 * sum(fiabilites) / len(fiabilites)) if fiabilites else 0
+    return {"score": score, "raisons": raisons}
+
+
 def review_and_complete(unit_text: str, extracted: dict, section: str,
                         max_retries: int = 3,
-                        providers: Optional[list] = None) -> Optional[dict]:
+                        providers: Optional[list] = None,
+                        feedback_hint: str = "") -> Optional[dict]:
     """Passe d'auto-analyse + auto-complétion.
 
     Rend un dict enrichi (champs finaux + piste d'audit `_analyse` /
@@ -182,7 +273,7 @@ def review_and_complete(unit_text: str, extracted: dict, section: str,
     """
     field_defs = load_field_schema(section)
     schema = build_review_schema(field_defs)
-    prompt = build_review_prompt(unit_text, extracted, field_defs)
+    prompt = build_review_prompt(unit_text, extracted, field_defs, feedback_hint=feedback_hint)
 
     # strict=False : la sortie contient des objets imbriqués libres (montants,
     # contacts...) que le mode "strict" d'OpenRouter rejetterait ; la contrainte
@@ -194,7 +285,14 @@ def review_and_complete(unit_text: str, extracted: dict, section: str,
     if review_result is None:
         return None
 
-    return merge_review(extracted, review_result, field_defs)
+    completed = merge_review(extracted, review_result, field_defs)
+
+    # Score d'exactitude + raisons de l'écart (si < 100 %) -> signal d'amélioration.
+    exactitude = compute_exactitude(completed, field_defs)
+    completed["_score_exactitude"] = exactitude["score"]
+    if exactitude["score"] < 100:
+        completed["_raisons_ecart"] = exactitude["raisons"]
+    return completed
 
 
 if __name__ == "__main__":

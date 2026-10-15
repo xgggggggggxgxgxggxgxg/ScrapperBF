@@ -9,8 +9,10 @@ Le projet transforme les PDF du « Quotidien » (via OCR/MinerU → Markdown) en
 - **Layer 1 — `layer1_extract.py`** : parse le Markdown (titres, textes, tableaux), nettoie bruit (footers `N°...`, `www...`, `Sommaire`), produit 1 page virtuelle JSON.
 - **Layer 2 — `new_logic/layer2_segment.py`** : segmente en unités métier (`AVIS` / `RESULTATS`), détecte catégories, lots, pages début/fin, `flat_text`.
 - **Layer 3 — `layer3_extract_llm.py`** : première extraction sémantique via LLM + schéma configurable. Schéma dans `schema_config.yaml` (aucun changement de code pour ajouter un champ). Rotation multi-provider : OpenRouter Xiaomi → Gemini → OpenRouter Mistral, avec backoff exponentiel (`call_with_rotation`, réutilisée par la Couche 4).
-- **Layer 4 — `layer4_review.py`** : **auto-analyse + auto-complétion**. On redonne au LLM le *texte intégral* de l'annonce découpée **et** les valeurs déjà extraites ; il revoit **toutes** les variables (confirme / corrige / complète) et ne laisse vide que ce qui n'existe **réellement pas** dans le texte. Sortie enrichie d'une piste d'audit par champ : `_analyse` (`{champ, statut, justification}`, statut ∈ `confirme|corrige|complete|absent`), `_champs_absents` (vides assumés) et `_champs_a_verifier` (vides anormaux → relecture humaine). Agnostique de la 1re passe (regex, LLM ou OCR). Désactivable via `ENABLE_REVIEW=0`.
-- **Orchestration — `pipeline.py`** : enchaîne Couches 1→4, validation minimale (champs `required` du YAML) + fallback, tracking SQLite (`ingestion.db`) pour exécution hebdo + backfill idempotent (`numero` → `ok` / `echec_partiel`), `reprocess_failures()` pour rejouer uniquement les échecs.
+- **Layer 4 — `layer4_review.py`** : **auto-analyse + auto-complétion**. On redonne au LLM le *texte intégral* de l'annonce découpée **et** les valeurs déjà extraites ; il revoit **toutes** les variables (confirme / corrige / complète) et ne laisse vide que ce qui n'existe **réellement pas** dans le texte. Sortie enrichie d'une piste d'audit par champ : `_analyse` (`{champ, statut, confiance, justification}`, statut ∈ `confirme|corrige|complete|absent`), `_champs_absents` (vides assumés) et `_champs_a_verifier` (vides anormaux → relecture humaine). Agnostique de la 1re passe (regex, LLM ou OCR). Désactivable via `ENABLE_REVIEW=0`.
+  - **Score d'exactitude + raisons** : `compute_exactitude()` calcule un score déterministe `[0..100]` par annonce. Dès qu'il est **< 100 %**, les **raisons** de l'écart sont listées champ par champ (`_raisons_ecart` : `{champ, statut, confiance, fiabilite, raison}`). La confiance auto-déclarée ne module qu'un champ déjà présent ; les vrais zéros viennent de faits vérifiables (champ requis absent, champ vide non résolu).
+- **Boucle de rétroaction — `feedback_store.py`** : chaque écart (< 100 %) est enregistré, puis **réinjecté** dans le prompt de révision des traitements suivants (`feedback_hint`) sous forme de « erreurs récurrentes à éviter ». Le modèle voit explicitement ses fautes passées → il s'améliore d'un run à l'autre. `summary()` donne un classement des champs les plus fautifs (tableau de bord qualité).
+- **Orchestration — `pipeline.py`** : enchaîne Couches 1→4, injecte le `feedback_hint`, enregistre les écarts, validation minimale (champs `required` du YAML) + fallback, tracking SQLite (`ingestion.db`) pour exécution hebdo + backfill idempotent (`numero` → `ok` / `echec_partiel`), `reprocess_failures()` pour rejouer uniquement les échecs.
 
 Outils annexes :
 
@@ -52,6 +54,9 @@ python layer3_extract_llm.py
 
 # Aperçu HORS-LIGNE du prompt de révision (aucun appel réseau)
 python layer4_review.py annonce.txt AVIS
+
+# Classement des champs les plus souvent en écart (qualité / amélioration)
+python feedback_store.py
 
 # Tests hors-ligne (providers LLM injectés, sans réseau ni clé)
 pip install pytest && python -m pytest tests/ -q

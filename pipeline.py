@@ -28,6 +28,7 @@ from layer1_extract import extract_document_from_markdown as extract_document
 from layer2_segment import segment_document, unit_to_text
 from layer3_extract_llm import extract_unit
 from layer4_review import review_and_complete, _is_empty
+import feedback_store
 
 DB_PATH = BASE_DIR / "ingestion.db"
 OUTPUT_DIR = BASE_DIR / "output"
@@ -91,6 +92,10 @@ def process_document(md_path: str, numero: str):
     nb_ok, nb_echec = 0, 0
 
     for section in ("AVIS",):
+        # Rétroaction : rappel des erreurs récurrentes des runs précédents,
+        # construit AVANT la boucle pour bénéficier à toutes les unités de ce run.
+        feedback_hint = feedback_store.build_hint(section) if ENABLE_REVIEW else ""
+
         for unit in sections.get(section, []):
             flat_text = unit_to_text(unit)
 
@@ -107,7 +112,9 @@ def process_document(md_path: str, numero: str):
 
                 # Couche 4 : auto-analyse + auto-complétion de TOUTES les variables.
                 if ENABLE_REVIEW:
-                    reviewed = review_and_complete(flat_text, extracted, section)
+                    reviewed = review_and_complete(
+                        flat_text, extracted, section, feedback_hint=feedback_hint
+                    )
                     if reviewed is not None:
                         extracted = reviewed
 
@@ -119,6 +126,14 @@ def process_document(md_path: str, numero: str):
                     (numero, section, unit["page_debut"], flat_text),
                 )
                 continue
+
+            # Score d'exactitude < 100 % -> on enregistre les raisons pour que
+            # les prochains traitements s'améliorent (boucle de rétroaction).
+            score = extracted.get("_score_exactitude")
+            if score is not None and score < 100:
+                feedback_store.record(
+                    extracted.get("_raisons_ecart", []), numero, section, score=score
+                )
 
             extracted["_page_debut"] = unit["page_debut"]
             extracted["_page_fin"] = unit["page_fin"]
