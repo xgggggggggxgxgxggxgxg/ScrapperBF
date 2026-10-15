@@ -157,6 +157,25 @@ def cmd_bands(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_prompt(args: argparse.Namespace) -> int:
+    """Affiche le prompt qui serait envoyé, sans rien envoyer.
+
+    Sert à vérifier les consignes et les candidats relevés avant de dépenser un
+    appel d'API — et à les montrer à quelqu'un qui veut les corriger.
+    """
+    from .extract.prompt import build_prompt, known_fields
+
+    body = Path(args.fichier).read_text(encoding="utf-8")
+    champs = [c.strip() for c in args.champs.split(",") if c.strip()] if args.champs else None
+    spec = build_prompt(body, champs, bulletin_date=args.date_bulletin)
+    print(f"--- SYSTÈME ({len(spec.system)} caractères) ---\n{spec.system}")
+    print(f"\n--- UTILISATEUR ({len(spec.user)} caractères) ---\n{spec.user}")
+    print(f"\n--- {len(spec.fields)} champs demandés sur {len(known_fields())} disponibles ---")
+    for nature, liste in spec.candidates.items():
+        print(f"  {nature} : {len(liste)} candidat(s)")
+    return 0
+
+
 def cmd_feedback(args: argparse.Namespace) -> int:
     store = FeedbackStore(args.feedback_db)
     if args.action == "import":
@@ -227,6 +246,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("pdf")
     p.add_argument("--json", help="Écrire l'index en JSON")
     p.set_defaults(func=cmd_bands)
+
+    p = sub.add_parser("prompt", help="Afficher le prompt d'extraction, sans appeler d'API")
+    p.add_argument("fichier", help="Fichier texte contenant le corps d'une annonce")
+    p.add_argument("--champs", help="Liste de champs séparés par des virgules")
+    p.add_argument("--date-bulletin", help="Date de parution, ex: « mardi 06 octobre 2026 »")
+    p.set_defaults(func=cmd_prompt)
 
     p = sub.add_parser("feedback", help="Gérer les retours humains")
     p.add_argument("action", choices=["import", "stats", "prompt"])

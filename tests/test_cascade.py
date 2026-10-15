@@ -214,3 +214,42 @@ def test_la_trace_des_marches_est_conservee():
     # La trace permet de savoir ce qui a été dépensé, et pourquoi.
     assert resultat.steps.count(Step.DECISION) >= 2
     assert resultat.to_dict()["steps"][0] == Step.INTEGRITE.value
+
+
+# --- branchement du juge ----------------------------------------------------
+
+def test_le_score_du_juge_peut_refuser_une_extraction_complete():
+    # La couverture dit la quantité, le juge dit la justesse : une extraction
+    # complète mais peu fiable ne doit pas être acceptée.
+    evaluation = decide(1.0, {}, reliability=0.40, ocr_available=False, llm_available=False)
+    assert evaluation.decision is Decision.ALERTER
+    assert any("fiabilité jugée" in r for r in evaluation.reasons)
+
+
+def test_une_faible_fiabilite_tente_d_abord_l_ocr():
+    assert decide(1.0, {}, reliability=0.40).decision is Decision.RELIRE_OCR
+
+
+def test_une_faible_fiabilite_passe_ensuite_au_modele():
+    assert decide(1.0, {}, reliability=0.40, ocr_done=True).decision is Decision.COMPLETER_LLM
+
+
+def test_une_bonne_fiabilite_laisse_accepter():
+    assert decide(0.95, {}, reliability=0.92).decision is Decision.ACCEPTER
+
+
+def test_le_score_de_fiabilite_est_rapporte():
+    resultat = run_cascade("u1", CORPS, PROFIL, header=ENTETE_MAQUETTE,
+                           integrity=page_saine(), rate=lambda record, texte: 0.88)
+    assert resultat.reliability == 0.88
+    assert resultat.to_dict()["reliability_percent"] == 88
+
+
+def test_un_juge_en_echec_n_interrompt_pas_la_cascade():
+    def juge_casse(record, texte):
+        raise RuntimeError("modèle de notation indisponible")
+
+    resultat = run_cascade("u1", CORPS, PROFIL, header=ENTETE_MAQUETTE,
+                           integrity=page_saine(), rate=juge_casse)
+    assert any("Notation de fiabilité impossible" in a.message for a in resultat.alerts)
+    assert resultat.final is not None

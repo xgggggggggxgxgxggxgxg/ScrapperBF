@@ -31,6 +31,7 @@ from typing import Callable
 from ..core.priority import FieldProfile, Priority
 from ..qa.alerts import Alert, Code, Severity
 from ..qa.integrity import IntegrityReport
+from ..qa.judge import SEUIL_FIABILITE_GLOBALE as RELIABILITY_THRESHOLD
 from ..qa.rules import Status, check_field
 from .labels import Extracted, extract_all
 
@@ -91,6 +92,7 @@ class CascadeResult:
     evaluations: list[Evaluation] = field(default_factory=list)
     alerts: list[Alert] = field(default_factory=list)
     integrity: IntegrityReport | None = None
+    reliability: float | None = None
 
     @property
     def record(self) -> dict:
@@ -123,6 +125,8 @@ class CascadeResult:
             "integrity": self.integrity.to_dict() if self.integrity else None,
             "needs_admin": self.needs_admin,
             "llm_called": self.llm_called,
+            "reliability": round(self.reliability, 3) if self.reliability is not None else None,
+            "reliability_percent": round(self.reliability * 100) if self.reliability is not None else None,
         }
 
 
@@ -180,6 +184,7 @@ def decide(
     llm_done: bool = False,
     ocr_available: bool = True,
     llm_available: bool = True,
+    reliability: float | None = None,
 ) -> Evaluation:
     """Modèle de décision : que faire de ce qui a été extrait.
 
@@ -191,6 +196,20 @@ def decide(
 
     if integrity is not None and not integrity.safe:
         reasons.extend(f"intégrité : {p}" for p in integrity.problems)
+
+    # Le score du juge, quand il est connu, est un verdict sur la JUSTESSE de
+    # ce qui a été extrait, là où la couverture ne dit que la quantité. Une
+    # extraction complète mais peu fiable ne doit pas être acceptée.
+    if reliability is not None and reliability < RELIABILITY_THRESHOLD:
+        reasons.append(
+            f"fiabilité jugée à {reliability:.0%}, sous le seuil de {RELIABILITY_THRESHOLD:.0%}"
+        )
+        if not ocr_done and ocr_available:
+            reasons.append("relire la page en OCR avant d'interroger le modèle")
+            return Evaluation(coverage, Decision.RELIRE_OCR, [], doubtful, reasons)
+        if not llm_done and llm_available:
+            return Evaluation(coverage, Decision.COMPLETER_LLM, [], doubtful, reasons)
+        return Evaluation(coverage, Decision.ALERTER, [], doubtful, reasons)
 
     if assez and not doubtful:
         if integrity is not None and not integrity.safe:
@@ -234,8 +253,13 @@ def run_cascade(
     integrity: IntegrityReport | None = None,
     reread_ocr: Callable[[], str] | None = None,
     ask_llm: Callable[[str, list[str]], dict] | None = None,
+    rate: Callable[[dict, str], float] | None = None,
 ) -> CascadeResult:
     """Exécute la cascade sur une annonce.
+
+    ``rate`` est le juge : il reçoit l'enregistrement et le texte source, et
+    rend un score de fiabilité entre 0 et 1 (cf. ``qa.judge.judge``). Sans lui,
+    la décision ne porte que sur la couverture et la forme des valeurs.
 
     ``reread_ocr`` relit les pages de l'annonce par OCR et retourne le texte ;
     ``ask_llm`` reçoit le texte et la liste des champs encore manquants, et ne
@@ -258,10 +282,23 @@ def run_cascade(
         resultat.steps.append(Step.DECISION)
         coverage, manquants = essential_coverage(resultat.record, profile)
         doutes = doubtful_fields(resultat.record, profile, texte)
+        fiabilite = None
+        if rate is not None:
+            try:
+                fiabilite = rate(resultat.record, texte)
+            except Exception as exc:
+                resultat.alerts.append(Alert(
+                    code=Code.EXTRACTION_ECHOUEE, severity=Severity.WARNING,
+                    message=f"Notation de fiabilité impossible : {exc}",
+                    page_refs=integrity.pages if integrity else [], unit_id=unit_id,
+                    hint="La décision se fonde alors sur la seule couverture.",
+                ))
+        resultat.reliability = fiabilite
         evaluation = decide(
             coverage, doutes, integrity=integrity,
             ocr_done=ocr_done, llm_done=llm_done,
             ocr_available=reread_ocr is not None, llm_available=ask_llm is not None,
+            reliability=fiabilite,
         )
         evaluation.missing_essential = manquants
         resultat.evaluations.append(evaluation)

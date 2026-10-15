@@ -80,6 +80,85 @@ de page (signature de clôture, phrase tronquée, numérotation réglementaire q
 poursuit), avec une doctrine assumée : **en cas de doute, sous-fusionner** — mêler
 deux annonces est un dégât silencieux, une annonce incomplète se voit au score.
 
+## Extraction en cascade
+
+L'ordre des marches est une décision économique autant que technique : chacune
+ne s'exécute que si la précédente n'a pas suffi.
+
+| Marche | Moyen | Coût |
+|---|---|---|
+| 1 | contrôle d'intégrité de la page | gratuit, et évite de dépenser pour rien |
+| 2 | extraction par motifs (`extract/labels.py`) | gratuit, reproductible, justifiable |
+| 3 | modèle de décision (`extract/cascade.py`) | gratuit : estime si les valeurs tiennent |
+| 4 | relecture Light OCR de la seule page en cause | quelques secondes |
+| 5 | appel LLM, limité aux champs manquants | facturé — paliers gratuits d'abord |
+| 6 | juge de fiabilité (`qa/judge.py`) | gratuit ou un second appel |
+| 7 | alerte administrateur | du temps humain, le plus précieux |
+
+Mesuré sur les 98 annonces des bulletins réels : **78 % des informations
+essentielles sont obtenues sans aucun appel d'API**, dont 100 % des émetteurs et
+catégories (lus dans la maquette), 90 % des dates limites de dépôt, 86 % des
+intitulés.
+
+## Consignes données au modèle
+
+`extraction_rules.yaml` est la seule chose à modifier pour changer ce que le
+modèle comprend. Chaque champ y porte : sa définition, où le chercher, **comment
+le distinguer de ses voisins**, la forme attendue, des exemples pris dans les
+bulletins réels, les signes qui doivent faire baisser la confiance, et des
+critères que le juge vérifie ensuite mécaniquement.
+
+Le problème des valeurs multiples est traité en **faisant choisir plutôt que
+chercher** : on relève d'abord tous les candidats par expression régulière
+(toutes les dates, tous les téléphones, tous les montants), on les présente
+numérotés avec leur contexte, et le modèle désigne celui qui convient en citant
+le texte qui le justifie. Sur une annonce réelle, les candidats « dates » sont
+l'échéance de dépôt, la date de parution du bulletin, et une date de pied de
+page d'un autre numéro : sans cette liste, rien ne dit sur quoi le modèle s'est
+fondé.
+
+Le modèle rend pour chaque champ sa **valeur**, sa **confiance**, la
+**citation** littérale qui la porte et les **candidats écartés**. Sans ces
+quatre éléments, aucune vérification automatique n'est possible : on ne pourrait
+que croire.
+
+## Juge de fiabilité
+
+Un modèle qui annonce « confiance 0.95 » ne prouve rien : il est aussi sûr de
+lui quand il se trompe. Sa confiance ne pèse donc qu'un dixième de la note. Le
+juge note chaque champ sur trois éléments vérifiables :
+
+- **l'ancrage** (45 %) — la citation fournie existe-t-elle dans la page ? C'est
+  le seul contrôle qui distingue une lecture d'une invention ;
+- **les critères du référentiel** (30 %) — la date de dépôt précède l'ouverture
+  des plis, le montant en lettres égale le montant en chiffres, un téléphone a
+  huit chiffres, les lots sont consécutifs… ;
+- **la forme** (15 %) — type, plausibilité.
+
+Un critère qui échoue plafonne la note : une bonne moyenne ne doit pas effacer
+un fait. Le score global est la moyenne pondérée par la priorité des champs,
+exprimée en pourcentage. En dessous de **75 %**, l'annonce part en relecture
+humaine.
+
+Sur une extraction honnête le juge rend 99 % ; en remplaçant deux valeurs par
+des valeurs inventées avec une confiance déclarée de 0,97 et 0,99, il rend 70 %
+et nomme les deux champs fautifs à 21 % et 45 %.
+
+## Fournisseurs LLM
+
+Paliers gratuits d'abord, avec rotation : Groq, OpenRouter (modèles `:free`),
+Gemini, Cerebras, Mistral, puis un palier payant seulement si une clé **et** un
+modèle sont explicitement configurés. Chaque fournisseur a son propre quota, donc
+la rotation sert autant de répartition de charge que de secours. Les identifiants
+de modèles sont dans l'environnement, pas dans le code, car un modèle gratuit
+change de nom sans préavis. Un fournisseur sans clé est ignoré, pas tenté.
+
+```bash
+export GROQ_API_KEY=...            # GROQ_MODEL pour changer de modèle
+export OPENROUTER_API_KEY=...      # OPENROUTER_FREE_MODEL
+export GEMINI_API_KEY=...          # GEMINI_MODEL
+```
+
 ## Usage
 
 ```bash
@@ -102,6 +181,12 @@ python pipeline.py quotidien_4466.md N4466 --reprocess-failures
 python -m scrapperbf feedback import revue-N4466.json --reviewer ana
 python -m scrapperbf feedback stats          # accord machine/humain, alertes calmées
 python -m scrapperbf feedback prompt --kind DEMANDE_PRIX
+
+# Voir le prompt et les candidats relevés, sans dépenser un appel
+python -m scrapperbf prompt annonce.txt --champs date_limite_depot,date_ouverture_plis
+
+# Index des annonces lu dans la maquette colorée du PDF
+python -m scrapperbf bands bulletin.pdf --json index.json
 
 # Diagnostic du classement par titre
 python -m scrapperbf titles quotidien_4466.md --verbose --profiles
@@ -168,7 +253,7 @@ scrapperbf/
   feedback/store.py
   dashboard/build.py
   cli.py
-tests/     184 tests, sans accès réseau
+tests/     365 tests, sans accès réseau
 ```
 
 Couches historiques conservées : `layer1_extract.py` (Markdown → blocs),
