@@ -18,12 +18,15 @@ Testé hors-ligne avec des providers injectés.
 """
 
 import json
+import logging
 from typing import Optional
 
 from layer3_extract_llm import (
     call_with_rotation, build_providers, load_field_schema, build_json_schema,
 )
 from judge import fold
+
+log = logging.getLogger("scrapperbf.consensus")
 
 
 EXTRACT_SYSTEM = """Tu extrais les champs d'un avis de marché public du Burkina Faso (DGCMEF).
@@ -111,12 +114,20 @@ def consensus_extract(text: str, section: str = "AVIS", providers: Optional[list
         "required": ["champs"],
     }
 
+    log.debug("consensus : %d provider(s), extraction par 2 modèles + arbitre=%s",
+              len(provs), len(provs) >= 3)
     a = _extract_one(text, schema, provs[0], max_retries) or {}
     b = _extract_one(text, schema, provs[1] if len(provs) > 1 else provs[0], max_retries) or {}
     if not a and not b:
+        log.warning("consensus : les deux extractions ont échoué")
         return None
 
     divergence, champs_div = field_divergence(a, b, field_defs)
+    if divergence > seuil_divergence:
+        log.warning("consensus : divergence %.0f%% > seuil (%s) -> ALERTE revue humaine",
+                    divergence * 100, ", ".join(champs_div))
+    else:
+        log.debug("consensus : divergence %.0f%%", divergence * 100)
 
     if len(provs) >= 3:
         arb = _arbitrate(text, a, b, arb_schema, provs[2], max_retries) or {}

@@ -13,8 +13,13 @@ import os
 import sys
 import sqlite3
 import json
+import logging
 from pathlib import Path
 from datetime import datetime
+
+from logging_config import setup_logging
+
+log = logging.getLogger("scrapperbf.pipeline")
 
 BASE_DIR = Path(__file__).parent
 
@@ -87,10 +92,11 @@ def process_document(md_path: str, numero: str):
     numero = identifiant unique du document (ex: 'N4466' extrait du nom de fichier
     ou du contenu). Sert de clé d'idempotence pour le backfill.
     """
+    setup_logging()
     conn = init_db()
 
     if already_processed(conn, numero):
-        print(f"[SKIP] {numero} déjà traité avec succès.")
+        log.info("[%s] déjà traité avec succès -> ignoré", numero)
         return
 
     conn.execute(
@@ -171,7 +177,7 @@ def process_document(md_path: str, numero: str):
     conn.commit()
     conn.close()
 
-    print(f"[{numero}] {nb_ok} unités OK, {nb_echec} échecs -> {out_file}")
+    log.info("[%s] %d unités OK, %d échecs -> %s", numero, nb_ok, nb_echec, out_file)
 
 
 def _resultat_deterministe(unit: dict) -> dict:
@@ -203,9 +209,10 @@ def process_pdf(pdf_path: str, numero: str = None):
         m = _re.search(r"quotidien\s*n?[°o]?\s*(\d{3,4})\s*(bis)?", name, _re.I)
         numero = ("N" + m.group(1) + ("bis" if m.group(2) else "")) if m else Path(pdf_path).stem
 
+    setup_logging()
     conn = init_db()
     if already_processed(conn, numero):
-        print(f"[SKIP] {numero} déjà traité avec succès.")
+        log.info("[%s] déjà traité avec succès -> ignoré", numero)
         conn.close()
         return
 
@@ -214,7 +221,9 @@ def process_pdf(pdf_path: str, numero: str = None):
     conn.commit()
 
     use_api = _use_api()
-    print(f"[{numero}] mode = {'API (' + str(len(config.provider_specs())) + ' provider(s))' if use_api else 'déterministe (aucune clé)'}")
+    log.info("[%s] traitement de %s — mode = %s", numero, Path(pdf_path).name,
+             f"consensus LLM ({len(config.provider_specs())} provider(s))" if use_api
+             else "sans clé LLM (champs non extraits : regex retiré)")
 
     # ---- AVIS : garde-fou FORMAT -> extraction (consensus 3 modèles, sinon
     #      regex) -> JUGE. L'extraction par consensus remplace le regex dès qu'une
@@ -248,11 +257,14 @@ def process_pdf(pdf_path: str, numero: str = None):
         rec.pop("flat_text", None)
         return rec
 
+    nb_bloque = nb_divise = 0
     for unit in extract_avis_from_pdf(pdf_path, numero=numero):
         fmt = validate_format(unit)
         fmt_info = {k: fmt[k] for k in ("action", "pages", "nb_annonces", "alerte_humaine", "raisons")}
 
         if fmt["action"] == "bloquer":
+            nb_bloque += 1
+            log.warning("[%s] bloc BLOQUÉ (p.%s) : %s", numero, fmt["pages"], " ; ".join(fmt["raisons"]))
             unit.pop("flat_text", None)
             unit["_format"] = fmt_info
             unit["_bloque"] = True
@@ -263,7 +275,9 @@ def process_pdf(pdf_path: str, numero: str = None):
             continue
 
         if use_api and fmt["action"] == "diviser" and fmt.get("sous_annonces"):
-            # Deux annonces détectées : division automatique, une extraction par sous-annonce.
+            nb_divise += 1
+            log.info("[%s] bloc DIVISÉ en %d sous-annonces (p.%s)", numero,
+                     len(fmt["sous_annonces"]), fmt["pages"])
             for sub in fmt["sous_annonces"]:
                 rec = {k: unit.get(k) for k in ("_numero", "_source_pdf", "_source",
                                                 "_page_debut", "_page_fin")}
@@ -271,12 +285,18 @@ def process_pdf(pdf_path: str, numero: str = None):
                 avis_out.append(_finalize_avis(rec, sub, fmt_info))
         else:
             if fmt["action"] == "diviser":
+                nb_divise += 1
                 fmt_info = dict(fmt_info, alerte_humaine=True)  # non divisé hors API -> revue humaine
             avis_out.append(_finalize_avis(unit, unit.get("flat_text", ""), fmt_info))
 
+    log.info("[%s] AVIS : %d enregistrement(s) (%d bloqués, %d divisés)",
+             numero, len(avis_out), nb_bloque, nb_divise)
+
     # ---- RÉSULTATS : segmentation -> chunk -> API -> fusion -------------
     resultats_out = []
-    for unit in segment_resultats(pdf_path, numero=numero):
+    r_units = segment_resultats(pdf_path, numero=numero)
+    log.info("[%s] RÉSULTATS : %d émetteur(s) à structurer", numero, len(r_units))
+    for unit in r_units:
         if use_api:
             r = extract_resultats_unit(unit) or _resultat_deterministe(unit)
         else:
@@ -307,7 +327,9 @@ def process_pdf(pdf_path: str, numero: str = None):
                  (len(avis_out) + len(resultats_out), numero))
     conn.commit()
     conn.close()
-    print(f"[{numero}] {len(avis_out)} avis, {len(resultats_out)} émetteurs résultats -> {out_file}")
+    log.info("[%s] terminé : %d avis, %d émetteurs résultats, confiance moy. %s, "
+             "%d en revue humaine -> %s", numero, len(avis_out), len(resultats_out),
+             payload["meta"]["confiance_moyenne_avis"], revue, out_file)
     return payload
 
 

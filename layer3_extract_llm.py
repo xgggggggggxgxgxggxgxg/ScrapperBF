@@ -13,12 +13,15 @@ Rotation multi-provider (Gemini / OpenRouter / Mistral) :
 import json
 import os
 import time
+import logging
 import yaml
 import requests
 from pathlib import Path
 from typing import Optional
 
 import config  # charge .env et décrit les providers configurés (clés présentes)
+
+log = logging.getLogger("scrapperbf.llm")
 
 
 CONFIG_PATH = Path(__file__).parent / "schema_config.yaml"
@@ -192,16 +195,23 @@ def call_with_rotation(prompt: str, json_schema: dict, max_retries: int = 3,
                 if not isinstance(result, dict):
                     raise ProviderError(f"réponse non-objet: {type(result).__name__}")
                 result["_provider"] = provider["name"]
+                if attempt or provider is not providers[0]:
+                    log.info("provider %s : succès (tentative %d)", provider["name"], attempt + 1)
                 return result
             except ProviderError as e:
                 last_error = e
+                log.warning("provider %s : échec (tentative %d) : %s",
+                            provider["name"], attempt + 1, str(e)[:120])
                 time.sleep(2 ** attempt)  # backoff exponentiel
             except Exception as e:  # rate limit, timeout réseau, JSON invalide, etc.
                 last_error = e
+                log.warning("provider %s : erreur (tentative %d) : %s",
+                            provider["name"], attempt + 1, str(e)[:120])
                 time.sleep(2 ** attempt)
         # provider épuisé -> on passe au suivant
 
-    print(f"[ECHEC] toutes les tentatives ont échoué: {last_error}")
+    log.error("toutes les tentatives ont échoué sur %d provider(s) : %s",
+              len(providers), last_error)
     return None
 
 
