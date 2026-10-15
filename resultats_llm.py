@@ -23,6 +23,7 @@ import json
 from typing import Optional
 
 from layer3_extract_llm import call_with_rotation
+from resultats_chunker import chunk_unit, merge_lot_results
 
 
 # Schéma de sortie : un émetteur -> plusieurs lots -> plusieurs soumissionnaires.
@@ -138,23 +139,49 @@ def build_resultats_prompt(unit: dict) -> str:
     )
 
 
-def extract_resultats_unit(unit: dict, max_retries: int = 3,
-                           providers: Optional[list] = None) -> Optional[dict]:
-    """Envoie une unité-émetteur au LLM pour la structurer en lots +
-    soumissionnaires + attributaires. Rend le dict structuré, enrichi de la
-    provenance, ou None si tous les providers échouent."""
+def _structure_one(unit: dict, max_retries: int, providers: Optional[list]) -> Optional[dict]:
+    """Un seul appel LLM pour un (morceau d')émetteur."""
     prompt = build_resultats_prompt(unit)
-    result = call_with_rotation(
+    return call_with_rotation(
         prompt, RESULTATS_SCHEMA, max_retries=max_retries,
         system_prompt=RESULTATS_SYSTEM_PROMPT, strict=False, providers=providers,
     )
-    if result is None:
-        return None
-    for k in ("_numero", "_source_pdf", "_source", "page_debut", "page_fin", "macro_section"):
+
+
+def extract_resultats_unit(unit: dict, max_retries: int = 3,
+                           providers: Optional[list] = None,
+                           max_chars: int = 12000) -> Optional[dict]:
+    """Structure une unité-émetteur en lots + soumissionnaires + attributaires.
+
+    Si le texte tient en un appel (<= max_chars), appel unique. Sinon, découpage
+    aux frontières de lots (resultats_chunker) puis fusion dédupliquée : l'intégrité
+    est préservée même sur une unité géante (ex. 4503bis). Rend le dict structuré +
+    provenance, ou None si tout échoue."""
+    flat = unit.get("flat_text", "") or ""
+
+    if len(flat) <= max_chars:
+        result = _structure_one(unit, max_retries, providers)
+        nb_chunks = 1
+        if result is None:
+            return None
+    else:
+        chunks = chunk_unit(unit, max_chars=max_chars)
+        parts = []
+        for ch in chunks:
+            r = _structure_one(ch, max_retries, providers)
+            if r is not None:
+                parts.append(r)
+        if not parts:
+            return None
+        result = merge_lot_results(parts)
+        nb_chunks = len(chunks)
+
+    for k in ("_numero", "_source_pdf", "_source", "page_debut", "page_fin",
+              "macro_section", "emetteur"):
         if k in unit:
             result.setdefault(k, unit[k])
-    # Garde-fou : cohérence entre lots détectés et lots structurés.
     nb_struct = len(result.get("lots") or [])
+    result["_nb_chunks"] = nb_chunks
     result["_nb_lots_detectes"] = unit.get("nb_lots_detectes")
     result["_coherence_lots"] = (
         nb_struct == unit.get("nb_lots_detectes")

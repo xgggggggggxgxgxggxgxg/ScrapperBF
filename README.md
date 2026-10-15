@@ -22,8 +22,9 @@ Extraction déterministe directe (sans LLM ni OCR externe) :
 
 Section RÉSULTATS (tableaux de dépouillement) :
 
-- **`pdf_resultats_extract.py`** : segmente la section RÉSULTATS. Deux macro-sections (*Ministères/institutions/MOD*, puis *Régions/collectivités*). Chaque émetteur est ouvert par une **barre noire** pleine largeur (texte blanc) détectée via `pdfplumber` ; une unité = tout ce qui va d'une barre noire à la suivante (même sur plusieurs pages). Les **bandes orange « Lot N : … »** sont comptées comme indice de lots. La macro-section bascule sur *Régions* dès le premier émetteur « RÉGION/COMMUNE/… » (les en-têtes décoratifs ne sont pas du texte sélectionnable). Produit `{emetteur, macro_section, page_debut/fin, nb_lots_detectes, lots, flat_text}`.
-- **`resultats_llm.py`** : **instructions à l'IA** pour restructurer ces tableaux multi-colonnes (Soumissionnaire · Montant lu HTVA/TTC min/max · Montant corrigé HTVA/TTC min/max · Observations), lot par lot, avec attributaire provisoire. Le prompt système décrit la structure exacte, et on passe au modèle l'indice déterministe `nb_lots_detectes` (combien de sous-tableaux attendre). `extract_resultats_unit()` appelle la rotation de providers et vérifie la cohérence du nombre de lots. `python resultats_llm.py <pdf>` affiche le prompt exact, sans appel réseau.
+- **`pdf_resultats_extract.py`** : segmente la section RÉSULTATS. Deux macro-sections (*Ministères/institutions/MOD*, puis *Régions/collectivités*). Chaque émetteur est ouvert par une **barre noire** pleine largeur (texte blanc) détectée via `pdfplumber` ; une unité = tout ce qui va d'une barre noire à la suivante (même sur plusieurs pages). Les **lots sont repérés par le TEXTE** (`find_lot_markers`, « Lot N : … ») — plus fiable que la bande de couleur (facultative), comptée seulement en secours. La macro-section bascule sur *Régions* dès le premier émetteur « RÉGION/COMMUNE/… » (les en-têtes décoratifs ne sont pas du texte sélectionnable). Produit `{emetteur, macro_section, page_debut/fin, nb_lots_detectes, lots, flat_text}`.
+- **`resultats_llm.py`** : **instructions à l'IA** pour restructurer ces tableaux multi-colonnes (Soumissionnaire · Montant lu HTVA/TTC min/max · Montant corrigé HTVA/TTC min/max · Observations), lot par lot, avec attributaire provisoire. Le prompt système décrit la structure exacte, et on passe au modèle l'indice déterministe `nb_lots_detectes`. `extract_resultats_unit()` fait un **appel unique** si l'unité tient en un prompt, sinon découpe + fusionne (voir ci-dessous). `python resultats_llm.py <pdf>` affiche le prompt exact, sans appel réseau.
+- **`resultats_chunker.py`** : découpe les **unités géantes** (ex. 4503bis : 1 émetteur, 94 pages, 57 lots) en préservant **l'intégrité** : on coupe **aux frontières de lots** (jamais au milieu d'un lot), chaque chunk **rappelle le contexte** (émetteur + préambule), un lot trop grand est découpé avec **chevauchement** (marqué « SUITE du Lot N »), et `merge_lot_results()` **fusionne par lot en dédupliquant** les soumissionnaires par nom (le chevauchement ne double rien) et réconcilie attributaire/infructueux.
 
 Outils annexes :
 
@@ -42,11 +43,20 @@ pip install -r requirements.txt
 cp .env.example .env  # puis renseigner vos clés
 ```
 
-Variables requises dans `.env` (ou environnement) :
-- `OPENROUTER_API_KEY` — pour Xiaomi + Mistral
-- `GEMINI_API_KEY` — repli Gemini
-- `OPENROUTER_XIAOMI_MODEL` (défaut `xiaomi/mimo-v2.5`)
-- `OPENROUTER_MISTRAL_MODEL` (défaut `mistralai/mistral-large`)
+### Connecter vos API LLM (chez vous)
+
+Le `.env` est **chargé automatiquement** (`config.py`, sans dépendance). Un provider
+n'est activé que si sa clé est présente — vous pouvez n'en configurer qu'un. L'ordre
+du fichier = ordre d'essai (rotation / repli). Trois types de providers :
+
+- **OpenRouter** : `OPENROUTER_API_KEY` (+ `OPENROUTER_MODELS=modeleA,modeleB` essayés dans l'ordre).
+- **Google Gemini** : `GEMINI_API_KEY` (+ `GEMINI_MODEL`, défaut `gemini-2.0-flash`).
+- **Tout endpoint compatible OpenAI** (modèle **local** Ollama/LM Studio/vLLM, ou passerelle Groq/Together…) : `OPENAI_COMPAT_BASE_URL` (ex. `http://localhost:11434/v1`) + `OPENAI_COMPAT_API_KEY` (vide possible en local) + `OPENAI_COMPAT_MODEL`.
+
+```bash
+python check_llm.py          # liste les providers configurés (hors-ligne)
+python check_llm.py --ping   # teste réellement la connexion à chacun (chez vous)
+```
 
 ## Usage
 

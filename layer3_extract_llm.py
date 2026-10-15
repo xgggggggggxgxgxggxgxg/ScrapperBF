@@ -18,6 +18,8 @@ import requests
 from pathlib import Path
 from typing import Optional
 
+import config  # charge .env et décrit les providers configurés (clés présentes)
+
 
 CONFIG_PATH = Path(__file__).parent / "schema_config.yaml"
 
@@ -66,10 +68,11 @@ class ProviderError(Exception):
 
 
 def call_gemini(prompt: str, json_schema: dict, api_key: str,
+                model: str = "gemini-2.0-flash",
                 system_prompt: str = SYSTEM_PROMPT, strict: bool = True) -> dict:
     # Gemini n'a pas de mode "strict" distinct : `strict` est accepté pour
     # homogénéiser la signature des providers, mais ignoré ici.
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     resp = requests.post(
         f"{url}?key={api_key}",
         json={
@@ -113,27 +116,63 @@ def call_openrouter(prompt: str, json_schema: dict, api_key: str, model: str,
     return json.loads(text)
 
 
+def call_openai_compatible(prompt: str, json_schema: dict, api_key: str, base_url: str,
+                           model: str, system_prompt: str = SYSTEM_PROMPT,
+                           strict: bool = True) -> dict:
+    """Appelle N'IMPORTE QUEL endpoint compatible OpenAI (/chat/completions) :
+    serveur local (Ollama, LM Studio, vLLM), Groq, Together, etc. On demande une
+    sortie JSON (`json_object`, largement supporté) ; le schéma est porté par le
+    prompt. `base_url` ex. http://localhost:11434/v1 ou https://api.groq.com/openai/v1."""
+    url = base_url.rstrip("/")
+    if not url.endswith("/chat/completions"):
+        url += "/chat/completions"
+    resp = requests.post(
+        url,
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json={
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt},
+            ],
+            "response_format": {"type": "json_object"},
+            "temperature": 0,
+        },
+        timeout=120,
+    )
+    if resp.status_code != 200:
+        raise ProviderError(f"OpenAI-compat {resp.status_code}: {resp.text[:300]}")
+    data = resp.json()
+    text = data["choices"][0]["message"]["content"]
+    return json.loads(text)
+
+
 # Signature unifiée des providers : fn(prompt, schema, system_prompt, strict) -> dict
-PROVIDERS = [
-    # Ordre = ordre d'essai. On bascule au suivant si le précédent échoue.
-    # Clés API lues depuis les variables d'environnement (voir .env.example).
-    # 1. Le modèle personnalisé OpenRouter
-    {"name": "openrouter-xiaomi", "fn": lambda prompt, schema, system, strict: call_openrouter(
-        prompt, schema, os.environ.get("OPENROUTER_API_KEY", ""),
-        os.environ.get("OPENROUTER_XIAOMI_MODEL", "xiaomi/mimo-v2.5"),
-        system_prompt=system, strict=strict)},
+def _make_provider(spec: dict) -> dict:
+    """Construit un provider appelable à partir d'une spec de config.py."""
+    kind, key, model = spec["kind"], spec["key"], spec["model"]
+    if kind == "openrouter":
+        fn = lambda p, sc, sy, st: call_openrouter(p, sc, key, model, system_prompt=sy, strict=st)
+    elif kind == "gemini":
+        fn = lambda p, sc, sy, st: call_gemini(p, sc, key, model=model, system_prompt=sy, strict=st)
+    elif kind == "openai_compat":
+        base = spec["base_url"]
+        fn = lambda p, sc, sy, st: call_openai_compatible(p, sc, key, base, model, system_prompt=sy, strict=st)
+    else:
+        raise ValueError(f"type de provider inconnu: {kind}")
+    return {"name": spec["name"], "fn": fn}
 
-    # 2. Gemini en solution de repli
-    {"name": "gemini", "fn": lambda prompt, schema, system, strict: call_gemini(
-        prompt, schema, os.environ.get("GEMINI_API_KEY", ""),
-        system_prompt=system, strict=strict)},
 
-    # 3. Mistral fallback
-    {"name": "openrouter-mistral", "fn": lambda prompt, schema, system, strict: call_openrouter(
-        prompt, schema, os.environ.get("OPENROUTER_API_KEY", ""),
-        os.environ.get("OPENROUTER_MISTRAL_MODEL", "mistralai/mistral-large"),
-        system_prompt=system, strict=strict)},
-]
+def build_providers(specs: Optional[list] = None) -> list:
+    """Liste des providers ACTIFS (dans l'ordre d'essai), déduite des clés
+    présentes dans l'environnement / .env (voir config.py)."""
+    specs = specs if specs is not None else config.provider_specs()
+    return [_make_provider(s) for s in specs]
+
+
+# Construit au chargement à partir de .env. Reconstruire avec build_providers()
+# si l'environnement change en cours d'exécution.
+PROVIDERS = build_providers()
 
 
 def call_with_rotation(prompt: str, json_schema: dict, max_retries: int = 3,

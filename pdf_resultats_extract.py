@@ -35,6 +35,23 @@ _MINISTERES_RE = re.compile(r"MINIST[ÈE]RES?|INSTITUTIONS|MA[ÎI]TRISES?\s+D.OU
 _REGIONS_RE = re.compile(r"R[ÉE]GIONS?|COLLECTIVIT[ÉE]S?\s+TERRITORIALES?", re.I)
 _RESULTATS_HDR_RE = re.compile(r"R[ÉE]SULTATS\s+PROVISOIRES", re.I)
 _LOT_RE = re.compile(r"^\s*lot\s*n?[°o]?\s*\d", re.I)
+# Détection des lots par le TEXTE (plus fiable que la bande de couleur, qui n'est
+# pas obligatoire) : « Lot 1 : … », « LOT N°2 : … », en début de ligne.
+_LOT_TEXT_RE = re.compile(r"(?im)^\s*lot\s*n?[°o]?\s*(\d{1,2})\s*:\s*([^\n]{0,90})")
+
+
+def find_lot_markers(flat_text: str) -> list:
+    """Repère les lots dans le texte aplati. Retourne une liste de libellés
+    courts « Lot N : … », dédupliquée par numéro (ordre d'apparition)."""
+    out, seen = [], set()
+    for m in _LOT_TEXT_RE.finditer(flat_text or ""):
+        num = m.group(1)
+        if num in seen:
+            continue
+        seen.add(num)
+        label = re.sub(r"\s+", " ", f"Lot {num} : {m.group(2)}").strip()
+        out.append(label)
+    return out
 # Les en-têtes décoratifs de section ne sont pas du texte sélectionnable, mais
 # la 2e macro-section (collectivités) se trahit par le nom de l'émetteur :
 # « RÉGION DE … », « COMMUNE DE … », « CONSEIL RÉGIONAL … », etc.
@@ -183,18 +200,22 @@ def segment_resultats(path: str, numero: Optional[str] = None,
         p1 = nxt["page"] if nxt else len(pages) - 1
         t1 = nxt["top"] if nxt else pages[-1].height
         flat = _text_between(pages, bar["page"], bar["top"], p1, t1)
-        unit_lots = [
+        orange_lots = [
             lo for lo in lots
             if (lo["page"], lo["top"]) > (bar["page"], bar["top"])
             and (nxt is None or (lo["page"], lo["top"]) < (nxt["page"], nxt["top"]))
         ]
+        # Lots repérés par le TEXTE (fiable), complétés par les bandes orange.
+        lots_texte = find_lot_markers(flat)
+        nb = max(len(lots_texte), len(orange_lots))
         units.append({
             "emetteur": bar["emetteur"],
             "macro_section": bar["macro"] or MACRO_MINISTERES,
             "page_debut": bar["page"] + 1,
             "page_fin": p1 + 1,
-            "nb_lots_detectes": len(unit_lots),
-            "lots": [lo["text"] for lo in unit_lots],
+            "nb_lots_detectes": nb,
+            "lots": lots_texte or [lo["text"] for lo in orange_lots],
+            "nb_lots_bandes_orange": len(orange_lots),
             "flat_text": flat,
             "_numero": numero, "_source_pdf": label, "_source": Path(path).name,
         })

@@ -70,6 +70,26 @@ def test_coherence_true_for_single_unnamed_lot():
     assert out["_coherence_lots"] is True
 
 
+def test_extract_chunks_and_merges_large_unit():
+    import re
+    lots = "".join(f"Lot {i} : objet {i}\n" + ("row\n" * 800) for i in (1, 2, 3))
+    unit = {"emetteur": "MINISTERE X", "flat_text": "REF 2026\n" + lots,
+            "nb_lots_detectes": 3, "page_debut": 3, "_source_pdf": "Quotidien N°4503bis"}
+
+    def provider(prompt, schema, system_prompt, strict):
+        nums = sorted(set(re.findall(r"Lot (\d) :", prompt)))
+        return {"autorite_contractante": "MINISTERE X", "nombre_lots": len(nums),
+                "lots": [{"numero": int(n), "intitule": f"objet {n}",
+                          "soumissionnaires": [{"nom": f"ENTREPRISE_{n}"}]} for n in nums]}
+
+    out = extract_resultats_unit(unit, providers=[{"name": "p", "fn": provider}], max_chars=6000)
+    assert out["_nb_chunks"] >= 2                 # l'unité a bien été découpée
+    assert out["nombre_lots"] == 3                # les 3 lots reconstitués
+    assert sorted(l["numero"] for l in out["lots"]) == [1, 2, 3]
+    assert out["_source_pdf"] == "Quotidien N°4503bis"
+    assert out["_coherence_lots"] is True
+
+
 def test_extract_returns_none_when_providers_fail(monkeypatch):
     import layer3_extract_llm as l3
     monkeypatch.setattr(l3.time, "sleep", lambda *_: None)
