@@ -144,6 +144,13 @@ class Band:
         }
 
 
+# Un émetteur trop long pour une ligne est composé sur deux bandes jaunes
+# superposées (« MINISTERE … DE LA PROMOTION » puis « DES LANGUES
+# NATIONALES »). Sans recollement, la seconde ligne passe pour une nouvelle
+# annonce : le bulletin N°4505 en comptait sept de trop.
+WRAP_MAX_GAP = 2.0   # points ; les deux lignes se touchent ou se chevauchent
+
+
 @dataclass
 class NoticeHeader:
     """En-tête d'annonce reconstitué depuis les bandes."""
@@ -236,7 +243,24 @@ def bands_on_page(fills: list[dict], words: list[tuple], page_number: int) -> li
         cle = (int(band.y0 / DEDUP_Y_TOLERANCE), band.role)
         if cle not in retenues:
             retenues[cle] = band
-    return sorted(retenues.values(), key=lambda b: (b.y0, b.width))
+
+    # Un titre sur deux lignes est dessiné trois fois : une bande englobant les
+    # deux lignes, puis une bande par ligne. L'englobante porte déjà tout le
+    # texte, donc garder les lignes en plus le répéterait.
+    gardees = sorted(retenues.values(), key=lambda b: (b.y0, -b.height))
+    finales: list[Band] = []
+    for band in gardees:
+        contenue = any(
+            autre.role is band.role
+            and autre is not band
+            and autre.y0 - 0.5 <= band.y0
+            and band.y1 <= autre.y1 + 0.5
+            and autre.height > band.height
+            for autre in gardees
+        )
+        if not contenue:
+            finales.append(band)
+    return sorted(finales, key=lambda b: (b.y0, b.width))
 
 
 def extract_bands(path: str, backend: LayoutBackend) -> list[Band]:
@@ -259,18 +283,30 @@ def group_notices(bands: list[Band]) -> list[NoticeHeader]:
     categorie: str | None = None
     courante: NoticeHeader | None = None
 
+    precedente: Band | None = None
     for band in bands:
         if band.role is Role.CATEGORIE:
             categorie = band.text
         elif band.role is Role.EMETTEUR:
-            courante = NoticeHeader(
-                emetteur=band.text, categorie=categorie,
-                page_debut=band.page, page_fin=band.page,
-            )
-            notices.append(courante)
+            if (
+                courante is not None
+                and precedente is not None
+                and precedente.role is Role.EMETTEUR
+                and precedente.page == band.page
+                and band.y0 - precedente.y1 <= WRAP_MAX_GAP
+            ):
+                # Seconde ligne du même émetteur, pas une nouvelle annonce.
+                courante.emetteur = f"{courante.emetteur} {band.text}".strip()
+            else:
+                courante = NoticeHeader(
+                    emetteur=band.text, categorie=categorie,
+                    page_debut=band.page, page_fin=band.page,
+                )
+                notices.append(courante)
         elif band.role is Role.OBJET and courante is not None:
             courante.objet.append(band.text)
             courante.page_fin = max(courante.page_fin, band.page)
+        precedente = band
     return notices
 
 
