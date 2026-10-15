@@ -36,6 +36,7 @@ from pdf_avis_extract import extract_avis_from_pdf, enrich_coverage, CORE_FIELDS
 from pdf_resultats_extract import segment_resultats
 from resultats_llm import extract_resultats_unit
 from decision_model import refine_if_needed, decide
+import judge
 
 DB_PATH = BASE_DIR / "ingestion.db"
 OUTPUT_DIR = BASE_DIR / "output"
@@ -228,6 +229,8 @@ def process_pdf(pdf_path: str, numero: str = None):
                 feedback_store.record(a.get("_raisons_ecart", []), numero, "AVIS", score=score)
         else:
             a["_decision"] = {"needs_llm": decide(a, a.get("flat_text", ""))["needs_llm"]}
+        # JUGE : vérification de cohérence (texte source vs valeurs) -> confiance.
+        a["_judge"] = judge.judge_avis(a, a.get("flat_text", ""))
         a.pop("flat_text", None)  # allège la sortie
         avis_out.append(a)
 
@@ -235,17 +238,25 @@ def process_pdf(pdf_path: str, numero: str = None):
     resultats_out = []
     for unit in segment_resultats(pdf_path, numero=numero):
         if use_api:
-            structured = extract_resultats_unit(unit)
-            resultats_out.append(structured or _resultat_deterministe(unit))
+            r = extract_resultats_unit(unit) or _resultat_deterministe(unit)
         else:
-            resultats_out.append(_resultat_deterministe(unit))
+            r = _resultat_deterministe(unit)
+        r["_judge"] = judge.judge_resultats(r, unit.get("flat_text", "") or r.get("texte_brut", ""))
+        resultats_out.append(r)
+
+    # Synthèse qualité pour le meta (file de revue humaine).
+    confs = [a["_judge"]["confiance"] for a in avis_out]
+    revue = sum(1 for a in avis_out if a["_judge"]["revue_humaine"]) + \
+        sum(1 for r in resultats_out if r["_judge"]["revue_humaine"])
 
     # ---- Stockage -------------------------------------------------------
     payload = {
         "meta": {"numero": numero, "source": Path(pdf_path).name,
                  "date_traitement": datetime.now().isoformat(),
                  "mode": "api" if use_api else "deterministe",
-                 "nb_avis": len(avis_out), "nb_resultats_emetteurs": len(resultats_out)},
+                 "nb_avis": len(avis_out), "nb_resultats_emetteurs": len(resultats_out),
+                 "confiance_moyenne_avis": round(sum(confs) / len(confs), 3) if confs else None,
+                 "nb_revue_humaine": revue},
         "AVIS": avis_out,
         "RESULTATS": resultats_out,
     }

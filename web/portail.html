@@ -119,6 +119,13 @@
   .reason.crit { border-left-color: var(--crit); background: var(--crit-weak); }
   .reason .rf { font-family: var(--font-mono); font-weight: 600; font-size: .78rem; }
   .perfect { border: 1px dashed var(--border); border-radius: 10px; padding: 14px; text-align: center; color: var(--ok); background: var(--accent-weak); font-weight: 600; }
+  .jchecks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .jcheck { display: flex; justify-content: space-between; gap: 8px; font-size: .77rem; padding: 6px 9px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface); min-width: 0; }
+  .jcheck .jname { font-weight: 600; white-space: nowrap; }
+  .jcheck .jdetail { color: var(--faint); text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .j-pass { border-left: 3px solid var(--ok); } .j-warn { border-left: 3px solid var(--warn); background: var(--warn-weak); }
+  .j-fail { border-left: 3px solid var(--crit); background: var(--crit-weak); } .j-na { opacity: .55; }
+  @media (max-width: 860px) { .jchecks { grid-template-columns: 1fr; } }
   .empty-state { padding: 60px 20px; text-align: center; color: var(--muted); }
   dialog { border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--fg); max-width: 640px; width: 92vw; box-shadow: var(--shadow); padding: 0; }
   dialog::backdrop { background: rgba(10,14,11,.5); }
@@ -169,6 +176,7 @@
             <select id="avisType" aria-label="Type d'avis"></select>
           </div>
           <label class="chk"><input type="checkbox" id="avisFlagged"> Seulement « à vérifier »</label>
+          <label class="chk"><input type="checkbox" id="avisReview"> File de revue humaine (juge)</label>
         </div>
         <div class="list" id="avisList" role="listbox" aria-label="Avis"></div>
       </aside>
@@ -241,6 +249,17 @@ function fmt(v) {
   return String(v);
 }
 function scoreCls(s){ return s>=95?"p-ok":s>=80?"p-warn":"p-crit"; }
+function verdictCls(v){ return v==="valide"?"p-ok":v==="a_verifier"?"p-warn":"p-crit"; }
+function verdictLabel(v){ return {valide:"Validé",a_verifier:"À vérifier",rejete:"Rejeté"}[v]||v||"—"; }
+function judgePct(j){ return j&&typeof j.confiance==="number"?Math.round(j.confiance*100):null; }
+function judgeSection(j){
+  if(!j) return "";
+  const order={fail:0,warn:1,pass:2,na:3};
+  const checks=(j.checks||[]).slice().sort((a,b)=>(order[a.statut]??9)-(order[b.statut]??9))
+    .map(c=>`<div class="jcheck j-${c.statut}"><span class="jname">${esc(c.nom)}</span><span class="jdetail">${esc(c.detail||c.statut)}</span></div>`).join("");
+  const rev=j.revue_humaine?`<span class="pill p-warn" style="margin-left:6px">revue humaine</span>`:"";
+  return `<div class="section-title">Contrôle qualité — juge <span class="pill ${verdictCls(j.verdict)}">${verdictLabel(j.verdict)} · ${judgePct(j)}%</span>${rev}</div><div class="jchecks">${checks}</div>`;
+}
 function bulletins() { return Array.from(new Set([...DATA.avis, ...DATA.resultats].map(sourceOf))).sort(); }
 function inBulletin(x){ return !state.bulletin || sourceOf(x) === state.bulletin; }
 
@@ -249,12 +268,13 @@ function avisStatut(a, key){ const e=(a._analyse||[]).find(x=>x&&x.champ===key);
 function badge(st){ const m={confirme:["b-confirme","confirmé"],complete:["b-complete","complété"],corrige:["b-corrige","corrigé"],absent:["b-absent","absent"],verifier:["b-verifier","à vérifier"]}[st]; return m?`<span class="badge ${m[0]}">${m[1]}</span>`:""; }
 
 function avisVisible() {
-  const q = tokens($("#avisSearch").value), cat=$("#avisCat").value, typ=$("#avisType").value, fl=$("#avisFlagged").checked;
+  const q = tokens($("#avisSearch").value), cat=$("#avisCat").value, typ=$("#avisType").value, fl=$("#avisFlagged").checked, rv=$("#avisReview").checked;
   return DATA.avis.filter(a => {
     if (!inBulletin(a)) return false;
     if (cat && a.categorie!==cat) return false;
     if (typ && a.type_avis!==typ) return false;
     if (fl && !(a._champs_a_verifier||[]).length) return false;
+    if (rv && !(a._judge&&a._judge.revue_humaine)) return false;
     if (q.length){ const h=fold([a.objet,a.autorite_emettrice,a.numero_reference,a.type_avis,a.financement].join(" ")); if(!q.every(t=>h.includes(t)))return false; }
     return true;
   });
@@ -263,8 +283,10 @@ function renderAvisList() {
   const el=$("#avisList"), items=avisVisible();
   if(!items.length){ el.innerHTML='<div style="padding:16px;color:var(--faint);font-size:.85rem">Aucun avis.</div>'; return; }
   el.innerHTML = items.map(a=>{
-    const s=a._score_exactitude, sc=typeof s==="number"?`<span class="pill ${scoreCls(s)}">${s}%</span>`:"";
-    const fl=(a._champs_a_verifier||[]).length?`<span class="flag">${(a._champs_a_verifier||[]).length} à vérifier</span>`:"";
+    const j=a._judge;
+    const sc=j?`<span class="pill ${verdictCls(j.verdict)}" title="${verdictLabel(j.verdict)} — confiance du juge">${judgePct(j)}%</span>`
+      :(typeof a._score_exactitude==="number"?`<span class="pill ${scoreCls(a._score_exactitude)}">${a._score_exactitude}%</span>`:"");
+    const fl=(j&&j.revue_humaine)?`<span class="flag">revue</span>`:"";
     return `<button class="item ${state.avisSel===a._uid?"active":""}" data-uid="${a._uid}" role="option">
       <div class="top"><span class="title">${esc(a.objet||a.autorite_emettrice||"Avis")}</span>${sc}</div>
       ${a.numero_reference?`<span class="mono" style="font-size:.72rem;color:var(--info)">${esc(a.numero_reference)}</span>`:""}
@@ -291,8 +313,9 @@ function renderAvisDetail() {
       <h2>${esc(a.objet||a.autorite_emettrice||"Avis")}</h2>
       <div class="emetteur">${esc(a.autorite_emettrice||"—")}${a.numero_reference?` — <span class="mono">${esc(a.numero_reference)}</span>`:""}</div>
       <div class="chips">${chips}</div></div>
-      ${typeof s==="number"?`<div class="gauge"><div class="num" style="color:var(--${s>=95?"ok":s>=80?"warn":"crit"})">${s}%</div><div class="lbl">Complétude</div></div>`:""}</div>
-    <div class="section-title">Raisons de l'écart</div>${reasonsHtml}
+      ${a._judge?`<div class="gauge"><div class="num" style="color:var(--${a._judge.verdict==="valide"?"ok":a._judge.verdict==="a_verifier"?"warn":"crit"})">${judgePct(a._judge)}%</div><div class="lbl">Confiance juge</div></div>`:(typeof s==="number"?`<div class="gauge"><div class="num">${s}%</div><div class="lbl">Complétude</div></div>`:"")}</div>
+    ${judgeSection(a._judge)}
+    <div class="section-title">Complétude de la 1re passe</div>${reasonsHtml}
     <div class="section-title">Toutes les variables</div><div class="fields">${fieldsHtml}</div>`;
 }
 
@@ -312,7 +335,7 @@ function renderResList() {
   const el=$("#resList"), items=resVisible();
   if(!items.length){ el.innerHTML='<div style="padding:16px;color:var(--faint);font-size:.85rem">Aucun émetteur.</div>'; return; }
   el.innerHTML=items.map(r=>`<button class="item ${state.resSel===r._uid?"active":""}" data-uid="${r._uid}" role="option">
-      <div class="top"><span class="title">${esc(r.autorite_contractante||"Émetteur")}</span>${secBadge(r.macro_section)}</div>
+      <div class="top"><span class="title">${esc(r.autorite_contractante||"Émetteur")}</span><span style="display:flex;gap:4px;flex-shrink:0">${r._judge?`<span class="pill ${verdictCls(r._judge.verdict)}" title="Confiance juge">${judgePct(r._judge)}%</span>`:""}${secBadge(r.macro_section)}</span></div>
       <div class="foot"><span class="src-chip">${esc(sourceOf(r))}</span><span>·</span><span>p.${r.page_debut??"?"}–${r.page_fin??"?"}</span><span>·</span><span>${r.nombre_lots||0} lot(s)</span></div>
     </button>`).join("");
   el.querySelectorAll(".item").forEach(n=>n.onclick=()=>{ state.resSel=n.dataset.uid; renderResList(); renderResDetail(); });
@@ -339,16 +362,17 @@ function renderResDetail() {
   d.innerHTML=`<div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><div style="min-width:0">
       <h2>${esc(r.autorite_contractante||"Émetteur")}</h2><div class="chips">${chips}</div></div>
       <div class="gauge"><div class="num">${r.nombre_lots||lots.length||0}</div><div class="lbl">Lots</div></div></div>
+    ${judgeSection(r._judge)}
     <div class="section-title">Lots</div>${lotsHtml}${raw}`;
 }
 
 /* ---------- STATS + QUALITE ---------- */
 function renderStats() {
   const el=$("#stats");
-  if(state.tab==="avis"){ const A=DATA.avis.filter(inBulletin); const ws=A.filter(a=>typeof a._score_exactitude==="number");
-    const avg=ws.length?Math.round(ws.reduce((s,a)=>s+a._score_exactitude,0)/ws.length):"—";
-    const fl=A.filter(a=>(a._champs_a_verifier||[]).length).length;
-    el.innerHTML=cells([["Avis",A.length],["Complétude moy.",typeof avg==="number"?`${avg}<small>%</small>`:"—"],["À vérifier",`${fl}<small>/${A.length}</small>`],["Bulletins",new Set(A.map(sourceOf)).size]]);
+  if(state.tab==="avis"){ const A=DATA.avis.filter(inBulletin);
+    const jc=A.filter(a=>a._judge); const javg=jc.length?Math.round(100*jc.reduce((s,a)=>s+a._judge.confiance,0)/jc.length):"—";
+    const rev=A.filter(a=>a._judge&&a._judge.revue_humaine).length;
+    el.innerHTML=cells([["Avis",A.length],["Confiance juge",typeof javg==="number"?`${javg}<small>%</small>`:"—"],["Revue humaine",`${rev}<small>/${A.length}</small>`],["Bulletins",new Set(A.map(sourceOf)).size]]);
   } else if(state.tab==="resultats"){ const R=DATA.resultats.filter(inBulletin);
     const mini=R.filter(r=>r.macro_section!=="REGIONS").length, regi=R.length-mini;
     const lots=R.reduce((s,r)=>s+(r.nombre_lots||0),0);
@@ -361,14 +385,20 @@ function renderQualite() {
   const A=DATA.avis.filter(inBulletin);
   const bands=[["100 %",a=>a._score_exactitude===100,"p-ok"],["80–99 %",a=>a._score_exactitude>=80&&a._score_exactitude<100,"p-warn"],["< 80 %",a=>a._score_exactitude<80,"p-crit"]];
   const n=A.length||1;
+  const jv={valide:0,a_verifier:0,rejete:0}; A.forEach(a=>{ if(a._judge&&jv[a._judge.verdict]!=null) jv[a._judge.verdict]++; });
+  const review=A.filter(a=>a._judge&&a._judge.revue_humaine);
+  const jverd=[["Validé (auto)",jv.valide,"ok"],["À vérifier",jv.a_verifier,"warn"],["Rejeté",jv.rejete,"crit"]].map(([l,k,c])=>`<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:.8rem"><span>${l}</span><span class="mono">${k} (${Math.round(100*k/n)}%)</span></div><div class="bar"><span style="width:${Math.round(100*k/n)}%;background:var(--${c})"></span></div></div>`).join("");
+  const reviewList=review.slice(0,15).map(a=>`<div style="display:flex;justify-content:space-between;gap:8px;font-size:.82rem;padding:5px 0;border-bottom:1px solid var(--border)"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sourceOf(a))} — ${esc((a.objet||a.autorite_emettrice||"").slice(0,55))}</span><span class="pill ${verdictCls(a._judge.verdict)}" style="flex-shrink:0">${judgePct(a._judge)}%</span></div>`).join("");
   const dist=bands.map(([lbl,f,c])=>{ const k=A.filter(f).length; return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:.8rem"><span>${lbl}</span><span class="mono">${k} (${Math.round(100*k/n)}%)</span></div><div class="bar"><span style="width:${Math.round(100*k/n)}%;background:var(--${c==='p-ok'?'ok':c==='p-warn'?'warn':'crit'})"></span></div></div>`; }).join("");
   const routed=A.filter(a=>a._decision&&a._decision.needs_llm).length;
   const cov={}; ["montant_previsionnel_global","date_limite_depot","financement","numero_reference"].forEach(k=>{ cov[k]=Math.round(100*A.filter(a=>!isEmpty(a[k])).length/n); });
   const covHtml=Object.entries(cov).map(([k,v])=>`<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:.8rem"><span>${esc(AVIS_FIELDS[k]||k)}</span><span class="mono">${v}%</span></div><div class="bar"><span style="width:${v}%"></span></div></div>`).join("");
   const faulty={}; A.forEach(a=>(a._raisons_ecart||[]).forEach(r=>{ faulty[r.champ]=(faulty[r.champ]||0)+1; }));
   const top=Object.entries(faulty).sort((x,y)=>y[1]-x[1]).slice(0,6);
-  $("#qualite").innerHTML=`<h2>Qualité de l'extraction</h2>
-    <div class="section-title">Répartition des scores (avis)</div>${dist}
+  $("#qualite").innerHTML=`<h2>Qualité &amp; contrôle</h2>
+    <div class="section-title">Verdict du juge (contrôle de cohérence)</div>${jverd}
+    ${review.length?`<div class="section-title">File de revue humaine — ${review.length} avis</div>${reviewList}`:`<div class="perfect">✓ Aucun avis en attente de revue humaine</div>`}
+    <div class="section-title">Complétude de la 1re passe (couverture)</div>${dist}
     <div class="section-title">Couverture des champs clés</div>${covHtml}
     <div class="section-title">Routage vers l'API</div><p style="font-size:.9rem">${routed} avis sur ${A.length} seraient renvoyés à l'API par le modèle de décision (les autres sont jugés propres).</p>
     ${top.length?`<div class="section-title">Champs les plus souvent en écart</div>`+top.map(([c,k])=>`<div style="display:flex;justify-content:space-between;font-size:.85rem;padding:3px 0;border-bottom:1px solid var(--border)"><span class="mono">${esc(c)}</span><span>${k}×</span></div>`).join(""):""}`;
@@ -405,7 +435,7 @@ function loadData(obj, label) {
 }
 
 $("#bulletinFilter").onchange=(e)=>{ state.bulletin=e.target.value; renderStats(); renderAvisList(); renderAvisDetail(); renderResList(); renderResDetail(); if(state.tab==="qualite")renderQualite(); };
-["#avisSearch","#avisCat","#avisType","#avisFlagged"].forEach(s=>$(s).addEventListener("input",renderAvisList));
+["#avisSearch","#avisCat","#avisType","#avisFlagged","#avisReview"].forEach(s=>$(s).addEventListener("input",renderAvisList));
 ["#resSearch","#resSection"].forEach(s=>$(s).addEventListener("input",renderResList));
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 

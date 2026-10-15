@@ -17,12 +17,16 @@ import re
 import unicodedata
 from typing import Optional
 
+from judge import garbling_score, montant_amounts
+
 # Types de problème détectés.
 PB_VIDE_REQUIS = "vide_requis"            # champ requis vide
 PB_VIDE_PRESENT = "vide_mais_present"     # vide alors qu'un indice textuel le trouve
 PB_A_CLASSER = "a_classer"                # valeur brute à reclasser (ex. htva/ttc)
 PB_QUEUE_PARASITE = "queue_parasite"      # la valeur déborde sur la phrase suivante
 PB_TROP_LONG = "trop_long"                # valeur anormalement longue
+PB_MONTANT_IMPLAUSIBLE = "montant_implausible"  # montant hors fourchette (facteur 1000 ?)
+PB_TEXTE_CORROMPU = "texte_corrompu"      # texte probablement illisible (OCR conseillé)
 
 REQUIRED = ("autorite_emettrice", "objet")
 
@@ -118,6 +122,16 @@ def decide(extracted: dict, flat_text: str, fields: Optional[list] = None) -> di
         pb = analyser_champ(field, extracted.get(field), folded)
         if pb:
             problemes.append(pb)
+
+    # Signaux globaux (inspirés du juge) : montant implausible, texte corrompu.
+    amts = montant_amounts(extracted)
+    if amts and max(amts) < 50_000:
+        problemes.append({"champ": "montant_previsionnel_global", "type": PB_MONTANT_IMPLAUSIBLE,
+                          "detail": f"montant max {max(amts)} trop faible (erreur de facteur 1000 ?)"})
+    if flat_text and garbling_score(flat_text) >= 0.35:
+        problemes.append({"champ": "_texte", "type": PB_TEXTE_CORROMPU,
+                          "detail": "texte probablement corrompu — OCR conseillé avant extraction"})
+
     champs = sorted({p["champ"] for p in problemes})
     return {
         "needs_llm": bool(problemes),
