@@ -65,12 +65,15 @@ class ProviderError(Exception):
     pass
 
 
-def call_gemini(prompt: str, json_schema: dict, api_key: str) -> dict:
+def call_gemini(prompt: str, json_schema: dict, api_key: str,
+                system_prompt: str = SYSTEM_PROMPT, strict: bool = True) -> dict:
+    # Gemini n'a pas de mode "strict" distinct : `strict` est accepté pour
+    # homogénéiser la signature des providers, mais ignoré ici.
     url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
     resp = requests.post(
         f"{url}?key={api_key}",
         json={
-            "contents": [{"parts": [{"text": SYSTEM_PROMPT + "\n\n" + prompt}]}],
+            "contents": [{"parts": [{"text": system_prompt + "\n\n" + prompt}]}],
             "generationConfig": {
                 "responseMimeType": "application/json",
                 "responseSchema": json_schema,
@@ -85,19 +88,20 @@ def call_gemini(prompt: str, json_schema: dict, api_key: str) -> dict:
     return json.loads(text)
 
 
-def call_openrouter(prompt: str, json_schema: dict, api_key: str, model: str) -> dict:
+def call_openrouter(prompt: str, json_schema: dict, api_key: str, model: str,
+                    system_prompt: str = SYSTEM_PROMPT, strict: bool = True) -> dict:
     resp = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
         headers={"Authorization": f"Bearer {api_key}"},
         json={
             "model": model,  # ex: "mistralai/mistral-large" ou tout modèle dispo sur OpenRouter
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
             ],
             "response_format": {
                 "type": "json_schema",
-                "json_schema": {"name": "extraction", "schema": json_schema, "strict": True},
+                "json_schema": {"name": "extraction", "schema": json_schema, "strict": strict},
             },
         },
         timeout=60,
@@ -109,45 +113,68 @@ def call_openrouter(prompt: str, json_schema: dict, api_key: str, model: str) ->
     return json.loads(text)
 
 
+# Signature unifiée des providers : fn(prompt, schema, system_prompt, strict) -> dict
 PROVIDERS = [
     # Ordre = ordre d'essai. On bascule au suivant si le précédent échoue.
     # Clés API lues depuis les variables d'environnement (voir .env.example).
     # 1. Le modèle personnalisé OpenRouter
-    {"name": "openrouter-xiaomi", "fn": lambda prompt, schema: call_openrouter(
-        prompt, schema, os.environ.get("OPENROUTER_API_KEY", ""), os.environ.get("OPENROUTER_XIAOMI_MODEL", "xiaomi/mimo-v2.5"))},
+    {"name": "openrouter-xiaomi", "fn": lambda prompt, schema, system, strict: call_openrouter(
+        prompt, schema, os.environ.get("OPENROUTER_API_KEY", ""),
+        os.environ.get("OPENROUTER_XIAOMI_MODEL", "xiaomi/mimo-v2.5"),
+        system_prompt=system, strict=strict)},
 
     # 2. Gemini en solution de repli
-    {"name": "gemini", "fn": lambda prompt, schema: call_gemini(
-        prompt, schema, os.environ.get("GEMINI_API_KEY", ""))},
+    {"name": "gemini", "fn": lambda prompt, schema, system, strict: call_gemini(
+        prompt, schema, os.environ.get("GEMINI_API_KEY", ""),
+        system_prompt=system, strict=strict)},
 
     # 3. Mistral fallback
-    {"name": "openrouter-mistral", "fn": lambda prompt, schema: call_openrouter(
-        prompt, schema, os.environ.get("OPENROUTER_API_KEY", ""), os.environ.get("OPENROUTER_MISTRAL_MODEL", "mistralai/mistral-large"))},
+    {"name": "openrouter-mistral", "fn": lambda prompt, schema, system, strict: call_openrouter(
+        prompt, schema, os.environ.get("OPENROUTER_API_KEY", ""),
+        os.environ.get("OPENROUTER_MISTRAL_MODEL", "mistralai/mistral-large"),
+        system_prompt=system, strict=strict)},
 ]
 
 
-def extract_unit(unit_text: str, section: str, max_retries: int = 3) -> Optional[dict]:
-    field_defs = load_field_schema(section)
-    json_schema = build_json_schema(field_defs)
-    prompt = f"Schéma attendu (informatif, la contrainte réelle est appliquée par l'API):\n{json.dumps(json_schema, ensure_ascii=False)}\n\nTexte à analyser:\n{unit_text}"
+def call_with_rotation(prompt: str, json_schema: dict, max_retries: int = 3,
+                       system_prompt: str = SYSTEM_PROMPT, strict: bool = True,
+                       providers: Optional[list] = None) -> Optional[dict]:
+    """Cœur réutilisable : essaie chaque provider dans l'ordre, avec backoff
+    exponentiel par provider, puis bascule au suivant. Utilisé à la fois par
+    l'extraction (Couche 3) et par la révision/auto-complétion (Couche 4).
 
+    `providers` permet d'injecter une liste alternative (tests hors-ligne)."""
+    providers = providers if providers is not None else PROVIDERS
     last_error = None
-    for provider in PROVIDERS:
+    for provider in providers:
         for attempt in range(max_retries):
             try:
-                result = provider["fn"](prompt, json_schema)
+                result = provider["fn"](prompt, json_schema, system_prompt, strict)
+                if not isinstance(result, dict):
+                    raise ProviderError(f"réponse non-objet: {type(result).__name__}")
                 result["_provider"] = provider["name"]
                 return result
             except ProviderError as e:
                 last_error = e
                 time.sleep(2 ** attempt)  # backoff exponentiel
-            except Exception as e:  # rate limit, timeout réseau, etc.
+            except Exception as e:  # rate limit, timeout réseau, JSON invalide, etc.
                 last_error = e
                 time.sleep(2 ** attempt)
         # provider épuisé -> on passe au suivant
 
-    print(f"[ECHEC] toutes les tentatives ont échoué pour cette unité: {last_error}")
+    print(f"[ECHEC] toutes les tentatives ont échoué: {last_error}")
     return None
+
+
+def extract_unit(unit_text: str, section: str, max_retries: int = 3,
+                 providers: Optional[list] = None) -> Optional[dict]:
+    field_defs = load_field_schema(section)
+    json_schema = build_json_schema(field_defs)
+    prompt = f"Schéma attendu (informatif, la contrainte réelle est appliquée par l'API):\n{json.dumps(json_schema, ensure_ascii=False)}\n\nTexte à analyser:\n{unit_text}"
+    return call_with_rotation(
+        prompt, json_schema, max_retries=max_retries,
+        system_prompt=SYSTEM_PROMPT, strict=True, providers=providers,
+    )
 
 
 if __name__ == "__main__":

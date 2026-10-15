@@ -9,19 +9,33 @@ Cela permet de relancer le backfill autant de fois que nécessaire sans duplique
 le travail ni les coûts API, et de reprendre après une coupure au bon endroit.
 """
 
+import os
+import sys
 import sqlite3
 import json
 from pathlib import Path
 from datetime import datetime
 
+BASE_DIR = Path(__file__).parent
+
+# layer2_segment vit dans new_logic/ : on l'ajoute au path pour que l'import
+# fonctionne que le pipeline soit lancé comme script ou importé comme module.
+_NEW_LOGIC = BASE_DIR / "new_logic"
+if _NEW_LOGIC.is_dir() and str(_NEW_LOGIC) not in sys.path:
+    sys.path.insert(0, str(_NEW_LOGIC))
+
 from layer1_extract import extract_document_from_markdown as extract_document
 from layer2_segment import segment_document, unit_to_text
 from layer3_extract_llm import extract_unit
+from layer4_review import review_and_complete, _is_empty
 
-BASE_DIR = Path(__file__).parent
 DB_PATH = BASE_DIR / "ingestion.db"
 OUTPUT_DIR = BASE_DIR / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
+
+# Couche 4 (auto-analyse + auto-complétion) activée par défaut ; désactivable
+# (ENABLE_REVIEW=0) pour un run purement déterministe/première passe.
+ENABLE_REVIEW = os.environ.get("ENABLE_REVIEW", "1") not in ("0", "false", "False", "")
 
 
 def init_db():
@@ -82,7 +96,22 @@ def process_document(md_path: str, numero: str):
 
             extracted = extract_unit(flat_text, section)  # Couche 3
 
-            # Couche 4 : validation minimale + fallback
+            if extracted is not None:
+                # Valeurs déterministes de la segmentation injectées AVANT la
+                # révision, pour que l'auto-complétion les confirme au lieu de
+                # les redécouvrir (et ne les laisse jamais vides).
+                if section == "AVIS":
+                    if _is_empty(extracted.get("categorie")):
+                        extracted["categorie"] = unit.get("type_marche")
+                    extracted["_categorie_autorite"] = unit.get("categorie")
+
+                # Couche 4 : auto-analyse + auto-complétion de TOUTES les variables.
+                if ENABLE_REVIEW:
+                    reviewed = review_and_complete(flat_text, extracted, section)
+                    if reviewed is not None:
+                        extracted = reviewed
+
+            # Validation minimale + fallback
             if extracted is None or not _is_valid(extracted, section):
                 nb_echec += 1
                 conn.execute(
@@ -93,9 +122,6 @@ def process_document(md_path: str, numero: str):
 
             extracted["_page_debut"] = unit["page_debut"]
             extracted["_page_fin"] = unit["page_fin"]
-            if section == "AVIS":
-                extracted["categorie_emettrice"] = unit.get("avis_category")
-                extracted["categorie"] = unit.get("avis_type")
             results[section].append(extracted)
             nb_ok += 1
 
@@ -136,6 +162,10 @@ def reprocess_failures(numero: str):
     ).fetchall()
     for rowid, section, flat_text in rows:
         extracted = extract_unit(flat_text, section)
+        if extracted is not None and ENABLE_REVIEW:
+            reviewed = review_and_complete(flat_text, extracted, section)
+            if reviewed is not None:
+                extracted = reviewed
         if extracted and _is_valid(extracted, section):
             conn.execute("DELETE FROM unites_echouees WHERE rowid=?", (rowid,))
             # append au fichier de sortie existant

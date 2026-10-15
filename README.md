@@ -8,8 +8,9 @@ Le projet transforme les PDF du « Quotidien » (via OCR/MinerU → Markdown) en
 
 - **Layer 1 — `layer1_extract.py`** : parse le Markdown (titres, textes, tableaux), nettoie bruit (footers `N°...`, `www...`, `Sommaire`), produit 1 page virtuelle JSON.
 - **Layer 2 — `new_logic/layer2_segment.py`** : segmente en unités métier (`AVIS` / `RESULTATS`), détecte catégories, lots, pages début/fin, `flat_text`.
-- **Layer 3 — `layer3_extract_llm.py`** : extraction sémantique via LLM + schéma configurable. Schéma dans `schema_config.yaml` (aucun changement de code pour ajouter un champ). Rotation multi-provider : OpenRouter Xiaomi → Gemini → OpenRouter Mistral, avec backoff exponentiel.
-- **Layer 4 — `pipeline.py`** : validation minimale (champs `required` du YAML) + fallback, tracking SQLite (`ingestion.db`) pour exécution hebdo + backfill idempotent (`numero` → `ok` / `echec_partiel`), `reprocess_failures()` pour rejouer uniquement les échecs.
+- **Layer 3 — `layer3_extract_llm.py`** : première extraction sémantique via LLM + schéma configurable. Schéma dans `schema_config.yaml` (aucun changement de code pour ajouter un champ). Rotation multi-provider : OpenRouter Xiaomi → Gemini → OpenRouter Mistral, avec backoff exponentiel (`call_with_rotation`, réutilisée par la Couche 4).
+- **Layer 4 — `layer4_review.py`** : **auto-analyse + auto-complétion**. On redonne au LLM le *texte intégral* de l'annonce découpée **et** les valeurs déjà extraites ; il revoit **toutes** les variables (confirme / corrige / complète) et ne laisse vide que ce qui n'existe **réellement pas** dans le texte. Sortie enrichie d'une piste d'audit par champ : `_analyse` (`{champ, statut, justification}`, statut ∈ `confirme|corrige|complete|absent`), `_champs_absents` (vides assumés) et `_champs_a_verifier` (vides anormaux → relecture humaine). Agnostique de la 1re passe (regex, LLM ou OCR). Désactivable via `ENABLE_REVIEW=0`.
+- **Orchestration — `pipeline.py`** : enchaîne Couches 1→4, validation minimale (champs `required` du YAML) + fallback, tracking SQLite (`ingestion.db`) pour exécution hebdo + backfill idempotent (`numero` → `ok` / `echec_partiel`), `reprocess_failures()` pour rejouer uniquement les échecs.
 
 Outils annexes :
 
@@ -41,10 +42,19 @@ Variables requises dans `.env` (ou environnement) :
 python pipeline.py quotidien_4466.md N4466
 # → output/N4466.json + ingestion.db
 
+# Désactiver l'auto-complétion (run purement 1re passe)
+ENABLE_REVIEW=0 python pipeline.py quotidien_4466.md N4466
+
 # Couches isolées
 python layer1_extract.py
 python new_logic/layer2_segment.py
 python layer3_extract_llm.py
+
+# Aperçu HORS-LIGNE du prompt de révision (aucun appel réseau)
+python layer4_review.py annonce.txt AVIS
+
+# Tests hors-ligne (providers LLM injectés, sans réseau ni clé)
+pip install pytest && python -m pytest tests/ -q
 
 # Wordlist + vérification URLs
 python generate_wordlist.py --calibrate urls_quotidien.txt --out wordlist.txt
