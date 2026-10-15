@@ -14,6 +14,11 @@ Le projet transforme les PDF du « Quotidien » (via OCR/MinerU → Markdown) en
 - **Boucle de rétroaction — `feedback_store.py`** : chaque écart (< 100 %) est enregistré, puis **réinjecté** dans le prompt de révision des traitements suivants (`feedback_hint`) sous forme de « erreurs récurrentes à éviter ». Le modèle voit explicitement ses fautes passées → il s'améliore d'un run à l'autre. `summary()` donne un classement des champs les plus fautifs (tableau de bord qualité).
 - **Orchestration — `pipeline.py`** : enchaîne Couches 1→4, injecte le `feedback_hint`, enregistre les écarts, validation minimale (champs `required` du YAML) + fallback, tracking SQLite (`ingestion.db`) pour exécution hebdo + backfill idempotent (`numero` → `ok` / `echec_partiel`), `reprocess_failures()` pour rejouer uniquement les échecs.
 
+Extraction déterministe directe (sans LLM ni OCR externe) :
+
+- **`pdf_avis_extract.py`** : lit un PDF de Quotidien avec `pdfplumber`, localise la section AVIS, découpe chaque avis sur son en-tête de type et extrait par regex les champs lisibles (émetteur, objet, type, référence, financement, montant, délai, date limite) + la provenance (bulletin, page). C'est une « première passe » : les champs non trouvés sont signalés `_champs_a_verifier` (jamais inventés), et la couche 4 peut ensuite compléter. `enrich_coverage()` ajoute un indicateur de complétude.
+- **`search_avis.py`** : recherche d'avis par mots-clés, insensible à la casse **et aux accents**, multi mots-clés en ET/OU, pondérée par champ (objet > financement), avec score, champs matchés et extrait. `simulate()` rejoue une batterie de recherches types (`--simulate`) pour vérifier la pertinence sur un vrai jeu de données. Même logique de normalisation que la recherche de la plateforme.
+
 Outils annexes :
 
 | Script | Rôle |
@@ -57,6 +62,13 @@ python layer4_review.py annonce.txt AVIS
 
 # Classement des champs les plus souvent en écart (qualité / amélioration)
 python feedback_store.py
+
+# Extraction déterministe des AVIS directement depuis des PDF (sans LLM)
+python pdf_avis_extract.py Quotidien_N_4500.pdf Quotidien_N_4502.pdf -o dataset_avis.json
+
+# Recherche par mots-clés + simulation d'un lecteur (sur le JSON produit)
+python search_avis.py dataset_avis.json "matériel informatique"
+python search_avis.py dataset_avis.json --simulate
 
 # Tests hors-ligne (providers LLM injectés, sans réseau ni clé)
 pip install pytest && python -m pytest tests/ -q

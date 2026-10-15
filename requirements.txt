@@ -1,3 +1,4 @@
 requests>=2.31
 pyyaml>=6.0
 urllib3>=2.0
+pdfplumber>=0.11  # extraction déterministe des AVIS directement depuis le PDF (pdf_avis_extract.py)
