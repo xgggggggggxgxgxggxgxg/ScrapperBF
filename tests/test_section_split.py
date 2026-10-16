@@ -41,16 +41,19 @@ def test_sommaire_section_pages_spans():
 
 def test_sommaire_ranges_resultats_then_avis():
     secs = {"RESULTATS": (5, 30), "AVIS": (45, 80)}
-    p2i = {5: 4, 45: 44}                 # imprimé 5 -> index 4, imprimé 45 -> index 44
-    rng = sommaire_ranges(secs, p2i, 94)
+    rng = sommaire_ranges(secs, -1, 94)          # offset -1 (imprimé N -> index N-1)
     assert rng["RESULTATS"] == (4, 43)
     assert rng["AVIS"] == (44, 93)
 
 
-def test_to_index_extrapolates_from_nearest():
-    assert _to_index(45, {5: 4}, 94) == 44      # 4 + (45-5)
-    assert _to_index(5, {5: 4}, 94) == 4        # exact
-    assert _to_index(10, {}, 94) == 9           # fallback imprimé-1
+def test_sommaire_ranges_none_without_delta():
+    assert sommaire_ranges({"AVIS": (5, 10)}, None, 94) is None
+
+
+def test_to_index_applies_offset():
+    assert _to_index(45, -1, 94) == 44
+    assert _to_index(3, -1, 94) == 2
+    assert _to_index(1, -1, 94) == 0             # clamp bas
 
 
 def test_ranges_sane_rejects_bad_bounds():

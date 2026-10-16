@@ -58,3 +58,25 @@ def test_validate_multipage_range():
     r = validate_format({"flat_text": CLEAN, "page_debut": 3, "page_fin": 5})
     assert r["pages"] == "3-5"
     assert any("plusieurs pages" in x for x in r["raisons"])
+
+
+def test_color_confirmed_block_not_blocked_without_header():
+    # Annonce confirmée par la couleur (bandeau objet cyan) mais sans la phrase
+    # « Avis de demande de prix n° » (ex. commande complémentaire) -> on extrait.
+    r = validate_format({
+        "flat_text": "MINISTERE DE LA JUSTICE Fourniture complémentaire de pauses-café "
+                     "renforcées au profit du Ministère de la Justice.",
+        "_objet_bandeau": "Fourniture complémentaire de pauses-café renforcées",
+        "_page_debut": 38, "_page_fin": 38,
+    })
+    assert r["action"] == "extraire"
+
+
+def test_color_confirmed_block_still_blocked_if_corrupted():
+    # La confirmation couleur ne couvre PAS un texte corrompu : OCR requis.
+    r = validate_format({
+        "flat_text": "Lrtmnqs bcdfgh klmnpqrst vwxz tqrst zzz wxyz bcdfg mnqrst",
+        "_objet_bandeau": "Travaux de quelque chose",
+        "_page_debut": 40, "_page_fin": 40,
+    })
+    assert r["action"] == "bloquer"

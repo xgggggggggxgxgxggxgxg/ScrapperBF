@@ -246,10 +246,17 @@ def _collect_bands(pages, page_range=None) -> list:
             continue
         w = pg.width
         for r in pg.rects:
-            if r["width"] < w * 0.45 or r["height"] < 6:
+            if r["height"] < 6:
                 continue
             kind = classify_band_color(r.get("non_stroking_color"))
             if not kind:
+                continue
+            # Largeur minimale PAR TYPE : le bandeau rouge « catégorie » est un
+            # titre CENTRÉ dont la largeur dépend du texte (« Travaux » ≈ 0.40,
+            # « Prestations intellectuelles » ≈ 0.50) ; émetteur (jaune) et objet
+            # (cyan) sont des bandeaux PLEINE largeur.
+            min_frac = 0.30 if kind == "categorie" else 0.45
+            if r["width"] < w * min_frac:
                 continue
             txt = _crop_text(pg, r)
             if len(txt) < 3:

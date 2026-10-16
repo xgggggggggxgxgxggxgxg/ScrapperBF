@@ -104,7 +104,7 @@ def split_sections(pdf_path: str) -> dict:
         if som:
             entries = parse_sommaire(som)
             secs = sommaire_section_pages(entries)
-            rng = sommaire_ranges(secs, _printed_to_index(pdf), n)
+            rng = sommaire_ranges(secs, _calibrate_delta(pdf, secs), n)
             if rng and _ranges_sane(rng, n):
                 rng.update(methode="sommaire", n_pages=n, sommaire=secs)
                 log.info("split [sommaire] : %d pages — AVIS=%s RÉSULTATS=%s (imprimé %s)",
@@ -125,7 +125,6 @@ def split_sections(pdf_path: str) -> dict:
 _PAGE_REF = re.compile(r"(?<!b\.)\bp\.?\s*(\d{1,4})\b", re.I)   # « P. 12 », « p 12 » (évite B.P.)
 _CTX_RESULTATS = re.compile(r"r[ée]sultats|d[ée]pouillements", re.I)
 _CTX_AVIS = re.compile(r"\bavis\b|appels?\s+d['’\s]*offres", re.I)
-_FOOTER_NUM = re.compile(r"(?m)^\s*(\d{1,4})\s*$")
 
 
 def parse_sommaire(text: str) -> list:
@@ -155,24 +154,20 @@ def sommaire_section_pages(entries: list) -> dict:
             "RESULTATS": (min(r), max(r)) if r else None}
 
 
-def _to_index(printed: int, p2i: dict, n: int) -> int:
-    """Page imprimée → index PDF 0-based. Exact si connu, sinon extrapolé depuis
-    le plus proche repère connu, sinon approché par (imprimé-1)."""
-    if printed in p2i:
-        return p2i[printed]
-    below = [k for k in p2i if k <= printed]
-    if below:
-        k = max(below)
-        return max(0, min(n - 1, p2i[k] + (printed - k)))
-    return max(0, min(n - 1, printed - 1))
+def _to_index(printed: int, delta: int, n: int) -> int:
+    """Page imprimée → index PDF 0-based, via l'offset constant delta."""
+    return max(0, min(n - 1, printed + delta))
 
 
-def sommaire_ranges(secs: dict, p2i: dict, n: int):
-    """PUR : zones (index PDF) à partir des étendues imprimées. La frontière est
-    le début de la section qui vient en second. None si rien d'exploitable."""
+def sommaire_ranges(secs: dict, delta: Optional[int], n: int):
+    """PUR : zones (index PDF) à partir des étendues imprimées et de l'offset
+    constant `delta` (= index_pdf - page_imprimée). La frontière est le début de
+    la section qui vient en second. None si offset inconnu ou rien d'exploitable."""
+    if delta is None:
+        return None
     a, r = secs.get("AVIS"), secs.get("RESULTATS")
-    a0 = _to_index(a[0], p2i, n) if a else None
-    r0 = _to_index(r[0], p2i, n) if r else None
+    a0 = _to_index(a[0], delta, n) if a else None
+    r0 = _to_index(r[0], delta, n) if r else None
     if a0 is not None and r0 is not None:
         if a0 <= r0:
             return {"AVIS": (a0, max(a0, r0 - 1)), "RESULTATS": (r0, n - 1)}
@@ -198,19 +193,40 @@ def _ranges_sane(rng: dict, n: int) -> bool:
     return ok
 
 
+def _looks_like_toc(text: str) -> bool:
+    """Une page est le SOMMAIRE si elle porte le mot « sommaire », OU si elle
+    cumule plusieurs renvois « P. N » avec les deux contextes RÉSULTATS et AVIS
+    (cas réel DGCMEF : le sommaire n'écrit pas toujours « SOMMAIRE »)."""
+    if not text:
+        return False
+    head = text[:1600]
+    refs = len(_PAGE_REF.findall(head))
+    if re.search(r"sommaire", head[:400], re.I) and refs >= 2:
+        return True
+    return refs >= 3 and bool(_CTX_RESULTATS.search(head)) and bool(_CTX_AVIS.search(head))
+
+
 def _find_sommaire_text(pdf) -> Optional[str]:
     """Texte de la page Sommaire (parmi les premières pages), ou None."""
     for pg in pdf.pages[:6]:
         t = pg.extract_text() or ""
-        if re.search(r"sommaire", t[:400], re.I):
+        if _looks_like_toc(t):
             return t
     return None
 
 
-def _printed_to_index(pdf) -> dict:
-    """Numéro de page IMPRIMÉ (pied de page isolé) → index PDF (1re occurrence)."""
-    mp = {}
-    for i, pg in enumerate(pdf.pages):
-        for num in _FOOTER_NUM.findall(pg.extract_text() or ""):
-            mp.setdefault(int(num), i)
-    return mp
+def _calibrate_delta(pdf, secs: dict) -> Optional[int]:
+    """Offset constant delta = index_pdf - page_imprimée, calibré sur un ANCRE
+    de contenu fiable : la 1re barre noire (début des RÉSULTATS) correspond à la
+    1re page imprimée des RÉSULTATS. Repli sur le 1er bandeau couleur (AVIS)."""
+    r = secs.get("RESULTATS")
+    if r:
+        fb = next((i for i, pg in enumerate(pdf.pages) if _page_has_black_bar(pg)), None)
+        if fb is not None:
+            return fb - r[0]
+    a = secs.get("AVIS")
+    if a:
+        fc = next((i for i, pg in enumerate(pdf.pages) if _page_has_color_band(pg)), None)
+        if fc is not None:
+            return fc - a[0]
+    return None

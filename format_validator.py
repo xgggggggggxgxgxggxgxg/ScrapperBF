@@ -101,7 +101,11 @@ def validate_format(unit: dict) -> dict:
         raisons.append(f"{n_head} annonces détectées dans le même bloc -> division en {len(sous)}")
 
     # 3) Aucun en-tête d'avis / aucune référence -> bloquer (bloc inexploitable).
-    if n_head == 0 and not _REF_RE.search(text):
+    #    SAUF si l'annonce est déjà CONFIRMÉE par la couleur (bandeau objet cyan) :
+    #    la géométrie prime, certains avis (additifs, commandes complémentaires)
+    #    n'ont pas la phrase « Avis de demande de prix n° » mais sont de vrais avis.
+    color_confirmed = bool(unit.get("_objet_bandeau"))
+    if n_head == 0 and not _REF_RE.search(text) and not color_confirmed and action != "bloquer":
         action = "bloquer"; alerte = True
         raisons.append("aucun en-tête d'avis ni référence reconnus — bloc inexploitable")
 
