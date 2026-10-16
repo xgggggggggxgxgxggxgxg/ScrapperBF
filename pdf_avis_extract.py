@@ -38,6 +38,48 @@ TYPE_HEAD_RE = re.compile(r"^\s*" + TYPE_PHRASE, re.I)
 _GUARD_RE = re.compile(r"financement|participation|n[°o]\s*:?\s*\d", re.I)
 STOP_LINE_RE = re.compile(r"www\.dgcmef|^\s*\d{1,3}\s*$|quotidien\s+n", re.I)
 
+# --- Taxonomie hiérarchique (comme côté RÉSULTATS) ------------------------
+# Niveau 1 : macro-section. Les en-têtes décoratifs « APPELS D'OFFRES DES … »
+# ne sont pas toujours du texte sélectionnable ; on bascule donc sur RÉGIONS
+# dès qu'un émetteur « RÉGION/COMMUNE/… » apparaît (même repère que RÉSULTATS).
+MACRO_MINISTERES = "MINISTERES"
+MACRO_REGIONS = "REGIONS"
+_EMETTEUR_REGION_RE = re.compile(
+    r"\b(R[ÉE]GION\s+(?:DU|DE|DES|D['’])|CONSEIL\s+R[ÉE]GIONAL|COMMUNE\s+(?:DE|DU|RURALE|URBAINE)"
+    r"|MAIRIE|CONSEIL\s+MUNICIPAL|PROVINCE\s+DU|AUTORIT[ÉE]S?\s+R[ÉE]GIONALES?)\b", re.I)
+_MACRO_HDR_RE = re.compile(
+    r"appels?\s+d['’\s]*offres?\s+des\s+(minist[èe]res?|r[ée]gions?|collectivit[ée]s?)", re.I)
+
+# Niveau 2 : catégorie de marché. Bandeaux de section (souvent du texte
+# sélectionnable) : Travaux / Fournitures et services / Prestations intellectuelles.
+_CAT_PATTERNS = [
+    ("travaux", re.compile(r"^\s*travaux\s*$", re.I)),
+    ("fournitures", re.compile(r"^\s*fournitures?\b.*?(services?|courants?)?\s*$", re.I)),
+    ("prestations_intellectuelles",
+     re.compile(r"^\s*prestations?\s+intellectuelles?", re.I)),
+    ("prestations_intellectuelles",
+     re.compile(r"^\s*services?\s+de\s+consultants?\s*$", re.I)),
+]
+
+
+def _macro_from_emetteur(text: str, current: str) -> str:
+    """Bascule DÉFINITIVE sur RÉGIONS dès qu'un nom d'émetteur de collectivité
+    apparaît (irréversible dans l'ordre du bulletin)."""
+    if current == MACRO_REGIONS:
+        return MACRO_REGIONS
+    return MACRO_REGIONS if _EMETTEUR_REGION_RE.search(text or "") else current
+
+
+def _detect_category(line: str) -> Optional[str]:
+    """Reconnaît un bandeau de catégorie (ligne courte isolée). None sinon."""
+    s = line.strip()
+    if not s or len(s) > 48:
+        return None
+    for cat, rx in _CAT_PATTERNS:
+        if rx.match(s):
+            return cat
+    return None
+
 # Champs métier (pour la couverture / le juge) — désormais remplis par le LLM.
 CORE_FIELDS = ["autorite_emettrice", "objet", "type_avis", "numero_reference",
                "financement", "date_limite_depot"]
@@ -78,6 +120,22 @@ def segment_avis_blocks(path: str, numero: Optional[str] = None,
     with pdfplumber.open(path) as pdf:
         lines = _lines_with_pages(pdf)
 
+    # Passe 1 — état taxonomique courant ligne par ligne (report en avant des
+    # en-têtes de macro-section et de catégorie, exactement comme RÉSULTATS).
+    macro_at, cat_at = [], []
+    macro, cat = MACRO_MINISTERES, None
+    for pg, ln in lines:
+        m = _MACRO_HDR_RE.search(ln)
+        if m:
+            macro = MACRO_REGIONS if re.search(r"r[ée]gion|collectivit", m.group(1), re.I) else MACRO_MINISTERES
+        macro = _macro_from_emetteur(ln, macro)
+        c = _detect_category(ln)
+        if c:
+            cat = c
+        macro_at.append(macro)
+        cat_at.append(cat)
+
+    # Passe 2 — ancres de début d'annonce (en-tête de type confirmé).
     anchors = []
     for idx, (pg, ln) in enumerate(lines):
         s = ln.strip()
@@ -97,13 +155,20 @@ def segment_avis_blocks(path: str, numero: Optional[str] = None,
         pg_debut = lines[idx][0]
         pg_fin = lines[min(end - 1, len(lines) - 1)][0]
         text = " ".join(x[1] for x in lines[start:end] if not STOP_LINE_RE.search(x[1]))
+        # Taxonomie : état au niveau de l'en-tête, consolidé par le texte du bloc
+        # (l'émetteur « RÉGION/COMMUNE… » peut n'apparaître que dans le contexte).
+        blk_macro = _macro_from_emetteur(text, macro_at[idx])
         blocks.append({
             "flat_text": norm(text)[:4500],
             "_page_debut": pg_debut, "_page_fin": max(pg_debut, pg_fin),
+            "_macro_section": blk_macro, "_categorie": cat_at[idx],
             "_numero": numero, "_source_pdf": label, "_source": Path(path).name,
         })
 
-    log.info("segmentation AVIS %s : %d bloc(s) d'annonce", label, len(blocks))
+    from collections import Counter
+    log.info("segmentation AVIS %s : %d bloc(s) — macro=%s catégorie=%s", label, len(blocks),
+             dict(Counter(b["_macro_section"] for b in blocks)),
+             dict(Counter(b["_categorie"] for b in blocks)))
     return blocks
 
 

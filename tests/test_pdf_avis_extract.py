@@ -2,6 +2,7 @@
 from pdf_avis_extract import (
     enrich_coverage, CORE_FIELDS, TYPE_HEAD_RE, _numero_label,
     segment_avis_blocks, extract_avis_from_pdf, norm,
+    _detect_category, _macro_from_emetteur, MACRO_MINISTERES, MACRO_REGIONS,
 )
 
 
@@ -45,3 +46,23 @@ def test_enrich_coverage_empty_block():
     enrich_coverage(a)
     assert a["_score_exactitude"] == 0
     assert set(a["_champs_a_verifier"]) == set(CORE_FIELDS)
+
+
+# --- Taxonomie hiérarchique (niveau 2 : catégorie, niveau 1 : macro) --------
+
+def test_detect_category_bands():
+    assert _detect_category("Travaux") == "travaux"
+    assert _detect_category("Fournitures et Services courants") == "fournitures"
+    assert _detect_category("Prestations intellectuelles") == "prestations_intellectuelles"
+    assert _detect_category("Services de consultants") == "prestations_intellectuelles"
+    # une ligne de corps d'annonce n'est PAS un bandeau de catégorie
+    assert _detect_category("Le présent marché porte sur des travaux de construction") is None
+    assert _detect_category("") is None
+
+
+def test_macro_from_emetteur_switches_to_regions():
+    assert _macro_from_emetteur("MINISTERE DE L'ECONOMIE", MACRO_MINISTERES) == MACRO_MINISTERES
+    assert _macro_from_emetteur("REGION DU CENTRE", MACRO_MINISTERES) == MACRO_REGIONS
+    assert _macro_from_emetteur("COMMUNE DE OUAGADOUGOU", MACRO_MINISTERES) == MACRO_REGIONS
+    # bascule irréversible : un émetteur ministère après les régions ne revient pas
+    assert _macro_from_emetteur("MINISTERE DE LA SANTE", MACRO_REGIONS) == MACRO_REGIONS
