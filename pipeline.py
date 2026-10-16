@@ -44,6 +44,7 @@ from decision_model import refine_if_needed, decide
 from format_validator import validate_format
 from consensus_extract import consensus_extract
 from section_split import split_sections
+import ocr_fallback
 import judge
 
 DB_PATH = BASE_DIR / "ingestion.db"
@@ -259,11 +260,18 @@ def process_pdf(pdf_path: str, numero: str = None):
             rec["_decision"] = {"needs_llm": decide(rec, text)["needs_llm"]}
         rec["_format"] = fmt_info
         rec["_judge"] = judge.judge_avis(rec, text)
+        if rec.get("_ocr_tente"):  # texte corrompu passé par l'OCR -> revue humaine
+            rec["_judge"]["revue_humaine"] = True
+            rec["_judge"].setdefault("anomalies", []).append(
+                {"nom": "ocr", "statut": "warn",
+                 "detail": "texte corrompu ré-océrisé" if rec.get("_ocr_applique")
+                           else "texte corrompu, OCR indisponible"})
         rec.pop("flat_text", None)
         return rec
 
     nb_bloque = nb_divise = 0
     for unit in extract_avis_from_pdf(pdf_path, numero=numero, page_range=avis_zone):
+        unit = ocr_fallback.recover_block(unit, pdf_path)  # ré-OCR si texte corrompu
         fmt = validate_format(unit)
         fmt_info = {k: fmt[k] for k in ("action", "pages", "nb_annonces", "alerte_humaine", "raisons")}
 
@@ -302,11 +310,14 @@ def process_pdf(pdf_path: str, numero: str = None):
     r_units = segment_resultats(pdf_path, numero=numero, page_range=resultats_zone)
     log.info("[%s] RÉSULTATS : %d émetteur(s) à structurer", numero, len(r_units))
     for unit in r_units:
+        unit = ocr_fallback.recover_block(unit, pdf_path)  # ré-OCR si tableau corrompu
         if use_api:
             r = extract_resultats_unit(unit) or _resultat_deterministe(unit)
         else:
             r = _resultat_deterministe(unit)
         r["_judge"] = judge.judge_resultats(r, unit.get("flat_text", "") or r.get("texte_brut", ""))
+        if unit.get("_ocr_tente"):
+            r["_judge"]["revue_humaine"] = True
         resultats_out.append(r)
 
     # Synthèse qualité pour le meta (file de revue humaine).
