@@ -19,6 +19,7 @@ isolé. Repli sûr : si aucune page R, pas de découpe (comportement d'avant).
 La logique de partition `_section_ranges` est pure et testée hors-ligne.
 """
 
+import re
 import logging
 from typing import Optional
 
@@ -89,16 +90,127 @@ def split_sections(pdf_path: str) -> dict:
     """Ouvre le PDF, étiquette chaque page et renvoie les zones de pages.
 
     Retour : {'AVIS': (start,end)|None, 'RESULTATS': (start,end)|None,
-              'labels': 'AAR…', 'n_pages': int}  (indices 0-based inclusifs)."""
+              'methode': 'sommaire'|'marqueurs', 'n_pages': int, ...}
+    (indices 0-based inclusifs).
+
+    Stratégie : on tente d'ABORD le SOMMAIRE (lecture des « P. 12 ») ; si le
+    sommaire est absent/illisible ou donne un découpage incohérent, on retombe
+    sur l'étiquetage par marqueurs (barres noires / bandeaux couleur)."""
     import pdfplumber
-    labels = []
     with pdfplumber.open(pdf_path) as pdf:
-        for pg in pdf.pages:
-            txt = pg.extract_text() or ""
-            labels.append(_label_page(txt, _page_has_black_bar(pg), _page_has_color_band(pg)))
+        n = len(pdf.pages)
+        # 1) SOMMAIRE
+        som = _find_sommaire_text(pdf)
+        if som:
+            entries = parse_sommaire(som)
+            secs = sommaire_section_pages(entries)
+            rng = sommaire_ranges(secs, _printed_to_index(pdf), n)
+            if rng and _ranges_sane(rng, n):
+                rng.update(methode="sommaire", n_pages=n, sommaire=secs)
+                log.info("split [sommaire] : %d pages — AVIS=%s RÉSULTATS=%s (imprimé %s)",
+                         n, rng["AVIS"], rng["RESULTATS"], secs)
+                return rng
+            log.info("split : sommaire illisible/incohérent -> repli marqueurs")
+        # 2) MARQUEURS (repli)
+        labels = [_label_page(pg.extract_text() or "", _page_has_black_bar(pg),
+                              _page_has_color_band(pg)) for pg in pdf.pages]
     ranges = _section_ranges(labels)
-    ranges["labels"] = "".join(labels)
-    ranges["n_pages"] = len(labels)
-    log.info("split sections : %d pages — AVIS=%s RÉSULTATS=%s [%s]",
+    ranges.update(methode="marqueurs", labels="".join(labels), n_pages=len(labels))
+    log.info("split [marqueurs] : %d pages — AVIS=%s RÉSULTATS=%s [%s]",
              len(labels), ranges["AVIS"], ranges["RESULTATS"], ranges["labels"])
     return ranges
+
+
+# ---------------------------------------------------------------- sommaire
+_PAGE_REF = re.compile(r"(?<!b\.)\bp\.?\s*(\d{1,4})\b", re.I)   # « P. 12 », « p 12 » (évite B.P.)
+_CTX_RESULTATS = re.compile(r"r[ée]sultats|d[ée]pouillements", re.I)
+_CTX_AVIS = re.compile(r"\bavis\b|appels?\s+d['’\s]*offres", re.I)
+_FOOTER_NUM = re.compile(r"(?m)^\s*(\d{1,4})\s*$")
+
+
+def parse_sommaire(text: str) -> list:
+    """PUR : lignes du sommaire portant une référence de page → liste
+    {context: 'AVIS'|'RESULTATS'|None, page: int (numéro IMPRIMÉ)}. Le contexte
+    bascule quand une ligne d'en-tête « RÉSULTATS… » ou « AVIS… » est vue."""
+    ctx = None
+    out = []
+    for raw in (text or "").split("\n"):
+        line = raw.strip()
+        if not line:
+            continue
+        if _CTX_RESULTATS.search(line):
+            ctx = "RESULTATS"
+        elif _CTX_AVIS.search(line):
+            ctx = "AVIS"
+        for m in _PAGE_REF.finditer(line):
+            out.append({"context": ctx, "page": int(m.group(1))})
+    return out
+
+
+def sommaire_section_pages(entries: list) -> dict:
+    """PUR : étendue des pages IMPRIMÉES par section (min..max)."""
+    a = [e["page"] for e in entries if e["context"] == "AVIS"]
+    r = [e["page"] for e in entries if e["context"] == "RESULTATS"]
+    return {"AVIS": (min(a), max(a)) if a else None,
+            "RESULTATS": (min(r), max(r)) if r else None}
+
+
+def _to_index(printed: int, p2i: dict, n: int) -> int:
+    """Page imprimée → index PDF 0-based. Exact si connu, sinon extrapolé depuis
+    le plus proche repère connu, sinon approché par (imprimé-1)."""
+    if printed in p2i:
+        return p2i[printed]
+    below = [k for k in p2i if k <= printed]
+    if below:
+        k = max(below)
+        return max(0, min(n - 1, p2i[k] + (printed - k)))
+    return max(0, min(n - 1, printed - 1))
+
+
+def sommaire_ranges(secs: dict, p2i: dict, n: int):
+    """PUR : zones (index PDF) à partir des étendues imprimées. La frontière est
+    le début de la section qui vient en second. None si rien d'exploitable."""
+    a, r = secs.get("AVIS"), secs.get("RESULTATS")
+    a0 = _to_index(a[0], p2i, n) if a else None
+    r0 = _to_index(r[0], p2i, n) if r else None
+    if a0 is not None and r0 is not None:
+        if a0 <= r0:
+            return {"AVIS": (a0, max(a0, r0 - 1)), "RESULTATS": (r0, n - 1)}
+        return {"RESULTATS": (r0, max(r0, a0 - 1)), "AVIS": (a0, n - 1)}
+    if a0 is not None:
+        return {"AVIS": (a0, n - 1), "RESULTATS": None}
+    if r0 is not None:
+        return {"AVIS": None, "RESULTATS": (r0, n - 1)}
+    return None
+
+
+def _ranges_sane(rng: dict, n: int) -> bool:
+    """Garde-fou : au moins une zone, bornes valides et ordonnées."""
+    ok = False
+    for z in ("AVIS", "RESULTATS"):
+        v = rng.get(z)
+        if v is None:
+            continue
+        s, e = v
+        if not (0 <= s <= e <= n - 1):
+            return False
+        ok = True
+    return ok
+
+
+def _find_sommaire_text(pdf) -> Optional[str]:
+    """Texte de la page Sommaire (parmi les premières pages), ou None."""
+    for pg in pdf.pages[:6]:
+        t = pg.extract_text() or ""
+        if re.search(r"sommaire", t[:400], re.I):
+            return t
+    return None
+
+
+def _printed_to_index(pdf) -> dict:
+    """Numéro de page IMPRIMÉ (pied de page isolé) → index PDF (1re occurrence)."""
+    mp = {}
+    for i, pg in enumerate(pdf.pages):
+        for num in _FOOTER_NUM.findall(pg.extract_text() or ""):
+            mp.setdefault(int(num), i)
+    return mp
