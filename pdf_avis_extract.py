@@ -137,6 +137,12 @@ def plan_annonces(bands: list) -> list:
                 "objet": objet, "emetteur": cur_em, "categorie": cur_cat,
                 "macro_section": macro,
                 "nb_lots_declares": int(m.group(1)) if m else None,
+                # Confirmation par TRIPLET : une annonce est sûre quand on a vu,
+                # au-dessus du titre cyan, l'émetteur (jaune) ET la catégorie
+                # (rouge). Sinon : contexte incomplet -> doute / revue humaine.
+                "triplet_complet": bool(cur_em and cur_cat),
+                "contexte_manquant": [n for n, v in (("categorie", cur_cat),
+                                                     ("emetteur", cur_em)) if not v],
                 "_idx": i,
             })
     return out
@@ -287,6 +293,8 @@ def _blocks_from_bands(pages, bands: list, prov: dict, last_page=None) -> list:
             "_macro_section": a["macro_section"], "_categorie": a["categorie"],
             "_emetteur_bandeau": em, "_objet_bandeau": obj,
             "_nb_lots_declares": a["nb_lots_declares"], "_detecteur": "couleur",
+            "_triplet_complet": a["triplet_complet"],
+            "_contexte_manquant": a["contexte_manquant"],
             **prov,
         })
     return blocks

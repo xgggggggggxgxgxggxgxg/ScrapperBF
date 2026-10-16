@@ -121,3 +121,13 @@ def test_plan_annonces_inherits_context():
     assert b["nb_lots_declares"] is None
     # 3e objet : émetteur région -> macro bascule
     assert c["macro_section"] == MACRO_REGIONS and c["emetteur"] == "REGION DU CENTRE"
+    # triplet complet (rouge + jaune vus avant le cyan) pour les trois
+    assert a["triplet_complet"] and b["triplet_complet"] and c["triplet_complet"]
+
+
+def test_plan_annonces_flags_incomplete_triplet():
+    # un titre cyan SANS catégorie rouge ni émetteur jaune au-dessus
+    bands = [{"kind": "objet", "text": "Acquisition de PC", "page": 0, "top": 10}]
+    (a,) = plan_annonces(bands)
+    assert a["triplet_complet"] is False
+    assert set(a["contexte_manquant"]) == {"categorie", "emetteur"}

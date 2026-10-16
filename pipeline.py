@@ -44,6 +44,7 @@ from decision_model import refine_if_needed, decide
 from format_validator import validate_format
 from consensus_extract import consensus_extract
 from section_split import split_sections
+from sub_units import group_sub_units
 import ocr_fallback
 import judge
 
@@ -265,6 +266,13 @@ def process_pdf(pdf_path: str, numero: str = None):
             rec["_decision"] = {"needs_llm": decide(rec, text)["needs_llm"]}
         rec["_format"] = fmt_info
         rec["_judge"] = judge.judge_avis(rec, text)
+        # Triplet incomplet (titre cyan sans émetteur jaune et/ou catégorie rouge
+        # au-dessus) : on n'est pas sûr du début d'annonce -> revue humaine.
+        if rec.get("_triplet_complet") is False:
+            rec["_judge"]["revue_humaine"] = True
+            rec["_judge"].setdefault("anomalies", []).append(
+                {"nom": "triplet", "statut": "warn",
+                 "detail": "contexte manquant : " + ", ".join(rec.get("_contexte_manquant") or [])})
         if rec.get("_ocr_tente"):  # texte corrompu passé par l'OCR -> revue humaine
             rec["_judge"]["revue_humaine"] = True
             rec["_judge"].setdefault("anomalies", []).append(
@@ -310,6 +318,14 @@ def process_pdf(pdf_path: str, numero: str = None):
     log.info("[%s] AVIS : %d enregistrement(s) (%d bloqués, %d divisés)",
              numero, len(avis_out), nb_bloque, nb_divise)
 
+    # ---- Hiérarchie : regroupement en SOUS-UNITÉS ordonnées -------------
+    #      A. ministères/régions  B. travaux/fournitures/PI
+    #      nom = avis-<macro>-<categorie>-<numero>-<date>
+    jour = datetime.now().strftime("%Y%m%d")
+    sous_unites = group_sub_units(avis_out, numero, jour)
+    log.info("[%s] AVIS : %d sous-unité(s) : %s", numero, len(sous_unites),
+             ", ".join(f"{s['nom']} ({s['nb_annonces']})" for s in sous_unites))
+
     # ---- RÉSULTATS : segmentation -> chunk -> API -> fusion -------------
     resultats_out = []
     r_units = segment_resultats(pdf_path, numero=numero, page_range=resultats_zone)
@@ -338,6 +354,7 @@ def process_pdf(pdf_path: str, numero: str = None):
                  "split_pages": {"AVIS": avis_zone, "RESULTATS": resultats_zone,
                                  "n_pages": zones["n_pages"]},
                  "nb_avis": len(avis_out), "nb_resultats_emetteurs": len(resultats_out),
+                 "sous_unites": sous_unites,
                  "confiance_moyenne_avis": round(sum(confs) / len(confs), 3) if confs else None,
                  "nb_revue_humaine": revue},
         "AVIS": avis_out,
