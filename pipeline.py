@@ -47,6 +47,7 @@ from section_split import split_sections
 from sub_units import group_sub_units
 import ocr_fallback
 import token_tracker
+import span_scorer
 import judge
 
 DB_PATH = BASE_DIR / "ingestion.db"
@@ -280,7 +281,8 @@ def process_pdf(pdf_path: str, numero: str = None):
                 {"nom": "ocr", "statut": "warn",
                  "detail": "texte corrompu ré-océrisé" if rec.get("_ocr_applique")
                            else "texte corrompu, OCR indisponible"})
-        rec.pop("flat_text", None)
+        # flat_text est conservé ici : le scoreur Span (optionnel) en a besoin ;
+        # il sera retiré en fin de traitement (allègement de la sortie).
         return rec
 
     nb_bloque = nb_divise = 0
@@ -327,6 +329,13 @@ def process_pdf(pdf_path: str, numero: str = None):
     log.info("[%s] AVIS : %d sous-unité(s) : %s", numero, len(sous_unites),
              ", ".join(f"{s['nom']} ({s['nb_annonces']})" for s in sous_unites))
 
+    # ---- Scoreur Span (OPTIONNEL) : signal « souple » EN PARALLÈLE du juge.
+    #      N'altère rien si désactivé ; peut seulement AJOUTER de la revue humaine.
+    if span_scorer.enabled():
+        log.info("[%s] Span : scoring comportemental de %d avis (en parallèle du juge)",
+                 numero, len(avis_out))
+        span_scorer.score_many(avis_out)
+
     # ---- RÉSULTATS : segmentation -> chunk -> API -> fusion -------------
     resultats_out = []
     r_units = segment_resultats(pdf_path, numero=numero, page_range=resultats_zone)
@@ -341,6 +350,13 @@ def process_pdf(pdf_path: str, numero: str = None):
         if unit.get("_ocr_tente"):
             r["_judge"]["revue_humaine"] = True
         resultats_out.append(r)
+
+    if span_scorer.enabled():
+        span_scorer.score_many(resultats_out, text_key="texte_brut")
+
+    # Allègement : on retire le texte brut des avis (conservé jusqu'ici pour Span).
+    for a in avis_out:
+        a.pop("flat_text", None)
 
     # Synthèse qualité pour le meta (file de revue humaine).
     confs = [a["_judge"]["confiance"] for a in avis_out]

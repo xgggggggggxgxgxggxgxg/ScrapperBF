@@ -106,6 +106,17 @@ def is_configured() -> bool:
     return bool(provider_specs())
 
 
+def span_spec():
+    """Spec du scoreur comportemental optionnel (Span-01), ou None si pas de clé.
+    Compatible endpoint OpenAI (OpenRouter par défaut)."""
+    keys = _keys("SPAN")
+    if not keys:
+        return None
+    return {"kind": "span", "key": keys[0], "keys": keys,
+            "model": os.environ.get("SPAN_MODEL", "respan/span-01-lite:free"),
+            "base_url": os.environ.get("SPAN_BASE_URL", "https://openrouter.ai/api/v1")}
+
+
 def summary() -> str:
     specs = provider_specs()
     if not specs:
