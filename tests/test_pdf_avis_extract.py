@@ -96,6 +96,9 @@ def test_category_label_from_band_text():
     assert _category_label("Prestations intellectuelles") == "prestations_intellectuelles"
     assert _category_label("Services de consultant") == "prestations_intellectuelles"
     assert _category_label("MINISTERE DE L'ECONOMIE") is None
+    # tolérance aux fautes réelles du bulletin (« Furnitures » sans « o »)
+    assert _category_label("Furnitures et Services courants") == "fournitures"
+    assert _category_label("Fourntures") == "fournitures"
 
 
 def test_plan_annonces_inherits_context():

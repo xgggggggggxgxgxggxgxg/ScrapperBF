@@ -54,7 +54,7 @@ _MACRO_HDR_RE = re.compile(
 # sélectionnable) : Travaux / Fournitures et services / Prestations intellectuelles.
 _CAT_PATTERNS = [
     ("travaux", re.compile(r"^\s*travaux\s*$", re.I)),
-    ("fournitures", re.compile(r"^\s*fournitures?\b.*?(services?|courants?)?\s*$", re.I)),
+    ("fournitures", re.compile(r"^\s*f(?:ou|u)rni?tures?\b.*?(services?|courants?)?\s*$", re.I)),
     ("prestations_intellectuelles",
      re.compile(r"^\s*prestations?\s+intellectuelles?", re.I)),
     ("prestations_intellectuelles",
@@ -107,7 +107,9 @@ def _category_label(text: str) -> Optional[str]:
     s = (text or "").strip()
     if re.search(r"prestations?\s+intellectuelles?|consultants?", s, re.I):
         return "prestations_intellectuelles"
-    if re.search(r"fournitures?", s, re.I):
+    # Tolérance aux fautes réelles du bulletin : « Furnitures » (sans « o »),
+    # « Fourntures »… -> on accepte f(ou|u)rni?tures.
+    if re.search(r"f(?:ou|u)rni?tures?", s, re.I):
         return "fournitures"
     if re.search(r"travaux", s, re.I):
         return "travaux"
