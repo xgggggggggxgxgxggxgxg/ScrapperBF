@@ -3,6 +3,7 @@ from pdf_avis_extract import (
     enrich_coverage, CORE_FIELDS, TYPE_HEAD_RE, _numero_label,
     segment_avis_blocks, extract_avis_from_pdf, norm,
     _detect_category, _macro_from_emetteur, MACRO_MINISTERES, MACRO_REGIONS,
+    is_red, is_yellow, is_cyan, classify_band_color, _category_label, plan_annonces,
 )
 
 
@@ -66,3 +67,57 @@ def test_macro_from_emetteur_switches_to_regions():
     assert _macro_from_emetteur("COMMUNE DE OUAGADOUGOU", MACRO_MINISTERES) == MACRO_REGIONS
     # bascule irréversible : un émetteur ministère après les régions ne revient pas
     assert _macro_from_emetteur("MINISTERE DE LA SANTE", MACRO_REGIONS) == MACRO_REGIONS
+
+
+# --- Détection par couleur des bandeaux (rouge/jaune/cyan) -------------------
+
+def test_color_predicates():
+    assert is_red((0.9, 0.1, 0.1))        # bandeau catégorie
+    assert is_yellow((1.0, 1.0, 0.0))     # bandeau émetteur
+    assert is_cyan((0.0, 0.9, 0.9))       # bandeau objet
+    # pas de confusion croisée
+    assert not is_red((1.0, 1.0, 0.0)) and not is_cyan((1.0, 1.0, 0.0))
+    assert not is_yellow((0.0, 0.9, 0.9))
+    # couleur neutre / format invalide
+    assert classify_band_color((0.5, 0.5, 0.5)) is None
+    assert classify_band_color(0.0) is None  # scalaire (barre noire RÉSULTATS)
+    assert classify_band_color(None) is None
+
+
+def test_classify_band_color_roles():
+    assert classify_band_color((0.95, 0.15, 0.12)) == "categorie"
+    assert classify_band_color((0.98, 0.95, 0.05)) == "emetteur"
+    assert classify_band_color((0.1, 0.85, 0.9)) == "objet"
+
+
+def test_category_label_from_band_text():
+    assert _category_label("Fournitures et Services courants") == "fournitures"
+    assert _category_label("Travaux") == "travaux"
+    assert _category_label("Prestations intellectuelles") == "prestations_intellectuelles"
+    assert _category_label("Services de consultant") == "prestations_intellectuelles"
+    assert _category_label("MINISTERE DE L'ECONOMIE") is None
+
+
+def test_plan_annonces_inherits_context():
+    # Reproduit l'image : rouge(catégorie) > jaune(émetteur) > cyan(objet),
+    # puis un 2e objet sous le même émetteur, puis une région.
+    bands = [
+        {"kind": "categorie", "text": "Fournitures et Services courants", "page": 0, "top": 10},
+        {"kind": "emetteur", "text": "MINISTERE DE L'ECONOMIE ET DES FINANCES", "page": 0, "top": 30},
+        {"kind": "objet", "text": "Entretien et maintenance de véhicules (2 lots)", "page": 0, "top": 50},
+        {"kind": "objet", "text": "Acquisition de fournitures de bureau", "page": 1, "top": 20},
+        {"kind": "emetteur", "text": "REGION DU CENTRE", "page": 2, "top": 10},
+        {"kind": "objet", "text": "Construction d'un marché", "page": 2, "top": 40},
+    ]
+    plan = plan_annonces(bands)
+    assert len(plan) == 3
+    a, b, c = plan
+    assert a["categorie"] == "fournitures"
+    assert a["emetteur"].startswith("MINISTERE")
+    assert a["macro_section"] == MACRO_MINISTERES
+    assert a["nb_lots_declares"] == 2
+    # 2e objet : hérite du même émetteur + catégorie, pas de lots déclarés
+    assert b["emetteur"].startswith("MINISTERE") and b["categorie"] == "fournitures"
+    assert b["nb_lots_declares"] is None
+    # 3e objet : émetteur région -> macro bascule
+    assert c["macro_section"] == MACRO_REGIONS and c["emetteur"] == "REGION DU CENTRE"

@@ -62,6 +62,86 @@ _CAT_PATTERNS = [
 ]
 
 
+# --- Détection par COULEUR des bandeaux (détecteur principal) --------------
+# Sémantique confirmée visuellement sur les bulletins :
+#   ROUGE  -> bandeau de CATÉGORIE (Fournitures / Travaux / Prestations…)
+#   JAUNE  -> bandeau d'ÉMETTEUR (autorité contractante)
+#   CYAN   -> bandeau d'OBJET = DÉBUT d'une annonce (hérite émetteur + catégorie)
+def is_red(c) -> bool:
+    if not isinstance(c, (list, tuple)) or len(c) < 3:
+        return False
+    r, g, b = c[0], c[1], c[2]
+    return r > 0.75 and g < 0.42 and b < 0.42
+
+
+def is_yellow(c) -> bool:
+    if not isinstance(c, (list, tuple)) or len(c) < 3:
+        return False
+    r, g, b = c[0], c[1], c[2]
+    return r > 0.72 and g > 0.72 and b < 0.5
+
+
+def is_cyan(c) -> bool:
+    if not isinstance(c, (list, tuple)) or len(c) < 3:
+        return False
+    r, g, b = c[0], c[1], c[2]
+    return r < 0.6 and g > 0.6 and b > 0.6
+
+
+def classify_band_color(color) -> Optional[str]:
+    """Rôle d'un bandeau d'après sa couleur de remplissage. None si neutre."""
+    if is_red(color):
+        return "categorie"
+    if is_yellow(color):
+        return "emetteur"
+    if is_cyan(color):
+        return "objet"
+    return None
+
+
+_LOTS_IN_OBJET_RE = re.compile(r"\(\s*(\d{1,2})\s*lots?\s*\)", re.I)
+
+
+def _category_label(text: str) -> Optional[str]:
+    """Catégorie normalisée à partir du texte d'un bandeau rouge."""
+    s = (text or "").strip()
+    if re.search(r"prestations?\s+intellectuelles?|consultants?", s, re.I):
+        return "prestations_intellectuelles"
+    if re.search(r"fournitures?", s, re.I):
+        return "fournitures"
+    if re.search(r"travaux", s, re.I):
+        return "travaux"
+    return None
+
+
+def plan_annonces(bands: list) -> list:
+    """LOGIQUE PURE (testable sans PDF). À partir des bandeaux ordonnés
+    (page, top) — chacun {kind, text, page, top} —, produit une annonce par
+    bandeau CYAN (objet), en héritant du dernier émetteur (jaune), de la
+    dernière catégorie (rouge) et de la macro-section courante. `_idx` pointe
+    sur l'index du bandeau objet dans `bands` (pour borner le texte ensuite)."""
+    cur_cat = cur_em = None
+    macro = MACRO_MINISTERES
+    out = []
+    for i, b in enumerate(bands):
+        k = b.get("kind")
+        if k == "categorie":
+            cur_cat = _category_label(b.get("text"))
+        elif k == "emetteur":
+            cur_em = b.get("text")
+            macro = _macro_from_emetteur(cur_em, macro)
+        elif k == "objet":
+            objet = b.get("text") or ""
+            m = _LOTS_IN_OBJET_RE.search(objet)
+            out.append({
+                "objet": objet, "emetteur": cur_em, "categorie": cur_cat,
+                "macro_section": macro,
+                "nb_lots_declares": int(m.group(1)) if m else None,
+                "_idx": i,
+            })
+    return out
+
+
 def _macro_from_emetteur(text: str, current: str) -> str:
     """Bascule DÉFINITIVE sur RÉGIONS dès qu'un nom d'émetteur de collectivité
     apparaît (irréversible dans l'ordre du bulletin)."""
@@ -117,11 +197,88 @@ def segment_avis_blocks(path: str, numero: Optional[str] = None,
     import pdfplumber  # dépendance optionnelle, isolée
 
     numero, label = _numero_label(path, numero, label)
+    prov = {"_numero": numero, "_source_pdf": label, "_source": Path(path).name}
     with pdfplumber.open(path) as pdf:
-        lines = _lines_with_pages(pdf)
+        pages = pdf.pages
+        bands = _collect_bands(pages)
+        n_objet = sum(1 for b in bands if b["kind"] == "objet")
+        if n_objet >= 1:
+            # Détecteur PRINCIPAL : couleur + taille des bandeaux.
+            blocks = _blocks_from_bands(pages, bands, prov)
+            mode = "couleur"
+        else:
+            # Repli : ancres texte (bulletins sans bandeaux couleur lisibles).
+            blocks = _blocks_from_text(_lines_with_pages(pdf), prov, path)
+            mode = "texte"
 
-    # Passe 1 — état taxonomique courant ligne par ligne (report en avant des
-    # en-têtes de macro-section et de catégorie, exactement comme RÉSULTATS).
+    from collections import Counter
+    log.info("segmentation AVIS %s [%s] : %d bloc(s) — macro=%s catégorie=%s",
+             label, mode, len(blocks),
+             dict(Counter(b["_macro_section"] for b in blocks)),
+             dict(Counter(b["_categorie"] for b in blocks)))
+    return blocks
+
+
+def _collect_bands(pages) -> list:
+    """Bandeaux couleur (rouge/jaune/cyan) pleine largeur, ordonnés (page, top)
+    et dédupliqués (un bandeau peut être dessiné en remplissage + bordure)."""
+    from pdf_resultats_extract import _crop_text  # réutilise la même extraction
+    bands = []
+    for pi, pg in enumerate(pages):
+        w = pg.width
+        for r in pg.rects:
+            if r["width"] < w * 0.45 or r["height"] < 6:
+                continue
+            kind = classify_band_color(r.get("non_stroking_color"))
+            if not kind:
+                continue
+            txt = _crop_text(pg, r)
+            if len(txt) < 3:
+                continue
+            bands.append({"page": pi, "top": r["top"], "bottom": r["bottom"],
+                          "kind": kind, "text": txt})
+    bands.sort(key=lambda b: (b["page"], b["top"]))
+    seen, out = set(), []
+    for b in bands:
+        key = (b["page"], round(b["top"] / 4), b["text"][:30])
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(b)
+    return out
+
+
+def _blocks_from_bands(pages, bands: list, prov: dict) -> list:
+    """Assemble une annonce par bandeau CYAN : objet + émetteur + catégorie
+    hérités, texte borné jusqu'au bandeau suivant (quel qu'il soit)."""
+    from pdf_resultats_extract import _text_between
+    blocks = []
+    for a in plan_annonces(bands):
+        i = a["_idx"]
+        ob = bands[i]
+        nxt = bands[i + 1] if i + 1 < len(bands) else None
+        p0, t0 = ob["page"], ob["bottom"]
+        p1 = nxt["page"] if nxt else len(pages) - 1
+        t1 = nxt["top"] if nxt else pages[p1].height
+        body = _text_between(pages, p0, t0, p1, t1)
+        em, obj = a["emetteur"], a["objet"]
+        text = norm(" ".join(x for x in (em, obj, body) if x))[:4500]
+        # Page de fin : la page précédant le bandeau suivant s'il ouvre une page.
+        pg_fin = (p0 if (nxt and nxt["page"] != p0 and nxt["top"] < 60) else p1) + 1
+        blocks.append({
+            "flat_text": text,
+            "_page_debut": p0 + 1, "_page_fin": max(p0 + 1, pg_fin),
+            "_macro_section": a["macro_section"], "_categorie": a["categorie"],
+            "_emetteur_bandeau": em, "_objet_bandeau": obj,
+            "_nb_lots_declares": a["nb_lots_declares"], "_detecteur": "couleur",
+            **prov,
+        })
+    return blocks
+
+
+def _blocks_from_text(lines: list, prov: dict, path: str) -> list:
+    """Repli : segmentation par ancres texte (en-tête de type) + report en avant
+    de la taxonomie. Utilisé quand aucun bandeau couleur n'est détecté."""
     macro_at, cat_at = [], []
     macro, cat = MACRO_MINISTERES, None
     for pg, ln in lines:
@@ -135,7 +292,6 @@ def segment_avis_blocks(path: str, numero: Optional[str] = None,
         macro_at.append(macro)
         cat_at.append(cat)
 
-    # Passe 2 — ancres de début d'annonce (en-tête de type confirmé).
     anchors = []
     for idx, (pg, ln) in enumerate(lines):
         s = ln.strip()
@@ -155,20 +311,13 @@ def segment_avis_blocks(path: str, numero: Optional[str] = None,
         pg_debut = lines[idx][0]
         pg_fin = lines[min(end - 1, len(lines) - 1)][0]
         text = " ".join(x[1] for x in lines[start:end] if not STOP_LINE_RE.search(x[1]))
-        # Taxonomie : état au niveau de l'en-tête, consolidé par le texte du bloc
-        # (l'émetteur « RÉGION/COMMUNE… » peut n'apparaître que dans le contexte).
         blk_macro = _macro_from_emetteur(text, macro_at[idx])
         blocks.append({
             "flat_text": norm(text)[:4500],
             "_page_debut": pg_debut, "_page_fin": max(pg_debut, pg_fin),
             "_macro_section": blk_macro, "_categorie": cat_at[idx],
-            "_numero": numero, "_source_pdf": label, "_source": Path(path).name,
+            "_detecteur": "texte", **prov,
         })
-
-    from collections import Counter
-    log.info("segmentation AVIS %s : %d bloc(s) — macro=%s catégorie=%s", label, len(blocks),
-             dict(Counter(b["_macro_section"] for b in blocks)),
-             dict(Counter(b["_categorie"] for b in blocks)))
     return blocks
 
 
