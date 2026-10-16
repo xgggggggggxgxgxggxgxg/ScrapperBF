@@ -207,7 +207,14 @@ def _looks_like_toc(text: str) -> bool:
 
 
 def _find_sommaire_text(pdf) -> Optional[str]:
-    """Texte de la page Sommaire (parmi les premières pages), ou None."""
+    """Texte de la page Sommaire. Dans les Quotidiens DGCMEF, c'est TOUJOURS la
+    page 2 (index 1) — on la prend en priorité dès qu'elle porte des renvois
+    « P. N ». Repli : balayage des premières pages par signature de TOC (au cas
+    où un bulletin décalerait la pagination)."""
+    if len(pdf.pages) >= 2:
+        t2 = pdf.pages[1].extract_text() or ""
+        if _PAGE_REF.search(t2):
+            return t2
     for pg in pdf.pages[:6]:
         t = pg.extract_text() or ""
         if _looks_like_toc(t):
