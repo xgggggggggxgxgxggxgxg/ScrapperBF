@@ -67,3 +67,40 @@ def test_retries_then_success(monkeypatch):
     result = call_with_rotation("prompt", {}, max_retries=3, providers=providers)
     assert result["objet"] == "ok"
     assert calls["n"] == 2
+
+
+def test_quota_on_first_key_switches_to_second(monkeypatch):
+    # Une clé en quota (429) -> bascule IMMÉDIATE sur la clé suivante, sans
+    # épuiser les retries sur la clé à sec.
+    monkeypatch.setattr(l3.time, "sleep", lambda *_: None)
+    monkeypatch.setattr(l3.token_tracker, "record", lambda *a, **k: None)
+    monkeypatch.setattr(l3.token_tracker, "record_error", lambda *a, **k: None)
+    seen = []
+
+    def build(spec, key):
+        def fn(p, sc, sy, st):
+            seen.append(key)
+            if key == "k1":
+                raise ProviderError("OpenRouter 429: rate limit exceeded")
+            return {"objet": "OK", "_usage": {"prompt": 3, "completion": 2, "total": 5}}
+        return fn
+    monkeypatch.setattr(l3, "_build_call", build)
+
+    prov = {"name": "or", "keys": ["k1", "k2"], "_spec": {"kind": "openrouter", "model": "m"}}
+    res = call_with_rotation("p", {}, max_retries=3, providers=[prov])
+    assert res["objet"] == "OK"
+    assert seen == ["k1", "k2"]          # k1 essayée 1 fois (quota), puis k2
+    assert "_usage" not in res           # usage consommé par le comptage, pas renvoyé
+
+
+def test_quota_exhausts_all_keys_returns_none(monkeypatch):
+    monkeypatch.setattr(l3.time, "sleep", lambda *_: None)
+    monkeypatch.setattr(l3.token_tracker, "record_error", lambda *a, **k: None)
+
+    def build(spec, key):
+        def fn(p, sc, sy, st):
+            raise ProviderError("quota exhausted")
+        return fn
+    monkeypatch.setattr(l3, "_build_call", build)
+    prov = {"name": "or", "keys": ["k1", "k2"], "_spec": {"kind": "openrouter", "model": "m"}}
+    assert call_with_rotation("p", {}, max_retries=2, providers=[prov]) is None

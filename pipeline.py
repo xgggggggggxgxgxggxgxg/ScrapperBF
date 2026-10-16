@@ -46,6 +46,7 @@ from consensus_extract import consensus_extract
 from section_split import split_sections
 from sub_units import group_sub_units
 import ocr_fallback
+import token_tracker
 import judge
 
 DB_PATH = BASE_DIR / "ingestion.db"
@@ -370,6 +371,8 @@ def process_pdf(pdf_path: str, numero: str = None):
     log.info("[%s] terminé : %d avis, %d émetteurs résultats, confiance moy. %s, "
              "%d en revue humaine -> %s", numero, len(avis_out), len(resultats_out),
              payload["meta"]["confiance_moyenne_avis"], revue, out_file)
+    if use_api:  # consommation de tokens par provider/clé (cumulée)
+        log.info("[%s] consommation API (cumul) :\n%s", numero, token_tracker.report())
     return payload
 
 

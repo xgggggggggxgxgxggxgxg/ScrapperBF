@@ -43,3 +43,6 @@ Quotidien*.md
 Thumbs.db
 .vscode/
 .idea/
+
+# Comptage des tokens (local)
+token_usage.json

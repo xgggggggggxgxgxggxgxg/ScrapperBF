@@ -12,6 +12,7 @@ Rotation multi-provider (Gemini / OpenRouter / Mistral) :
 
 import json
 import os
+import re
 import time
 import logging
 import yaml
@@ -20,8 +21,16 @@ from pathlib import Path
 from typing import Optional
 
 import config  # charge .env et décrit les providers configurés (clés présentes)
+import token_tracker  # comptage des tokens par provider/modèle/clé
 
 log = logging.getLogger("scrapperbf.llm")
+
+
+def _attach_usage(result, kind: str, raw: dict):
+    """Attache l'usage (tokens) normalisé au résultat, pour le comptage."""
+    if isinstance(result, dict):
+        result["_usage"] = token_tracker.normalize_usage(kind, raw or {})
+    return result
 
 
 CONFIG_PATH = Path(__file__).parent / "schema_config.yaml"
@@ -91,7 +100,7 @@ def call_gemini(prompt: str, json_schema: dict, api_key: str,
         raise ProviderError(f"Gemini {resp.status_code}: {resp.text[:300]}")
     data = resp.json()
     text = data["candidates"][0]["content"]["parts"][0]["text"]
-    return json.loads(text)
+    return _attach_usage(json.loads(text), "gemini", data.get("usageMetadata"))
 
 
 def call_openrouter(prompt: str, json_schema: dict, api_key: str, model: str,
@@ -116,7 +125,7 @@ def call_openrouter(prompt: str, json_schema: dict, api_key: str, model: str,
         raise ProviderError(f"OpenRouter {resp.status_code}: {resp.text[:300]}")
     data = resp.json()
     text = data["choices"][0]["message"]["content"]
-    return json.loads(text)
+    return _attach_usage(json.loads(text), "openrouter", data.get("usage"))
 
 
 def call_openai_compatible(prompt: str, json_schema: dict, api_key: str, base_url: str,
@@ -147,23 +156,38 @@ def call_openai_compatible(prompt: str, json_schema: dict, api_key: str, base_ur
         raise ProviderError(f"OpenAI-compat {resp.status_code}: {resp.text[:300]}")
     data = resp.json()
     text = data["choices"][0]["message"]["content"]
-    return json.loads(text)
+    return _attach_usage(json.loads(text), "openai_compat", data.get("usage"))
 
 
-# Signature unifiée des providers : fn(prompt, schema, system_prompt, strict) -> dict
-def _make_provider(spec: dict) -> dict:
-    """Construit un provider appelable à partir d'une spec de config.py."""
-    kind, key, model = spec["kind"], spec["key"], spec["model"]
+# Signature unifiée des appels : fn(prompt, schema, system_prompt, strict) -> dict
+def _build_call(spec: dict, key: str):
+    """Construit l'appelable d'un provider pour UNE clé donnée."""
+    kind, model = spec["kind"], spec["model"]
     if kind == "openrouter":
-        fn = lambda p, sc, sy, st: call_openrouter(p, sc, key, model, system_prompt=sy, strict=st)
-    elif kind == "gemini":
-        fn = lambda p, sc, sy, st: call_gemini(p, sc, key, model=model, system_prompt=sy, strict=st)
-    elif kind == "openai_compat":
+        return lambda p, sc, sy, st: call_openrouter(p, sc, key, model, system_prompt=sy, strict=st)
+    if kind == "gemini":
+        return lambda p, sc, sy, st: call_gemini(p, sc, key, model=model, system_prompt=sy, strict=st)
+    if kind == "openai_compat":
         base = spec["base_url"]
-        fn = lambda p, sc, sy, st: call_openai_compatible(p, sc, key, base, model, system_prompt=sy, strict=st)
-    else:
-        raise ValueError(f"type de provider inconnu: {kind}")
-    return {"name": spec["name"], "fn": fn}
+        return lambda p, sc, sy, st: call_openai_compatible(p, sc, key, base, model, system_prompt=sy, strict=st)
+    raise ValueError(f"type de provider inconnu: {kind}")
+
+
+def _make_provider(spec: dict) -> dict:
+    """Provider à partir d'une spec de config.py. Porte TOUTES ses clés (rotation
+    en cas de quota/erreur) ; `fn` (1re clé) est conservé pour compatibilité."""
+    keys = spec.get("keys") or [spec["key"]]
+    return {"name": spec["name"], "kind": spec["kind"], "model": spec["model"],
+            "keys": keys, "_spec": spec, "fn": _build_call(spec, keys[0])}
+
+
+# Erreurs de quota / limite de débit -> on bascule IMMÉDIATEMENT de clé (sans
+# épuiser les retries sur une clé déjà à sec).
+_QUOTA_RE = re.compile(r"\b429\b|quota|rate.?limit|too many requests|insufficient|exhausted|resource.?exhausted", re.I)
+
+
+def _is_quota(err) -> bool:
+    return bool(_QUOTA_RE.search(str(err)))
 
 
 def build_providers(specs: Optional[list] = None) -> list:
@@ -189,26 +213,39 @@ def call_with_rotation(prompt: str, json_schema: dict, max_retries: int = 3,
     providers = providers if providers is not None else PROVIDERS
     last_error = None
     for provider in providers:
-        for attempt in range(max_retries):
-            try:
-                result = provider["fn"](prompt, json_schema, system_prompt, strict)
-                if not isinstance(result, dict):
-                    raise ProviderError(f"réponse non-objet: {type(result).__name__}")
-                result["_provider"] = provider["name"]
-                if attempt or provider is not providers[0]:
-                    log.info("provider %s : succès (tentative %d)", provider["name"], attempt + 1)
-                return result
-            except ProviderError as e:
-                last_error = e
-                log.warning("provider %s : échec (tentative %d) : %s",
-                            provider["name"], attempt + 1, str(e)[:120])
-                time.sleep(2 ** attempt)  # backoff exponentiel
-            except Exception as e:  # rate limit, timeout réseau, JSON invalide, etc.
-                last_error = e
-                log.warning("provider %s : erreur (tentative %d) : %s",
-                            provider["name"], attempt + 1, str(e)[:120])
-                time.sleep(2 ** attempt)
-        # provider épuisé -> on passe au suivant
+        spec = provider.get("_spec")
+        keys = provider.get("keys") or [None]
+        for key in keys:
+            # fn lié à CETTE clé (sinon fn legacy du provider, pour les tests).
+            fn = _build_call(spec, key) if spec else provider["fn"]
+            quota_hit = False
+            for attempt in range(max_retries):
+                try:
+                    result = fn(prompt, json_schema, system_prompt, strict)
+                    if not isinstance(result, dict):
+                        raise ProviderError(f"réponse non-objet: {type(result).__name__}")
+                    usage = result.pop("_usage", None)
+                    if spec and usage:
+                        token_tracker.record(spec["kind"], spec["model"], key, usage)
+                    result["_provider"] = provider["name"]
+                    if attempt or key is not keys[0] or provider is not providers[0]:
+                        log.info("provider %s (clé %s) : succès (tentative %d)",
+                                 provider["name"], token_tracker.mask(key), attempt + 1)
+                    return result
+                except Exception as e:  # ProviderError, quota, réseau, JSON invalide…
+                    last_error = e
+                    if spec:
+                        token_tracker.record_error(spec["kind"], spec["model"], key, str(e)[:80])
+                    if _is_quota(e):
+                        log.warning("provider %s (clé %s) : quota/limite -> bascule clé/provider",
+                                    provider["name"], token_tracker.mask(key))
+                        quota_hit = True
+                        break  # inutile d'insister sur une clé à sec
+                    log.warning("provider %s (clé %s) : erreur (tentative %d) : %s",
+                                provider["name"], token_tracker.mask(key), attempt + 1, str(e)[:120])
+                    time.sleep(2 ** attempt)  # backoff exponentiel
+            # clé suivante (quota ou retries épuisés)
+        # provider suivant
 
     log.error("toutes les tentatives ont échoué sur %d provider(s) : %s",
               len(providers), last_error)

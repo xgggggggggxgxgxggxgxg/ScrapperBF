@@ -49,33 +49,54 @@ def _split_models(value: str, default: str) -> list:
     return [m.strip() for m in raw.split(",") if m.strip()]
 
 
+def _keys(prefix: str) -> list:
+    """Liste des clés d'un provider. Accepte PLUSIEURS clés via
+    « {PREFIX}_API_KEYS » (séparées par des virgules) et/ou une clé unique
+    « {PREFIX}_API_KEY ». Dédupliquées, ordre conservé."""
+    raw = []
+    multi = os.environ.get(f"{prefix}_API_KEYS", "")
+    if multi:
+        raw += [k.strip() for k in multi.split(",")]
+    single = os.environ.get(f"{prefix}_API_KEY", "").strip()
+    if single:
+        raw.append(single)
+    seen, out = set(), []
+    for k in raw:
+        if k and k not in seen:
+            seen.add(k)
+            out.append(k)
+    return out
+
+
 def provider_specs() -> list:
     """Décrit les providers CONFIGURÉS (clé présente), prêts à être activés.
-    Chaque spec : {name, kind, key, model, base_url?}. L'ordre = ordre d'essai."""
+    Chaque spec : {name, kind, key, keys, model, base_url?} — `keys` est la liste
+    des clés à essayer (rotation en cas de quota/erreur), `key` = la 1re (compat).
+    L'ordre = ordre d'essai."""
     specs = []
 
-    ork = os.environ.get("OPENROUTER_API_KEY", "").strip()
+    ork = _keys("OPENROUTER")
     if ork:
         models = _split_models(
             os.environ.get("OPENROUTER_MODELS", ""),
-            # Repli historique du projet : modèle perso puis Mistral.
             f"{os.environ.get('OPENROUTER_XIAOMI_MODEL', 'xiaomi/mimo-v2.5')},"
             f"{os.environ.get('OPENROUTER_MISTRAL_MODEL', 'mistralai/mistral-large')}",
         )
-        for i, model in enumerate(models):
+        for model in models:
             specs.append({"name": f"openrouter:{model}", "kind": "openrouter",
-                          "key": ork, "model": model})
+                          "key": ork[0], "keys": ork, "model": model})
 
-    gk = os.environ.get("GEMINI_API_KEY", "").strip()
+    gk = _keys("GEMINI")
     if gk:
-        specs.append({"name": "gemini", "kind": "gemini", "key": gk,
+        specs.append({"name": "gemini", "kind": "gemini", "key": gk[0], "keys": gk,
                       "model": os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")})
 
-    ock = os.environ.get("OPENAI_COMPAT_API_KEY", "").strip()
+    ock = _keys("OPENAI_COMPAT")
     ocb = os.environ.get("OPENAI_COMPAT_BASE_URL", "").strip()
     if ocb:  # une base_url suffit (certains serveurs locaux n'exigent pas de clé)
+        keys = ock or ["sk-local"]
         specs.append({"name": "openai-compat", "kind": "openai_compat",
-                      "key": ock or "sk-local", "base_url": ocb,
+                      "key": keys[0], "keys": keys, "base_url": ocb,
                       "model": os.environ.get("OPENAI_COMPAT_MODEL", "gpt-4o-mini")})
 
     return specs
@@ -94,5 +115,7 @@ def summary() -> str:
     lines = [f"{len(specs)} provider(s) configuré(s) (ordre d'essai) :"]
     for i, s in enumerate(specs, 1):
         extra = f" @ {s['base_url']}" if s.get("base_url") else ""
-        lines.append(f"  {i}. {s['name']}  [modèle: {s['model']}{extra}]")
+        nk = len(s.get("keys") or [s.get("key")])
+        klab = f" — {nk} clé(s)" if nk > 1 else ""
+        lines.append(f"  {i}. {s['name']}  [modèle: {s['model']}{extra}]{klab}")
     return "\n".join(lines)

@@ -5,10 +5,29 @@ import layer3_extract_llm as l3
 
 
 def _clear(monkeypatch):
-    for k in ("OPENROUTER_API_KEY", "OPENROUTER_MODELS", "OPENROUTER_XIAOMI_MODEL",
-              "OPENROUTER_MISTRAL_MODEL", "GEMINI_API_KEY", "GEMINI_MODEL",
-              "OPENAI_COMPAT_API_KEY", "OPENAI_COMPAT_BASE_URL", "OPENAI_COMPAT_MODEL"):
+    for k in ("OPENROUTER_API_KEY", "OPENROUTER_API_KEYS", "OPENROUTER_MODELS",
+              "OPENROUTER_XIAOMI_MODEL", "OPENROUTER_MISTRAL_MODEL",
+              "GEMINI_API_KEY", "GEMINI_API_KEYS", "GEMINI_MODEL",
+              "OPENAI_COMPAT_API_KEY", "OPENAI_COMPAT_API_KEYS",
+              "OPENAI_COMPAT_BASE_URL", "OPENAI_COMPAT_MODEL"):
         monkeypatch.delenv(k, raising=False)
+
+
+def test_multiple_keys_per_provider(monkeypatch):
+    _clear(monkeypatch)
+    monkeypatch.setenv("OPENROUTER_API_KEYS", "k1, k2 ,k3")
+    monkeypatch.setenv("OPENROUTER_MODELS", "a/b")
+    s = config.provider_specs()[0]
+    assert s["keys"] == ["k1", "k2", "k3"]   # plusieurs clés pour la rotation
+    assert s["key"] == "k1"                   # la 1re (compat)
+
+
+def test_keys_plural_and_singular_merge_dedup(monkeypatch):
+    _clear(monkeypatch)
+    monkeypatch.setenv("GEMINI_API_KEYS", "g1,g2")
+    monkeypatch.setenv("GEMINI_API_KEY", "g2")   # doublon -> ignoré
+    s = config.provider_specs()[0]
+    assert s["keys"] == ["g1", "g2"]
 
 
 def test_no_provider_when_unconfigured(monkeypatch):
@@ -75,4 +94,5 @@ def test_openai_compatible_posts_to_chat_completions(monkeypatch):
     out = l3.call_openai_compatible("prompt", {}, "key", "http://localhost:11434/v1", "llama3")
     assert captured["url"] == "http://localhost:11434/v1/chat/completions"
     assert captured["json"]["model"] == "llama3"
-    assert out == {"ok": True}
+    assert out["ok"] is True
+    assert "_usage" in out   # usage (tokens) attaché pour le comptage
