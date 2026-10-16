@@ -157,11 +157,14 @@ def _text_between(pages, p0, top0, p1, top1) -> str:
 
 
 def segment_resultats(path: str, numero: Optional[str] = None,
-                      label: Optional[str] = None) -> list:
+                      label: Optional[str] = None, page_range=None) -> list:
     """Découpe la section RÉSULTATS en unités-émetteur (une par barre noire).
 
     Chaque unité : {emetteur, macro_section, page_debut, page_fin,
-    nb_lots_detectes, lots, flat_text, + provenance}."""
+    nb_lots_detectes, lots, flat_text, + provenance}.
+
+    `page_range` (tuple 0-based inclusif (start,end), ou None) restreint la
+    collecte à la zone RÉSULTATS (voir section_split.split_sections)."""
     import pdfplumber
 
     if numero is None or label is None:
@@ -173,11 +176,14 @@ def segment_resultats(path: str, numero: Optional[str] = None,
 
     pdf = pdfplumber.open(path)
     pages = pdf.pages
+    last_page = page_range[1] if page_range else len(pages) - 1
 
     # 1) Collecte des barres noires (émetteurs) et des lots, page par page.
     bars = []   # {page, top, emetteur}
     lots = []   # {page, top, text}
     for pi, pg in enumerate(pages):
+        if page_range is not None and not (page_range[0] <= pi <= page_range[1]):
+            continue
         b, l = _bars_and_lots(pg, pg.width)
         for r in b:
             bars.append({"page": pi, "top": r["top"], "emetteur": r["text"]})
@@ -197,8 +203,8 @@ def segment_resultats(path: str, numero: Optional[str] = None,
     units = []
     for i, bar in enumerate(bars):
         nxt = bars[i + 1] if i + 1 < len(bars) else None
-        p1 = nxt["page"] if nxt else len(pages) - 1
-        t1 = nxt["top"] if nxt else pages[-1].height
+        p1 = nxt["page"] if nxt else last_page
+        t1 = nxt["top"] if nxt else pages[p1].height
         flat = _text_between(pages, bar["page"], bar["top"], p1, t1)
         orange_lots = [
             lo for lo in lots

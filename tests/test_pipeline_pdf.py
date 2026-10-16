@@ -3,7 +3,11 @@ import json
 import pipeline
 
 
-def _fake_avis(path, numero=None):
+def _fake_split(path):
+    return {"AVIS": (2, 2), "RESULTATS": (2, 4), "labels": "NNARR", "n_pages": 5}
+
+
+def _fake_avis(path, numero=None, page_range=None):
     return [{
         "autorite_emettrice": "MINISTERE X", "objet": "Acquisition de PC",
         "categorie": "Fournitures et Services courants", "type_avis": "Avis De Demande De Prix",
@@ -18,7 +22,7 @@ def _fake_avis(path, numero=None):
     }]
 
 
-def _fake_resultats(path, numero=None):
+def _fake_resultats(path, numero=None, page_range=None):
     return [{
         "emetteur": "MINISTERE Y", "macro_section": "MINISTERES",
         "nb_lots_detectes": 2, "lots": ["Lot 1 : A", "Lot 2 : B"],
@@ -31,6 +35,7 @@ def test_process_pdf_deterministic(tmp_path, monkeypatch):
     monkeypatch.setattr(pipeline, "DB_PATH", tmp_path / "t.db")
     monkeypatch.setattr(pipeline, "OUTPUT_DIR", tmp_path)
     monkeypatch.setattr(pipeline.config, "is_configured", lambda: False)  # aucune clé
+    monkeypatch.setattr(pipeline, "split_sections", _fake_split)
     monkeypatch.setattr(pipeline, "extract_avis_from_pdf", _fake_avis)
     monkeypatch.setattr(pipeline, "segment_resultats", _fake_resultats)
 
@@ -40,6 +45,8 @@ def test_process_pdf_deterministic(tmp_path, monkeypatch):
     assert payload["meta"]["mode"] == "deterministe"
     assert payload["meta"]["nb_avis"] == 1
     assert payload["meta"]["nb_resultats_emetteurs"] == 1
+    assert payload["meta"]["split_pages"]["AVIS"] == (2, 2)      # zones transmises
+    assert payload["meta"]["split_pages"]["RESULTATS"] == (2, 4)
 
     a = payload["AVIS"][0]
     assert "flat_text" not in a                          # allégé

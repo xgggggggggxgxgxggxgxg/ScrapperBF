@@ -43,6 +43,7 @@ from resultats_llm import extract_resultats_unit
 from decision_model import refine_if_needed, decide
 from format_validator import validate_format
 from consensus_extract import consensus_extract
+from section_split import split_sections
 import judge
 
 DB_PATH = BASE_DIR / "ingestion.db"
@@ -225,6 +226,10 @@ def process_pdf(pdf_path: str, numero: str = None):
              f"consensus LLM ({len(config.provider_specs())} provider(s))" if use_api
              else "sans clé LLM (champs non extraits : regex retiré)")
 
+    # ---- Étape 1 : SPLIT du PDF en zones de pages AVIS / RÉSULTATS ------
+    zones = split_sections(pdf_path)
+    avis_zone, resultats_zone = zones["AVIS"], zones["RESULTATS"]
+
     # ---- AVIS : garde-fou FORMAT -> extraction (consensus 3 modèles, sinon
     #      regex) -> JUGE. L'extraction par consensus remplace le regex dès qu'une
     #      API est configurée ; sinon le regex sert de repli déterministe.
@@ -258,7 +263,7 @@ def process_pdf(pdf_path: str, numero: str = None):
         return rec
 
     nb_bloque = nb_divise = 0
-    for unit in extract_avis_from_pdf(pdf_path, numero=numero):
+    for unit in extract_avis_from_pdf(pdf_path, numero=numero, page_range=avis_zone):
         fmt = validate_format(unit)
         fmt_info = {k: fmt[k] for k in ("action", "pages", "nb_annonces", "alerte_humaine", "raisons")}
 
@@ -294,7 +299,7 @@ def process_pdf(pdf_path: str, numero: str = None):
 
     # ---- RÉSULTATS : segmentation -> chunk -> API -> fusion -------------
     resultats_out = []
-    r_units = segment_resultats(pdf_path, numero=numero)
+    r_units = segment_resultats(pdf_path, numero=numero, page_range=resultats_zone)
     log.info("[%s] RÉSULTATS : %d émetteur(s) à structurer", numero, len(r_units))
     for unit in r_units:
         if use_api:
@@ -314,6 +319,8 @@ def process_pdf(pdf_path: str, numero: str = None):
         "meta": {"numero": numero, "source": Path(pdf_path).name,
                  "date_traitement": datetime.now().isoformat(),
                  "mode": "api" if use_api else "deterministe",
+                 "split_pages": {"AVIS": avis_zone, "RESULTATS": resultats_zone,
+                                 "n_pages": zones["n_pages"]},
                  "nb_avis": len(avis_out), "nb_resultats_emetteurs": len(resultats_out),
                  "confiance_moyenne_avis": round(sum(confs) / len(confs), 3) if confs else None,
                  "nb_revue_humaine": revue},

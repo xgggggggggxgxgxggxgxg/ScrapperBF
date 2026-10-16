@@ -171,9 +171,16 @@ def norm(s: Optional[str]) -> str:
     return re.sub(r"\s+", " ", (s or "").strip())
 
 
-def _lines_with_pages(pdf) -> list:
+def _in_range(i: int, page_range) -> bool:
+    """i (0-based) est-il dans la zone [start..end] inclusive ? None = tout."""
+    return page_range is None or page_range[0] <= i <= page_range[1]
+
+
+def _lines_with_pages(pdf, page_range=None) -> list:
     out = []
     for i, pg in enumerate(pdf.pages):
+        if not _in_range(i, page_range):
+            continue
         for ln in (pg.extract_text() or "").split("\n"):
             out.append((i + 1, ln.rstrip()))
     return out
@@ -190,25 +197,29 @@ def _numero_label(path, numero, label):
 
 
 def segment_avis_blocks(path: str, numero: Optional[str] = None,
-                        label: Optional[str] = None) -> list:
+                        label: Optional[str] = None, page_range=None) -> list:
     """Découpe le PDF en blocs d'annonces (texte + provenance), sans extraire de
     champ. Chaque bloc : {flat_text, _page_debut, _page_fin, _numero, _source_pdf,
-    _source}."""
+    _source}.
+
+    `page_range` (tuple 0-based inclusif (start,end), ou None) restreint la
+    segmentation à la zone AVIS (voir section_split.split_sections)."""
     import pdfplumber  # dépendance optionnelle, isolée
 
     numero, label = _numero_label(path, numero, label)
     prov = {"_numero": numero, "_source_pdf": label, "_source": Path(path).name}
     with pdfplumber.open(path) as pdf:
         pages = pdf.pages
-        bands = _collect_bands(pages)
+        last_page = page_range[1] if page_range else len(pages) - 1
+        bands = _collect_bands(pages, page_range)
         n_objet = sum(1 for b in bands if b["kind"] == "objet")
         if n_objet >= 1:
             # Détecteur PRINCIPAL : couleur + taille des bandeaux.
-            blocks = _blocks_from_bands(pages, bands, prov)
+            blocks = _blocks_from_bands(pages, bands, prov, last_page)
             mode = "couleur"
         else:
             # Repli : ancres texte (bulletins sans bandeaux couleur lisibles).
-            blocks = _blocks_from_text(_lines_with_pages(pdf), prov, path)
+            blocks = _blocks_from_text(_lines_with_pages(pdf, page_range), prov, path)
             mode = "texte"
 
     from collections import Counter
@@ -219,12 +230,14 @@ def segment_avis_blocks(path: str, numero: Optional[str] = None,
     return blocks
 
 
-def _collect_bands(pages) -> list:
+def _collect_bands(pages, page_range=None) -> list:
     """Bandeaux couleur (rouge/jaune/cyan) pleine largeur, ordonnés (page, top)
     et dédupliqués (un bandeau peut être dessiné en remplissage + bordure)."""
     from pdf_resultats_extract import _crop_text  # réutilise la même extraction
     bands = []
     for pi, pg in enumerate(pages):
+        if not _in_range(pi, page_range):
+            continue
         w = pg.width
         for r in pg.rects:
             if r["width"] < w * 0.45 or r["height"] < 6:
@@ -248,17 +261,20 @@ def _collect_bands(pages) -> list:
     return out
 
 
-def _blocks_from_bands(pages, bands: list, prov: dict) -> list:
+def _blocks_from_bands(pages, bands: list, prov: dict, last_page=None) -> list:
     """Assemble une annonce par bandeau CYAN : objet + émetteur + catégorie
-    hérités, texte borné jusqu'au bandeau suivant (quel qu'il soit)."""
+    hérités, texte borné jusqu'au bandeau suivant (quel qu'il soit). `last_page`
+    (0-based) borne la dernière annonce à la fin de la zone AVIS."""
     from pdf_resultats_extract import _text_between
+    if last_page is None:
+        last_page = len(pages) - 1
     blocks = []
     for a in plan_annonces(bands):
         i = a["_idx"]
         ob = bands[i]
         nxt = bands[i + 1] if i + 1 < len(bands) else None
         p0, t0 = ob["page"], ob["bottom"]
-        p1 = nxt["page"] if nxt else len(pages) - 1
+        p1 = nxt["page"] if nxt else last_page
         t1 = nxt["top"] if nxt else pages[p1].height
         body = _text_between(pages, p0, t0, p1, t1)
         em, obj = a["emetteur"], a["objet"]
