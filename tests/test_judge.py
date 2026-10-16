@@ -131,3 +131,44 @@ def test_resultats_lot_mismatch_warns():
     j = judge_resultats(res, "divisé en trois (03) lots")
     lc = next(c for c in j["checks"] if c["nom"] == "lots_coherents")
     assert lc["statut"] == "warn"
+
+
+# --- consensus_coherent (nouveau contrôle : pourquoi les modèles divergent) ---
+
+def _avis_ok():
+    return {
+        "autorite_emettrice": "MINISTERE X", "objet": "Acquisition de PC",
+        "date_limite_depot": "avant le 19/10/2026 à 09 heure",
+        "numero_reference": "N° 2026-1", "type_avis": "Avis de demande de prix",
+        "montant_previsionnel_global": {"ttc": "(60 000 000) TTC"},
+    }
+
+
+def _flat_ok():
+    return ("MINISTERE X Acquisition de PC Avis de demande de prix n° 2026-1 "
+            "Montant prévisionnel (60 000 000) TTC devront parvenir avant le "
+            "19/10/2026 à 09 heure. Le Président de la Commission d'attribution")
+
+
+def test_consensus_contradiction_fails_check_and_lowers_confidence():
+    a = _avis_ok()
+    a["_consensus"] = {"n_contradictions": 1,
+                       "raisons_divergence": ["autorite_emettrice : contradiction (valeurs différentes)"]}
+    j = judge_avis(a, _flat_ok())
+    cc = next(c for c in j["checks"] if c["nom"] == "consensus_coherent")
+    assert cc["statut"] == "fail"
+    assert j["revue_humaine"] is True
+
+
+def test_consensus_concordant_passes():
+    a = _avis_ok()
+    a["_consensus"] = {"n_contradictions": 0, "raisons_divergence": []}
+    j = judge_avis(a, _flat_ok())
+    cc = next(c for c in j["checks"] if c["nom"] == "consensus_coherent")
+    assert cc["statut"] == "pass"
+
+
+def test_consensus_absent_is_na():
+    j = judge_avis(_avis_ok(), _flat_ok())
+    cc = next(c for c in j["checks"] if c["nom"] == "consensus_coherent")
+    assert cc["statut"] == "na"

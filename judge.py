@@ -229,14 +229,37 @@ def judge_avis(avis: dict, flat_text: str = "",
     checks.append(_mk("ref_format", "pass" if ref and re.search(r"\d{4}", str(ref)) else "warn",
                       0.3, ""))
 
+    # 9. Cohérence du consensus : POURQUOI les deux modèles divergent. Une
+    #    contradiction réelle (valeurs incompatibles, non HT/TTC ni reformatage)
+    #    pèse ; un simple écart de format ou un HT/TTC ne pénalise pas.
+    cons = avis.get("_consensus") or {}
+    if cons:
+        n_contra = cons.get("n_contradictions", 0)
+        raisons = cons.get("raisons_divergence") or []
+        if n_contra:
+            checks.append(_mk("consensus_coherent", "fail", 0.7,
+                              f"{n_contra} contradiction(s) : " + " ; ".join(raisons[:3])))
+        elif raisons:  # écarts structurants non contradictoires (échange, champ vide)
+            checks.append(_mk("consensus_coherent", "warn", 0.7, " ; ".join(raisons[:3])))
+        else:
+            checks.append(_mk("consensus_coherent", "pass", 0.7, "modèles concordants"))
+    else:
+        checks.append(_mk("consensus_coherent", "na", 0.7, "pas de consensus (mode sans API)"))
+
     conf = _confidence(checks)
     verdict = _verdict(conf, seuil_valide)
     anomalies = [{"nom": c["nom"], "statut": c["statut"], "detail": c["detail"]}
                  for c in checks if c["statut"] in ("fail", "warn")]
+    # Une CONTRADICTION réelle du consensus force la revue humaine et plafonne le
+    # verdict, même si la moyenne pondérée reste haute (« si divergent trop → alerte »).
+    contradiction = (avis.get("_consensus") or {}).get("n_contradictions", 0)
+    revue = conf < seuil_valide or bool(contradiction)
+    if contradiction and verdict == "valide":
+        verdict = "a_verifier"
     return {
         "verdict": verdict,
         "confiance": conf,
-        "revue_humaine": conf < seuil_valide,
+        "revue_humaine": revue,
         "checks": checks,
         "anomalies": anomalies,
     }

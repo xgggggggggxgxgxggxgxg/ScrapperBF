@@ -25,6 +25,7 @@ from layer3_extract_llm import (
     call_with_rotation, build_providers, load_field_schema, build_json_schema,
 )
 from judge import fold
+from divergence_analyzer import analyze_divergence
 
 log = logging.getLogger("scrapperbf.consensus")
 
@@ -123,8 +124,13 @@ def consensus_extract(text: str, section: str = "AVIS", providers: Optional[list
         return None
 
     divergence, champs_div = field_divergence(a, b, field_defs)
-    if divergence > seuil_divergence:
-        log.warning("consensus : divergence %.0f%% > seuil (%s) -> ALERTE revue humaine",
+    # Analyse déterministe des CAUSES de divergence (pourquoi A et B diffèrent).
+    analyse = analyze_divergence(a, b, field_defs, text)
+    if analyse["n_contradictions"]:
+        log.warning("consensus : %d contradiction(s) réelle(s) : %s",
+                    analyse["n_contradictions"], " ; ".join(analyse["raisons"]))
+    if divergence > seuil_divergence or analyse["alerte_humaine"]:
+        log.warning("consensus : divergence %.0f%% (%s) -> ALERTE revue humaine",
                     divergence * 100, ", ".join(champs_div))
     else:
         log.debug("consensus : divergence %.0f%%", divergence * 100)
@@ -145,9 +151,14 @@ def consensus_extract(text: str, section: str = "AVIS", providers: Optional[list
     result["_consensus"] = {
         "n_modeles": len(provs),
         "divergence": round(divergence, 3),
-        "alerte_humaine": divergence > seuil_divergence,
+        "alerte_humaine": divergence > seuil_divergence or analyse["alerte_humaine"],
         "champs_en_desaccord": champs_div,
         "desaccords": desaccords,
+        # Causes typées des divergences (format / champ_vide / echange_de_champs /
+        # htva_ttc / valeur_proche / contradiction) + raisons pour la rétroaction.
+        "divergences_typees": analyse["divergences"],
+        "n_contradictions": analyse["n_contradictions"],
+        "raisons_divergence": analyse["raisons"],
         "modele_a": a.get("_provider"),
         "modele_b": b.get("_provider"),
         "arbitre": arbitre,

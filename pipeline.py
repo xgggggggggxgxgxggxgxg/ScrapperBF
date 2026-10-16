@@ -248,6 +248,11 @@ def process_pdf(pdf_path: str, numero: str = None):
                     if not k.startswith("_"):
                         rec[k] = v
                 enrich_coverage(rec)
+                # Rétroaction : les causes TYPÉES de divergence nourrissent les
+                # prompts suivants (le juge comprend pourquoi les modèles diffèrent).
+                cons = rec.get("_consensus") or {}
+                feedback_store.record(cons.get("raisons_divergence", []),
+                                      numero, "AVIS")
             else:  # providers indisponibles -> repli Couche 4 (décision + révision)
                 refined, dec = refine_if_needed(rec, text, "AVIS")
                 rec = refined if refined else rec
