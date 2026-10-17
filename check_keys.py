@@ -22,10 +22,19 @@ import token_tracker
 log = logging.getLogger("scrapperbf.checkkeys")
 
 
+def is_placeholder(key: str) -> bool:
+    """Clé d'exemple non remplacée (contient « ... » ou vide/trop courte)."""
+    k = (key or "").strip()
+    return (not k) or ("..." in k) or (k.startswith("sk-or-v1-...")) or len(k) < 24
+
+
 def check_one(model: str, key: str, poster: Optional[Callable] = None) -> dict:
     """Mini-appel (max_tokens=1). Retourne {model, ok, status, detail, cle}."""
-    poster = poster or requests.post
     cle = token_tracker.mask(key)
+    if is_placeholder(key):
+        return {"model": model, "ok": False, "status": "placeholder", "cle": cle,
+                "detail": "clé d'exemple non remplacée (sk-or-v1-...) — mets ta vraie clé"}
+    poster = poster or requests.post
     try:
         r = poster("https://openrouter.ai/api/v1/chat/completions",
                    headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
@@ -40,6 +49,8 @@ def check_one(model: str, key: str, poster: Optional[Callable] = None) -> dict:
 
 
 def diagnose(status, detail: str) -> str:
+    if status == "placeholder":
+        return "PLACEHOLDER NON REMPLACÉ (colle ta vraie clé dans model_keys.json / .env)"
     s = f"{status} {detail}".lower()
     if status == 401 or "user not found" in s or "no auth" in s or "invalid api key" in s:
         return "CLÉ INVALIDE (régénérée ? tronquée ? placeholder ?)"
