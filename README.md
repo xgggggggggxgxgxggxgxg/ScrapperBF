@@ -17,6 +17,39 @@ Le projet transforme les PDF du « Quotidien » (via OCR/MinerU → Markdown) en
 - **Boucle de rétroaction — `feedback_store.py`** : chaque écart (< 100 %) est enregistré, puis **réinjecté** dans le prompt de révision des traitements suivants (`feedback_hint`) sous forme de « erreurs récurrentes à éviter ». Le modèle voit explicitement ses fautes passées → il s'améliore d'un run à l'autre. `summary()` donne un classement des champs les plus fautifs (tableau de bord qualité).
 - **Orchestration — `pipeline.py`** : enchaîne Couches 1→4, injecte le `feedback_hint`, enregistre les écarts, validation minimale (champs `required` du YAML) + fallback, tracking SQLite (`ingestion.db`) pour exécution hebdo + backfill idempotent (`numero` → `ok` / `echec_partiel`), `reprocess_failures()` pour rejouer uniquement les échecs.
 
+## Flux « Juge v2 » (AVIS) — défaut actif
+
+Pour la section **AVIS**, le pipeline utilise par défaut un flux d'extraction + jugement
+remanié (`JUGE_V2=1`, défaut ; `JUGE_V2=0` revient à l'ancien consensus décrit plus haut).
+La section **RÉSULTATS** est inchangée.
+
+```
+texte (même prompt) ──► Modèle A  +  Modèle B        extraction.py (2 extracteurs)
+                              │
+                     ┌────────┴──────── LE JUGE (juge.py) ────────┐
+                     │  Scoreur (CODE PUR)      Juge-LLM (3e modèle)│
+                     │  score + proba/critère   lit texte+A+B,      │
+                     │  scoreur.py              tranche/corrige/    │
+                     │                          explique · juge_llm │
+                     │        les deux se surveillent               │
+                     └───────────────┬─────────────────────────────┘
+                     🟢 VERT      🟡 JAUNE            🔴 ROUGE
+                     base         petite file humaine alerte humaine
+                                  (revue_cli.py)      (+ 1 réessai si champ critique)
+```
+
+- **`extraction.py`** : deux modèles **A** et **B** reçoivent **le même texte et le même prompt** et extraient les champs. Aucun arbitrage ici. Dégradation : 1 provider → B absent (juge sévère) ; 0 → chaîne déterministe. Les **règles apprises** (`regles.py`) sont injectées dans le prompt.
+- **`scoreur.py`** (moitié **code pur** du juge, 0 token) : réutilise les contrôles de `judge.py` pour produire un **score [0..100] + une probabilité par critère**. Son **verdict de surveillance** est calculé sur le **brut A/B** (indépendant du juge-LLM) ; le **score de confiance** sur les valeurs finales. Mode **sévère** si un seul extracteur.
+- **`juge_llm.py`** (3ᵉ modèle, **distinct** de A/B) : lit texte + A + B, tranche champ par champ, corrige, **explique les divergences**, verdict `bon|doute|mauvais`.
+- **`juge.py`** (orchestrateur) combine les deux moitiés :
+  - **désaccord** des juges (l'un `bon`, l'autre `mauvais`) → 🔴 **rouge**, le *pourquoi* est enregistré ;
+  - l'un juge l'extraction `mauvaise` → 🔴 **rouge direct** (sans réessai) ;
+  - **champ critique** absent / en conflit grave non arbitré → 🔴 **rouge + 1 réessai** auto, puis humain ;
+  - conflit non critique / doute → 🟡 **jaune** (petite file humaine) ;
+  - sinon → 🟢 **vert** (base). Seuil jaune→rouge **dynamique** (score global + poids des champs `critique: true`).
+- **`regles.py` + `regles.json`** : règles **par type de situation** injectées en amont (remplace la boucle de rétroaction pour ce flux).
+- **`revue_humaine.py`** : dossiers d'alerte (texte + A + B + conflits + score + pourquoi). La correction humaine en **2 champs** (`quoi_faire` + `valeur_correcte`) crée une règle réutilisée ensuite.
+
 Segmentation (géométrie, pas d'extraction de champs) :
 
 - **`pdf_avis_extract.py`** : lit un PDF de Quotidien avec `pdfplumber` et **segmente** la section AVIS en **blocs de texte** (une annonce = son texte intégral émetteur + objet + corps, + provenance bulletin/pages). **Plus d'extraction regex des champs** : `segment_avis_blocks()` ne fait que localiser les annonces (en-tête de type comme repère structurel) ; les champs sont remplis uniquement par le consensus LLM. `enrich_coverage()` mesure la part de champs renseignés (après extraction).
@@ -87,6 +120,16 @@ python layer3_extract_llm.py
 
 # Aperçu HORS-LIGNE du prompt de révision (aucun appel réseau)
 python layer4_review.py annonce.txt AVIS
+
+# Revue humaine du flux v2 (file produite par le juge : jaune / rouge)
+python revue_cli.py                      # liste les dossiers en attente (rouge d'abord)
+python revue_cli.py show N4503-AVIS-2    # détail (texte, A, B, conflits, score, pourquoi)
+python revue_cli.py corriger N4503-AVIS-2 montant_previsionnel_global \
+    --valeur '{"ttc": "80 000 000"}' --quoi "recopier le TTC" --declencheurs htva,ttc
+python revue_cli.py regles               # règles apprises (réinjectées dans les prompts)
+
+# Repasser à l'ancien consensus (désactiver le flux Juge v2 pour les AVIS)
+JUGE_V2=0 python pipeline.py "Quotidien_N_4503.pdf"
 
 # Classement des champs les plus souvent en écart (qualité / amélioration)
 python feedback_store.py
