@@ -1,0 +1,16 @@
+{
+  "_comment": "Copie ce fichier en model_keys.json (gitignoré) et colle UNE clé OpenRouter par modèle. La clé du modèle est prioritaire ; OPENROUTER_API_KEYS sert de repli. Supprime les modèles que tu n'utilises pas.",
+
+  "google/gemma-4-26b-a4b-it:free": "sk-or-v1-...604",
+  "google/gemma-4-31b-it:free": "sk-or-v1-...1a8",
+  "nvidia/nemotron-3.5-lightning:free": "sk-or-v1-...f54",
+  "liquid/lfm-2.5-2.6b:free": "sk-or-v1-...8b5",
+  "thinkingmachines/inkling-small:free": "sk-or-v1-...cc7",
+
+  "nvidia/nemotron-3-super-120b-a12b:free": "sk-or-v1-...316",
+  "nvidia/nemotron-3-ultra-550b-a55b:free": "sk-or-v1-...347",
+  "thinkingmachines/inkling:free": "sk-or-v1-...053",
+
+  "respan/span-01-lite:free": "sk-or-v1-...1c2",
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": "sk-or-v1-...8f0"
+}

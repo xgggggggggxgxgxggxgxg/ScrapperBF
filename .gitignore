@@ -46,3 +46,6 @@ Thumbs.db
 
 # Comptage des tokens (local)
 token_usage.json
+
+# Clés dédiées par modèle (local, jamais committer)
+model_keys.json

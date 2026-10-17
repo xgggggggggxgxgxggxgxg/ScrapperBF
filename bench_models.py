@@ -299,10 +299,15 @@ def format_table(results: dict, role: str = "extracteur") -> str:
 def _specs_from_models(models: list, provider: str) -> list:
     """Construit les specs à partir d'une liste d'ID de modèles (même provider)."""
     if provider == "openrouter":
-        keys = config._keys("OPENROUTER")
-        if not keys:
-            sys.exit("Aucune clé OpenRouter (OPENROUTER_API_KEYS dans .env).")
-        return [{"name": m, "kind": "openrouter", "key": keys[0], "model": m} for m in models]
+        pool = config._keys("OPENROUTER")
+        mk = config.model_key_map()
+        specs = []
+        for m in models:
+            keys = config.keys_for_model(m, pool, mk)  # clé dédiée du modèle + pool
+            if not keys:
+                sys.exit(f"Aucune clé pour {m} (model_keys.json ou OPENROUTER_API_KEYS).")
+            specs.append({"name": m, "kind": "openrouter", "key": keys[0], "keys": keys, "model": m})
+        return specs
     if provider == "gemini":
         keys = config._keys("GEMINI")
         if not keys:

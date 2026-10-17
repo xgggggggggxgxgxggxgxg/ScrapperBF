@@ -17,9 +17,11 @@ répartition de charge entre fournisseurs ayant chacun leur quota.
 """
 
 import os
+import json
 from pathlib import Path
 
 ENV_PATH = Path(__file__).parent / ".env"
+MODEL_KEYS_PATH = Path(__file__).parent / "model_keys.json"
 
 
 def load_dotenv(path=None) -> None:
@@ -68,6 +70,39 @@ def _keys(prefix: str) -> list:
     return out
 
 
+def model_key_map() -> dict:
+    """Mapping {slug_de_modèle: clé} pour une clé DÉDIÉE par modèle (ton cas :
+    1 clé OpenRouter par modèle). Lu depuis model_keys.json (gitignoré) et/ou la
+    variable OPENROUTER_MODEL_KEYS = "modele=cle, modele=cle". Vide si absent."""
+    m = {}
+    try:
+        data = json.loads(MODEL_KEYS_PATH.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            m.update({k: str(v) for k, v in data.items()})
+    except Exception:
+        pass
+    for pair in os.environ.get("OPENROUTER_MODEL_KEYS", "").split(","):
+        if "=" in pair:
+            k, v = pair.split("=", 1)
+            m[k.strip()] = v.strip()
+    return {k: v for k, v in m.items() if k and v and not k.startswith("_")}
+
+
+def _dedup(xs: list) -> list:
+    seen, out = set(), []
+    for x in xs:
+        if x and x not in seen:
+            seen.add(x); out.append(x)
+    return out
+
+
+def keys_for_model(model: str, pool: list, mk: dict) -> list:
+    """Clés à essayer pour un modèle : sa clé dédiée d'abord (si définie), puis
+    le pool commun en repli (rotation anti-quota)."""
+    k = mk.get(model)
+    return _dedup(([k] if k else []) + list(pool))
+
+
 def provider_specs() -> list:
     """Décrit les providers CONFIGURÉS (clé présente), prêts à être activés.
     Chaque spec : {name, kind, key, keys, model, base_url?} — `keys` est la liste
@@ -75,16 +110,20 @@ def provider_specs() -> list:
     L'ordre = ordre d'essai."""
     specs = []
 
-    ork = _keys("OPENROUTER")
-    if ork:
+    pool = _keys("OPENROUTER")
+    mk = model_key_map()
+    if pool or mk:
         models = _split_models(
             os.environ.get("OPENROUTER_MODELS", ""),
             f"{os.environ.get('OPENROUTER_XIAOMI_MODEL', 'xiaomi/mimo-v2.5')},"
             f"{os.environ.get('OPENROUTER_MISTRAL_MODEL', 'mistralai/mistral-large')}",
         )
         for model in models:
+            keys = keys_for_model(model, pool, mk)  # clé dédiée du modèle + pool en repli
+            if not keys:
+                continue
             specs.append({"name": f"openrouter:{model}", "kind": "openrouter",
-                          "key": ork[0], "keys": ork, "model": model})
+                          "key": keys[0], "keys": keys, "model": model})
 
     gk = _keys("GEMINI")
     if gk:
@@ -109,11 +148,12 @@ def is_configured() -> bool:
 def span_spec():
     """Spec du scoreur comportemental optionnel (Span-01), ou None si pas de clé.
     Compatible endpoint OpenAI (OpenRouter par défaut)."""
-    keys = _keys("SPAN")
+    model = os.environ.get("SPAN_MODEL", "respan/span-01-lite:free")
+    # clé dédiée du modèle Span d'abord, puis clés SPAN, puis pool OpenRouter.
+    keys = keys_for_model(model, _keys("SPAN") + _keys("OPENROUTER"), model_key_map())
     if not keys:
         return None
-    return {"kind": "span", "key": keys[0], "keys": keys,
-            "model": os.environ.get("SPAN_MODEL", "respan/span-01-lite:free"),
+    return {"kind": "span", "key": keys[0], "keys": keys, "model": model,
             "base_url": os.environ.get("SPAN_BASE_URL", "https://openrouter.ai/api/v1")}
 
 

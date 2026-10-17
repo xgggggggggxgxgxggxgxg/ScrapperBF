@@ -5,7 +5,7 @@ import layer3_extract_llm as l3
 
 
 def _clear(monkeypatch):
-    for k in ("OPENROUTER_API_KEY", "OPENROUTER_API_KEYS", "OPENROUTER_MODELS",
+    for k in ("OPENROUTER_API_KEY", "OPENROUTER_API_KEYS", "OPENROUTER_MODEL_KEYS", "OPENROUTER_MODELS",
               "OPENROUTER_XIAOMI_MODEL", "OPENROUTER_MISTRAL_MODEL",
               "GEMINI_API_KEY", "GEMINI_API_KEYS", "GEMINI_MODEL",
               "OPENAI_COMPAT_API_KEY", "OPENAI_COMPAT_API_KEYS",
@@ -20,6 +20,33 @@ def test_multiple_keys_per_provider(monkeypatch):
     s = config.provider_specs()[0]
     assert s["keys"] == ["k1", "k2", "k3"]   # plusieurs clés pour la rotation
     assert s["key"] == "k1"                   # la 1re (compat)
+
+
+def test_model_key_map_from_env(monkeypatch):
+    monkeypatch.setenv("OPENROUTER_MODEL_KEYS", "a/b=k_ab, c/d=k_cd")
+    m = config.model_key_map()
+    assert m["a/b"] == "k_ab" and m["c/d"] == "k_cd"
+
+
+def test_per_model_key_takes_priority(monkeypatch):
+    _clear(monkeypatch)
+    monkeypatch.setenv("OPENROUTER_API_KEYS", "pool1, pool2")       # pool commun
+    monkeypatch.setenv("OPENROUTER_MODELS", "x/y, z/w")
+    monkeypatch.setenv("OPENROUTER_MODEL_KEYS", "x/y=dedie_xy")     # clé dédiée pour x/y
+    specs = {s["model"]: s for s in config.provider_specs()}
+    # x/y : sa clé dédiée en 1re, puis le pool en repli (rotation)
+    assert specs["x/y"]["key"] == "dedie_xy"
+    assert specs["x/y"]["keys"] == ["dedie_xy", "pool1", "pool2"]
+    # z/w : pas de clé dédiée -> pool commun
+    assert specs["z/w"]["key"] == "pool1"
+
+
+def test_openrouter_active_with_only_model_keys(monkeypatch):
+    _clear(monkeypatch)
+    monkeypatch.setenv("OPENROUTER_MODELS", "m/1")
+    monkeypatch.setenv("OPENROUTER_MODEL_KEYS", "m/1=kperso")       # aucune clé pool
+    specs = config.provider_specs()
+    assert len(specs) == 1 and specs[0]["key"] == "kperso"
 
 
 def test_keys_plural_and_singular_merge_dedup(monkeypatch):
