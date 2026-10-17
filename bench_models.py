@@ -407,24 +407,32 @@ def build_report(results_by_role: dict, meta: dict, tokens: str = "") -> str:
         res = results_by_role.get(role)
         if not res:
             continue
-        ranked = rank_models(role, res)
+        # On ne RECOMMANDE que des modèles qui ont réellement produit (json_valide>0).
+        ranked = [m for m in rank_models(role, res) if (res[m].get("json_valide") or 0) > 0]
         winners[role] = ranked
         L += [f"## {ROLE_LABEL[role]}", "", "```", format_table(res, role), "```", ""]
         if ranked:
             L += [f"**Recommandé : `{ranked[0]}`**"
                   + (f" · 2ᵉ : `{ranked[1]}`" if len(ranked) > 1 else ""), ""]
-    # Reco production
+        else:
+            L += ["**Aucun modèle n'a abouti** (saturation/erreurs) — relancer plus "
+                  "tard, baisser `--n`, ou ajouter du crédit OpenRouter.", ""]
+    # Reco production — uniquement avec des modèles QUI ONT MARCHÉ.
     extr = winners.get("extracteur", [])
     arb = winners.get("juge", [])
     sco = winners.get("scoreur", [])
     trio = (extr[:2] + arb[:1]) if (len(extr) >= 2 and arb) else (extr + arb)[:3]
     L += ["## Recommandation de production", ""]
     if trio:
-        L += ["```bash", "# consensus = 2 extracteurs + 1 arbitre",
-              "OPENROUTER_MODELS=" + ", ".join(trio)]
+        note = "" if len(trio) >= 3 else \
+            "  # ⚠️ peu de modèles disponibles : ajoute d'autres extracteurs/arbitres quand ils répondent"
+        L += ["```bash", "# consensus = 2 extracteurs + 1 arbitre (ajoute-les dès qu'ils répondent)",
+              "OPENROUTER_MODELS=" + ", ".join(trio) + note]
         if sco:
             L += ["ENABLE_SPAN_SCORING=1", f"SPAN_MODEL={sco[0]}"]
         L += ["```", ""]
+    else:
+        L += ["_Aucun modèle exploitable sur ce run._", ""]
     if tokens:
         L += ["## Consommation de tokens", "", "```", tokens, "```", ""]
     L += ["---", "_Indicateurs proxy (sans vérité terrain). Pour une exactitude "
