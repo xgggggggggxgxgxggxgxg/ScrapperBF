@@ -38,10 +38,11 @@ qu'écrits ; classe le montant prévisionnel en HTVA / TTC quand les deux existe
 Réponds UNIQUEMENT par un objet JSON conforme au schéma."""
 
 
-def _build_system(section: str, text: str, hint: str = "") -> str:
+def _build_system(regles_applicables: list, hint: str = "") -> str:
     """Prompt système commun aux deux extracteurs : socle + règles apprises
-    applicables à ce texte + hint ponctuel (réessai)."""
-    bloc_regles = regles.format_for_prompt(regles.match_rules(text, section))
+    applicables à ce texte + hint ponctuel (réessai). Les règles sont matchées
+    une seule fois par l'appelant et passées ici."""
+    bloc_regles = regles.format_for_prompt(regles_applicables)
     parts = [EXTRACT_SYSTEM]
     if bloc_regles:
         parts.append(bloc_regles)
@@ -70,8 +71,8 @@ def extract_fields(text: str, section: str = "AVIS", providers: Optional[list] =
 
     field_defs = load_field_schema(section)
     schema = build_json_schema(field_defs)
-    system = _build_system(section, text, hint)
-    appliquees = regles.match_rules(text, section)
+    appliquees = regles.match_rules(text, section)   # matché une seule fois
+    system = _build_system(appliquees, hint)
 
     a = _extract_one(text, schema, provs[0], system, max_retries) or {}
     if len(provs) > 1:

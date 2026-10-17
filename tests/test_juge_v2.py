@@ -74,6 +74,38 @@ def test_scoreur_only_when_no_llm():
     assert dec["couleur"] in ("vert", "jaune", "rouge")
 
 
+def test_providers_juge_prefers_distinct_model():
+    # 3 providers -> le juge-LLM prend le 3e (distinct de A=0 et B=1)
+    assert juge._providers_juge(["A", "B", "C"])[0] == "C"
+    # 2 providers -> celui de B (distinct de A)
+    assert juge._providers_juge(["A", "B"])[0] == "B"
+    # 1 provider -> pas le choix
+    assert juge._providers_juge(["A"]) == ["A"]
+    assert juge._providers_juge([]) == []
+
+
+def test_scoreur_independent_from_llm():
+    # Brut A/B pauvre + texte corrompu, mais le juge-LLM "corrige" et dit bon.
+    # Le scoreur note le BRUT -> mauvais -> opposition -> rouge (règle 3).
+    dec = juge.juger_avis(TEXT_GARBLED, {"objet": "x"}, {"objet": "x"}, providers=["x"],
+                          juge_llm_fn=_llm(GOOD, "bon"))
+    assert dec["couleur"] == "rouge"
+    assert dec["pourquoi_divergence_juges"]
+    assert dec["score"] >= dec["score_brut"]   # final (sur GOOD) >= brut (sur champs pauvres)
+
+
+def test_to_judge_compat_caps_confidence_by_color():
+    vert = juge.to_judge_compat({"couleur": "vert", "score": 100, "revue_humaine": False,
+                                 "champs_en_conflit": []})
+    jaune = juge.to_judge_compat({"couleur": "jaune", "score": 100, "revue_humaine": True,
+                                  "champs_en_conflit": []})
+    rouge = juge.to_judge_compat({"couleur": "rouge", "score": 100, "revue_humaine": True,
+                                  "champs_en_conflit": []})
+    assert vert["confiance"] == 1.0 and vert["verdict"] == "valide"
+    assert jaune["confiance"] == 0.75 and jaune["revue_humaine"] is True
+    assert rouge["confiance"] == 0.5 and rouge["verdict"] == "rejete"
+
+
 def test_traiter_avis_full_flow_with_retry():
     calls = {"n": 0}
 

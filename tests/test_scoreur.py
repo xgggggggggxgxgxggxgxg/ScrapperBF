@@ -37,6 +37,23 @@ def test_corrupted_text_scores_low():
     assert r["verdict"] == "mauvais"
 
 
+def test_montant_present_en_toutes_lettres():
+    # Montant écrit en lettres sans chiffres groupés -> considéré présent.
+    champs = {"montant_previsionnel_global": {"ttc": "quatre-vingts millions de francs"}}
+    assert scoreur.present(champs, "montant_previsionnel_global") is True
+    # Vide -> absent
+    assert scoreur.present({"montant_previsionnel_global": {}}, "montant_previsionnel_global") is False
+    # Numéro de téléphone -> pas un montant
+    tel = {"montant_previsionnel_global": {"x": "72 19 13 88"}}
+    assert scoreur.present(tel, "montant_previsionnel_global") is False
+
+
+def test_champs_critiques_is_cached_tuple():
+    c = scoreur.champs_critiques("AVIS")
+    assert isinstance(c, tuple)
+    assert "montant_previsionnel_global" in c and "objet" in c
+
+
 def test_severe_mode_is_stricter():
     champs = dict(GOOD)
     champs["montant_previsionnel_global"] = {}   # montant vide -> warn sur complétude

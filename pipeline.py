@@ -31,7 +31,7 @@ if _NEW_LOGIC.is_dir() and str(_NEW_LOGIC) not in sys.path:
 
 from layer1_extract import extract_document_from_markdown as extract_document
 from layer2_segment import segment_document, unit_to_text
-from layer3_extract_llm import extract_unit
+from layer3_extract_llm import extract_unit, build_providers
 from layer4_review import review_and_complete, _is_empty
 import feedback_store
 import config
@@ -244,12 +244,15 @@ def process_pdf(pdf_path: str, numero: str = None):
     #      API est configurée ; sinon le regex sert de repli déterministe.
     avis_out = []
     feedback_hint = feedback_store.build_hint("AVIS") if use_api else ""
+    # Providers construits UNE fois (évite de relire .env/clés à chaque annonce).
+    avis_providers = build_providers() if (use_api and JUGE_V2) else None
 
     def _finalize_avis(rec, text, fmt_info):
         enrich_coverage(rec)
         if use_api and JUGE_V2:
             # --- Flux v2 : extraction A/B -> juge (scoreur + juge-LLM) ------
-            dec = juge_v2.traiter_avis(text, "AVIS", numero=numero, index=len(avis_out))
+            dec = juge_v2.traiter_avis(text, "AVIS", numero=numero, index=len(avis_out),
+                                       providers=avis_providers)
             if dec is not None:
                 for k, v in dec["champs_finaux"].items():
                     if not str(k).startswith("_"):

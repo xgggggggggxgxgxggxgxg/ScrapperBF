@@ -27,6 +27,7 @@ Ce module N'ÉCRASE PAS judge.py (primitives + RÉSULTATS), qu'il réutilise.
 """
 
 import logging
+from functools import lru_cache
 from typing import Optional, Callable
 
 import judge                     # primitives déterministes + judge_resultats (RÉSULTATS)
@@ -41,6 +42,12 @@ log = logging.getLogger("scrapperbf.juge")
 
 
 # --------------------------------------------------------------- utilitaires
+@lru_cache(maxsize=8)
+def _defs(section: str) -> dict:
+    """Schéma des champs (mis en cache : il ne change pas pendant un run)."""
+    return load_field_schema(section)
+
+
 def _merge(a: dict, b: Optional[dict], field_defs: dict) -> dict:
     """Fusion best-effort A/B (pour le scoreur quand il n'y a pas d'arbitre LLM) :
     valeur de A si non vide, sinon celle de B."""
@@ -52,10 +59,25 @@ def _merge(a: dict, b: Optional[dict], field_defs: dict) -> dict:
     return out
 
 
-def _present(champs: dict, field: str) -> bool:
-    if field == "montant_previsionnel_global":
-        return bool(judge.montant_amounts(champs))
-    return not judge.is_empty(champs.get(field))
+# Présence d'un champ : logique centralisée dans le scoreur (montant en chiffres
+# ou en toutes lettres, etc.).
+_present = scoreur.present
+
+
+def _providers_juge(provs: list) -> list:
+    """Ordre de providers pour le JUGE-LLM, de façon qu'il tourne sur un modèle
+    DISTINCT des extracteurs A (provs[0]) et B (provs[1]) quand c'est possible :
+      - >= 3 providers -> le 3e en tête (puis repli sur les autres) ;
+      - 2 providers    -> celui de B en tête (distinct de A) ;
+      - 1 provider     -> pas le choix.
+    """
+    if not provs:
+        return provs
+    if len(provs) >= 3:
+        return [provs[2]] + [p for i, p in enumerate(provs) if i != 2]
+    if len(provs) == 2:
+        return [provs[1], provs[0]]
+    return provs
 
 
 # --------------------------------------------------------------- décision
@@ -68,14 +90,16 @@ def juger_avis(text: str, a: dict, b: Optional[dict], section: str = "AVIS",
     `juge_llm_fn(text, a, b)` est injectable pour les tests hors-ligne ; sinon on
     appelle juge_llm.review si des `providers` sont fournis. Retourne la décision
     complète (couleur, action, champs finaux, raisons, conflits…)."""
-    field_defs = load_field_schema(section)
+    field_defs = _defs(section)
     champs_ab = _merge(a, b, field_defs)
 
     # --- Moitié LLM (peut être absente) ---
+    # Le juge-LLM tourne sur un modèle DISTINCT des extracteurs A/B quand possible.
     if juge_llm_fn is not None:
         llm = juge_llm_fn(text, a, b)
     elif providers:
-        llm = juge_llm.review(text, a, b, section=section, providers=providers)
+        llm = juge_llm.review(text, a, b, section=section,
+                              providers=_providers_juge(providers))
     else:
         llm = None
 
@@ -88,8 +112,14 @@ def juger_avis(text: str, a: dict, b: Optional[dict], section: str = "AVIS",
         llm = llm or None
 
     # --- Moitié CODE PUR (toujours) ---
-    sc = scoreur.scorer_avis(champs_finaux, text, severe=severe, section=section)
-    verdict_sc = sc["verdict"]
+    # SURVEILLANCE : le scoreur juge le BRUT A/B, indépendamment du juge-LLM — c'est
+    # ce verdict qui sert à détecter un désaccord (sinon le LLM lisserait les champs
+    # avant que le scoreur ne les voie, et l'opposition ne se déclencherait jamais).
+    sc_raw = scoreur.scorer_avis(champs_ab, text, severe=severe, section=section)
+    verdict_sc = sc_raw["verdict"]
+    # CONFIANCE : score sur les valeurs finalement retenues (ce qui ira en base).
+    sc_final = scoreur.scorer_avis(champs_finaux, text, severe=severe, section=section) \
+        if (llm and champs_finaux is not champs_ab) else sc_raw
 
     # --- Divergences A/B typées (déterministe) ---
     divs = analyze_divergence(a, b, field_defs, text)["divergences"] if b else []
@@ -130,7 +160,7 @@ def juger_avis(text: str, a: dict, b: Optional[dict], section: str = "AVIS",
     if oppose:
         couleur, action = "rouge", "humain"
         pourquoi = (f"désaccord des juges : juge-LLM dit « {verdict_llm} », "
-                    f"scoreur dit « {verdict_sc} » (score {sc['score']})")
+                    f"scoreur dit « {verdict_sc} » (score brut {sc_raw['score']})")
         raison = "Les deux moitiés du juge se contredisent -> alerte humaine."
     elif any_mauvais:
         couleur, action = "rouge", "humain"
@@ -162,6 +192,10 @@ def juger_avis(text: str, a: dict, b: Optional[dict], section: str = "AVIS",
         raison = "Scoreur et juge-LLM concordent, aucun champ critique en défaut -> base."
 
     revue = couleur in ("jaune", "rouge")
+    log.debug("juge: couleur=%s action=%s | scoreur(brut)=%s score_brut=%d "
+              "score_final=%d juge-LLM=%s | crit_manquants=%s conflits=%d",
+              couleur, action, verdict_sc, sc_raw["score"], sc_final["score"],
+              verdict_llm, sc_final["champs_critiques_manquants"], len(champs_en_conflit))
     return {
         "couleur": couleur,
         "action": action,
@@ -170,11 +204,12 @@ def juger_avis(text: str, a: dict, b: Optional[dict], section: str = "AVIS",
         "pourquoi_divergence_juges": pourquoi,
         "regle_suggeree": regle_suggeree,
         "champs_finaux": {k: v for k, v in champs_finaux.items() if not str(k).startswith("_")},
-        "score": sc["score"],
-        "probabilites": sc["probabilites"],
-        "verdict_scoreur": verdict_sc,
+        "score": sc_final["score"],              # confiance : valeurs finales retenues
+        "score_brut": sc_raw["score"],           # surveillance : brut A/B (indépendant du LLM)
+        "probabilites": sc_final["probabilites"],
+        "verdict_scoreur": verdict_sc,           # verdict de surveillance (sur le brut)
         "verdict_llm": verdict_llm,
-        "champs_critiques_manquants": sc["champs_critiques_manquants"],
+        "champs_critiques_manquants": sc_final["champs_critiques_manquants"],
         "champs_en_conflit": champs_en_conflit,
         "divergences": divs,
         "analyse_llm": (llm or {}).get("analyse", ""),
@@ -234,9 +269,13 @@ def to_judge_compat(dec: dict) -> dict:
     """Convertit une décision v2 vers l'ancien format `_judge` attendu par le
     pipeline (meta : confiance moyenne, nb revue humaine)."""
     verdict = {"vert": "valide", "jaune": "a_verifier", "rouge": "rejete"}[dec["couleur"]]
+    # La confiance reflète la couleur : une annonce en revue ne peut pas afficher
+    # une confiance pleine, même si le score brut est élevé (plafond par couleur).
+    plafond = {"vert": 1.0, "jaune": 0.75, "rouge": 0.5}[dec["couleur"]]
+    confiance = round(min(dec["score"] / 100, plafond), 3)
     return {
         "verdict": verdict,
-        "confiance": round(dec["score"] / 100, 3),
+        "confiance": confiance,
         "revue_humaine": dec["revue_humaine"],
         "couleur": dec["couleur"],
         "anomalies": [{"nom": c["champ"], "statut": "warn" if not c["critique"] else "fail",
