@@ -23,6 +23,7 @@ calcule en plus l'exactitude par champ (exact match, insensible casse/espaces).
 """
 
 import re
+import os
 import sys
 import json
 import time
@@ -80,27 +81,59 @@ def _prompt(text: str, schema: dict) -> str:
             f"Texte de l'annonce :\n{text}")
 
 
-def real_caller(spec: dict, text: str, schema: dict):
-    """Appelle UN modèle une fois. Retourne (result|None, usage|None, latence_s, err)."""
-    p = _prompt(text, schema)
-    t0 = time.perf_counter()
-    try:
-        if spec["kind"] == "openrouter":
-            res = call_openrouter(p, schema, spec["key"], spec["model"],
-                                  system_prompt=EXTRACT_SYSTEM, strict=False)
-        elif spec["kind"] == "gemini":
-            res = call_gemini(p, schema, spec["key"], model=spec["model"],
-                              system_prompt=EXTRACT_SYSTEM, strict=False)
-        else:  # openai_compat
-            res = call_openai_compatible(p, schema, spec["key"], spec["base_url"],
-                                         spec["model"], system_prompt=EXTRACT_SYSTEM, strict=False)
-    except Exception as e:
-        return None, None, time.perf_counter() - t0, str(e)[:140]
-    dt = time.perf_counter() - t0
+# Tier gratuit = débit limité : on retente sur 429 avec pause croissante.
+BENCH_RETRY_429 = int(os.environ.get("BENCH_RETRY_429", "3"))
+BENCH_BACKOFF = float(os.environ.get("BENCH_BACKOFF", "6"))
+
+
+def _is_429(e) -> bool:
+    s = str(e).lower()
+    return "429" in s or "rate" in s or "temporarily" in s or "quota" in s
+
+
+def _call_retry(do_call: Callable):
+    """Exécute do_call() (qui lève en cas d'erreur). Retente sur 429 avec backoff.
+    Retourne (res|None, latence_s, err|None)."""
+    last = ""
+    for attempt in range(BENCH_RETRY_429):
+        t0 = time.perf_counter()
+        try:
+            return do_call(), time.perf_counter() - t0, None
+        except Exception as e:
+            last = str(e)[:160]
+            if _is_429(e) and attempt < BENCH_RETRY_429 - 1:
+                pause = BENCH_BACKOFF * (2 ** attempt)
+                log.info("429 (débit limité), pause %.0fs puis nouvelle tentative…", pause)
+                time.sleep(pause)
+                continue
+            return None, time.perf_counter() - t0, last
+    return None, 0.0, last
+
+
+def _dispatch(spec: dict, prompt: str, schema: dict, system: str):
+    if spec["kind"] == "gemini":
+        return call_gemini(prompt, schema, spec["key"], model=spec["model"],
+                           system_prompt=system, strict=False)
+    if spec["kind"] == "openai_compat":
+        return call_openai_compatible(prompt, schema, spec["key"], spec["base_url"],
+                                      spec["model"], system_prompt=system, strict=False)
+    return call_openrouter(prompt, schema, spec["key"], spec["model"],
+                           system_prompt=system, strict=False)
+
+
+def _finish(spec, res, dt, err):
+    if err:
+        return None, None, dt, err
     usage = res.pop("_usage", None) if isinstance(res, dict) else None
     if usage:
         token_tracker.record(spec["kind"], spec["model"], spec["key"], usage)
     return res, usage, dt, None
+
+
+def real_caller(spec: dict, text: str, schema: dict):
+    """Appelle UN modèle (retry sur 429). Retourne (result|None, usage|None, latence, err)."""
+    res, dt, err = _call_retry(lambda: _dispatch(spec, _prompt(text, schema), schema, EXTRACT_SYSTEM))
+    return _finish(spec, res, dt, err)
 
 
 def arbiter_caller(spec: dict, text: str, a: dict, b: dict):
@@ -110,34 +143,18 @@ def arbiter_caller(spec: dict, text: str, a: dict, b: dict):
               f"Extraction A :\n{json.dumps(a, ensure_ascii=False)}\n\n"
               f"Extraction B :\n{json.dumps(b, ensure_ascii=False)}\n\n"
               f"Schéma de sortie (informatif) :\n{json.dumps(ARB_SCHEMA, ensure_ascii=False)}")
-    t0 = time.perf_counter()
-    try:
-        res = call_openrouter(prompt, ARB_SCHEMA, spec["key"], spec["model"],
-                              system_prompt=ARBITER_SYSTEM, strict=False)
-    except Exception as e:
-        return None, None, time.perf_counter() - t0, str(e)[:140]
-    dt = time.perf_counter() - t0
-    usage = res.pop("_usage", None) if isinstance(res, dict) else None
-    if usage:
-        token_tracker.record(spec["kind"], spec["model"], spec["key"], usage)
-    return res, usage, dt, None
+    res, dt, err = _call_retry(lambda: call_openrouter(
+        prompt, ARB_SCHEMA, spec["key"], spec["model"], system_prompt=ARBITER_SYSTEM, strict=False))
+    return _finish(spec, res, dt, err)
 
 
 def span_caller(spec: dict, text: str, behaviors: list):
     """Appelle UN modèle scoreur. Retourne ({comportement: proba}|None, usage, latence, err)."""
     prompt = ("Comportements :\n" + "\n".join(f"- {bb}" for bb in behaviors)
               + f"\n\nTexte de l'annonce :\n{text}")
-    t0 = time.perf_counter()
-    try:
-        res = call_openrouter(prompt, {}, spec["key"], spec["model"],
-                              system_prompt=span_scorer.SPAN_SYSTEM, strict=False)
-    except Exception as e:
-        return None, None, time.perf_counter() - t0, str(e)[:140]
-    dt = time.perf_counter() - t0
-    usage = res.pop("_usage", None) if isinstance(res, dict) else None
-    if usage:
-        token_tracker.record(spec["kind"], spec["model"], spec["key"], usage)
-    return res, usage, dt, None
+    res, dt, err = _call_retry(lambda: call_openrouter(
+        prompt, {}, spec["key"], spec["model"], system_prompt=span_scorer.SPAN_SYSTEM, strict=False))
+    return _finish(spec, res, dt, err)
 
 
 def _avg(xs):

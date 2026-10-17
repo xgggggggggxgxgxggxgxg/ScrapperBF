@@ -93,6 +93,33 @@ def test_gold_accuracy():
     assert res["bon"]["exactitude_gold"] == 0.5
 
 
+def test_call_retry_retries_on_429(monkeypatch):
+    import bench_models as bm
+    monkeypatch.setattr(bm.time, "sleep", lambda *_: None)   # pas d'attente réelle
+    monkeypatch.setattr(bm, "BENCH_RETRY_429", 3)
+    n = {"c": 0}
+
+    def flaky():
+        n["c"] += 1
+        if n["c"] < 3:
+            raise RuntimeError("OpenRouter 429: temporarily rate-limited")
+        return {"ok": True}
+    res, dt, err = bm._call_retry(flaky)
+    assert err is None and res == {"ok": True} and n["c"] == 3
+
+
+def test_call_retry_gives_up_on_non_429(monkeypatch):
+    import bench_models as bm
+    monkeypatch.setattr(bm.time, "sleep", lambda *_: None)
+    n = {"c": 0}
+
+    def auth_err():
+        n["c"] += 1
+        raise RuntimeError("OpenRouter 401: User not found")
+    res, dt, err = bm._call_retry(auth_err)
+    assert res is None and "401" in err and n["c"] == 1   # pas de retry sur une 401
+
+
 def test_match_normalizes():
     assert _match("MINISTERE X", "ministere  x") is True
     assert _match("", "") is False
