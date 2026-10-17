@@ -123,3 +123,44 @@ def test_openai_compatible_posts_to_chat_completions(monkeypatch):
     assert captured["json"]["model"] == "llama3"
     assert out["ok"] is True
     assert "_usage" in out   # usage (tokens) attaché pour le comptage
+
+
+def test_loads_lenient_strips_fences():
+    assert l3._loads_lenient('{"a": 1}') == {"a": 1}
+    assert l3._loads_lenient('```json\n{"a": 1}\n```') == {"a": 1}
+    assert l3._loads_lenient('Voici le JSON : {"a": 1} merci') == {"a": 1}
+
+
+def test_openrouter_falls_back_when_format_rejected(monkeypatch):
+    calls = []
+
+    class Resp:
+        def __init__(self, code, body): self.status_code = code; self._b = body
+        def json(self): return self._b
+        @property
+        def text(self): return str(self._b)
+
+    def fake_post(url, **kw):
+        calls.append(kw["json"].get("response_format"))
+        # 1er appel (json_schema) -> 400 rejet de format ; 2e (json_object) -> 200
+        if len(calls) == 1:
+            return Resp(400, "response_format json_schema not supported")
+        return Resp(200, {"choices": [{"message": {"content": '{"ok": true}'}}], "usage": {}})
+
+    monkeypatch.setattr(l3.requests, "post", fake_post)
+    out = l3.call_openrouter("p", {}, "k", "m/free")
+    assert out["ok"] is True
+    assert len(calls) == 2                       # a basculé json_schema -> json_object
+    assert calls[0]["type"] == "json_schema" and calls[1]["type"] == "json_object"
+
+
+def test_openrouter_stops_on_auth_error(monkeypatch):
+    class Resp:
+        status_code = 401
+        def json(self): return {}
+        text = "401 No auth credentials found"
+    monkeypatch.setattr(l3.requests, "post", lambda url, **kw: Resp())
+    import pytest
+    with pytest.raises(l3.ProviderError) as e:
+        l3.call_openrouter("p", {}, "badkey", "m/free")
+    assert "401" in str(e.value)                 # pas de retry inutile sur une erreur d'auth

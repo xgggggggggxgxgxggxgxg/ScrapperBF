@@ -159,12 +159,14 @@ def evaluate_models(texts: list, specs: list, caller: Callable = real_caller,
         fill, conf, lat = [], [], []
         tin = tout = ttot = 0
         gold_hits = gold_tot = 0
+        err_msg = None
         for i, text in enumerate(texts):
             res, usage, dt, e = caller(spec, text, schema)
             appels += 1
             lat.append(dt)
             if e or not isinstance(res, dict):
                 err += 1
+                err_msg = err_msg or e or "réponse non-dict"
                 continue
             ok += 1
             fill.append(sum(1 for f in CORE_FIELDS if res.get(f)) / len(CORE_FIELDS))
@@ -186,7 +188,10 @@ def evaluate_models(texts: list, specs: list, caller: Callable = real_caller,
             "tokens_moyen_par_annonce": round(ttot / ok) if ok else None,
             "latence_moyenne_s": _avg(lat), "debit_t_s": debit,
             "exactitude_gold": (round(gold_hits / gold_tot, 3) if gold_tot else None),
+            "erreur_exemple": err_msg,
         }
+        if err_msg:
+            log.warning("[%s] %d/%d échecs — exemple : %s", spec["name"], err, appels, err_msg)
     return out
 
 
@@ -202,6 +207,7 @@ def evaluate_juges(texts: list, specs: list, ab_pairs: list,
         fill, conf, lat = [], [], []
         ttot = 0
         expl_ok = expl_tot = 0
+        err_msg = None
         for (a, b), text in zip(ab_pairs, texts):
             res, usage, dt, e = caller(spec, text, a, b)
             appels += 1
@@ -209,6 +215,7 @@ def evaluate_juges(texts: list, specs: list, ab_pairs: list,
             champs = res.get("champs") if isinstance(res, dict) else None
             if e or not isinstance(champs, dict):
                 err += 1
+                err_msg = err_msg or e or "pas de champ 'champs'"
                 continue
             ok += 1
             fill.append(sum(1 for f in CORE_FIELDS if champs.get(f)) / len(CORE_FIELDS))
@@ -229,7 +236,10 @@ def evaluate_juges(texts: list, specs: list, ab_pairs: list,
             "tokens_total": ttot,
             "tokens_moyen_par_annonce": round(ttot / ok) if ok else None,
             "latence_moyenne_s": _avg(lat),
+            "erreur_exemple": err_msg,
         }
+        if err_msg:
+            log.warning("[%s] %d/%d échecs — exemple : %s", spec["name"], err, appels, err_msg)
     return out
 
 
@@ -244,12 +254,14 @@ def evaluate_scoreurs(texts: list, specs: list, behaviors: Optional[list] = None
         appels = ok = err = 0
         cover, lat = [], []
         ttot = 0
+        err_msg = None
         for text in texts:
             res, usage, dt, e = caller(spec, text, behaviors)
             appels += 1
             lat.append(dt)
             if e or not isinstance(res, dict):
                 err += 1
+                err_msg = err_msg or e or "réponse non-dict"
                 continue
             ok += 1
             notes = sum(1 for bb in behaviors if isinstance(res.get(bb), (int, float)))
@@ -263,7 +275,10 @@ def evaluate_scoreurs(texts: list, specs: list, behaviors: Optional[list] = None
             "tokens_total": ttot,
             "tokens_moyen_par_annonce": round(ttot / ok) if ok else None,
             "latence_moyenne_s": _avg(lat),
+            "erreur_exemple": err_msg,
         }
+        if err_msg:
+            log.warning("[%s] %d/%d échecs — exemple : %s", spec["name"], err, appels, err_msg)
     return out
 
 

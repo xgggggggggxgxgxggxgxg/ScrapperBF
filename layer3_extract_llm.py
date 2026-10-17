@@ -33,6 +33,30 @@ def _attach_usage(result, kind: str, raw: dict):
     return result
 
 
+def _loads_lenient(text: str) -> dict:
+    """Parse du JSON même quand le modèle l'enrobe (``` ```json fences, préambule).
+    Beaucoup de modèles gratuits ne respectent pas le JSON strict."""
+    if text is None:
+        raise ProviderError("réponse vide")
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+    m = re.search(r"```(?:json)?\s*(.*?)```", text, re.S)  # bloc markdown
+    if m:
+        try:
+            return json.loads(m.group(1).strip())
+        except Exception:
+            pass
+    m = re.search(r"\{.*\}", text, re.S)                   # 1er objet {...}
+    if m:
+        try:
+            return json.loads(m.group(0))
+        except Exception:
+            pass
+    raise ProviderError("réponse non-JSON : " + str(text)[:160])
+
+
 CONFIG_PATH = Path(__file__).parent / "schema_config.yaml"
 
 
@@ -100,32 +124,44 @@ def call_gemini(prompt: str, json_schema: dict, api_key: str,
         raise ProviderError(f"Gemini {resp.status_code}: {resp.text[:300]}")
     data = resp.json()
     text = data["candidates"][0]["content"]["parts"][0]["text"]
-    return _attach_usage(json.loads(text), "gemini", data.get("usageMetadata"))
+    return _attach_usage(_loads_lenient(text), "gemini", data.get("usageMetadata"))
+
+
+_FORMAT_REJECT_RE = re.compile(
+    r"response_format|json_schema|structured|schema|not\s*support|unsupported|invalid|400|422", re.I)
 
 
 def call_openrouter(prompt: str, json_schema: dict, api_key: str, model: str,
                     system_prompt: str = SYSTEM_PROMPT, strict: bool = True) -> dict:
-    resp = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers={"Authorization": f"Bearer {api_key}"},
-        json={
-            "model": model,  # ex: "mistralai/mistral-large" ou tout modèle dispo sur OpenRouter
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt},
-            ],
-            "response_format": {
-                "type": "json_schema",
-                "json_schema": {"name": "extraction", "schema": json_schema, "strict": strict},
-            },
-        },
-        timeout=60,
-    )
-    if resp.status_code != 200:
-        raise ProviderError(f"OpenRouter {resp.status_code}: {resp.text[:300]}")
-    data = resp.json()
-    text = data["choices"][0]["message"]["content"]
-    return _attach_usage(json.loads(text), "openrouter", data.get("usage"))
+    """Appel OpenRouter TOLÉRANT : beaucoup de modèles gratuits refusent le
+    `response_format: json_schema`. On tente, dans l'ordre : json_schema →
+    json_object → sans format (JSON porté par le prompt). Le JSON est parsé
+    même enrobé de ``` fences."""
+    base = {"model": model,
+            "messages": [{"role": "system", "content": system_prompt},
+                         {"role": "user", "content": prompt}]}
+    payloads = [
+        {**base, "response_format": {"type": "json_schema",
+                                     "json_schema": {"name": "extraction", "schema": json_schema, "strict": strict}}},
+        {**base, "response_format": {"type": "json_object"}},
+        base,
+    ]
+    last = ""
+    for pl in payloads:
+        resp = requests.post("https://openrouter.ai/api/v1/chat/completions",
+                             headers={"Authorization": f"Bearer {api_key}",
+                                      "Content-Type": "application/json"},
+                             json=pl, timeout=60)
+        if resp.status_code == 200:
+            data = resp.json()
+            text = data["choices"][0]["message"]["content"]
+            return _attach_usage(_loads_lenient(text), "openrouter", data.get("usage"))
+        last = f"OpenRouter {resp.status_code}: {resp.text[:300]}"
+        if _is_quota(last):          # quota/limite -> laisse la rotation basculer de clé
+            raise ProviderError(last)
+        if not _FORMAT_REJECT_RE.search(last):   # erreur non liée au format (auth, slug) -> stop
+            break
+    raise ProviderError(last)
 
 
 def call_openai_compatible(prompt: str, json_schema: dict, api_key: str, base_url: str,
@@ -156,7 +192,7 @@ def call_openai_compatible(prompt: str, json_schema: dict, api_key: str, base_ur
         raise ProviderError(f"OpenAI-compat {resp.status_code}: {resp.text[:300]}")
     data = resp.json()
     text = data["choices"][0]["message"]["content"]
-    return _attach_usage(json.loads(text), "openai_compat", data.get("usage"))
+    return _attach_usage(_loads_lenient(text), "openai_compat", data.get("usage"))
 
 
 # Signature unifiée des appels : fn(prompt, schema, system_prompt, strict) -> dict
