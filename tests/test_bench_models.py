@@ -118,6 +118,23 @@ def test_verbose_logs_progress(monkeypatch, caplog):
     assert "extracteur m/free" in txt and "annonce 1/1" in txt and "✓" in txt
 
 
+def test_network_down_aborts_benchmark():
+    import bench_models as bm
+    import pytest
+
+    def net_down(spec, text, schema):
+        return None, None, 0.0, "Max retries exceeded (Caused by NameResolutionError)"
+    with pytest.raises(bm.BenchAborted):
+        evaluate_models([TEXT_OK, TEXT_OK], [{"name": "m", "kind": "x", "model": "m"}],
+                        caller=net_down, schema={})
+
+
+def test_network_down_detector():
+    import bench_models as bm
+    assert bm._network_down("Max retries exceeded NameResolutionError") is True
+    assert bm._network_down("OpenRouter 429 rate-limited") is False
+
+
 def test_call_retry_gives_up_on_non_429(monkeypatch):
     import bench_models as bm
     monkeypatch.setattr(bm.time, "sleep", lambda *_: None)

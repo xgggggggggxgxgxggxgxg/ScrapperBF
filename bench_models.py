@@ -109,6 +109,19 @@ def _systemic(e) -> bool:
                                 "404", "no endpoints", "not found for"))
 
 
+class BenchAborted(Exception):
+    """Interruption globale du banc (ex. connexion internet perdue)."""
+
+
+def _network_down(e) -> bool:
+    """Panne réseau/DNS : openrouter.ai injoignable. Inutile de continuer."""
+    s = str(e).lower()
+    return any(x in s for x in ("nameresolution", "getaddrinfo",
+                                "failed to establish a new connection",
+                                "max retries exceeded", "name or service not known",
+                                "temporary failure in name resolution", "no address associated"))
+
+
 def _call_retry(do_call: Callable):
     """Exécute do_call() (qui lève en cas d'erreur). Retente sur 429 avec backoff.
     Retourne (res|None, latence_s, err|None)."""
@@ -205,6 +218,8 @@ def evaluate_models(texts: list, specs: list, caller: Callable = real_caller,
                 err += 1
                 err_msg = err_msg or e or "réponse non-dict"
                 _vlog("    ✗ %.1fs — %s", dt, (e or "non-dict"))
+                if _network_down(e):
+                    raise BenchAborted(e)
                 if _systemic(e):
                     log.warning("[%s] erreur systémique (saturation/clé/slug) -> modèle abandonné", spec["name"])
                     break
@@ -261,6 +276,8 @@ def evaluate_juges(texts: list, specs: list, ab_pairs: list,
                 err += 1
                 err_msg = err_msg or e or "pas de champ 'champs'"
                 _vlog("    ✗ %.1fs — %s", dt, (e or "pas de 'champs'"))
+                if _network_down(e):
+                    raise BenchAborted(e)
                 if _systemic(e):
                     log.warning("[%s] erreur systémique -> modèle abandonné", spec["name"])
                     break
@@ -314,6 +331,8 @@ def evaluate_scoreurs(texts: list, specs: list, behaviors: Optional[list] = None
                 err += 1
                 err_msg = err_msg or e or "réponse non-dict"
                 _vlog("    ✗ %.1fs — %s", dt, (e or "non-dict"))
+                if _network_down(e):
+                    raise BenchAborted(e)
                 if _systemic(e):
                     log.warning("[%s] erreur systémique -> modèle abandonné", spec["name"])
                     break
@@ -519,11 +538,16 @@ def main():
 
     roles = ["extracteur", "juge", "scoreur"] if args.role == "all" else [args.role]
     results_by_role = {}
-    for role in roles:
-        res = _run_role(role)
-        results_by_role[role] = res
-        print(f"\n### {role}\n" + format_table(res, role))
-        Path(f"bench_{role}.json").write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
+    try:
+        for role in roles:
+            res = _run_role(role)
+            results_by_role[role] = res
+            print(f"\n### {role}\n" + format_table(res, role))
+            Path(f"bench_{role}.json").write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
+    except BenchAborted as e:
+        log.error("⛔ CONNEXION INTERNET PERDUE — openrouter.ai injoignable (DNS). "
+                  "Vérifie ton réseau/Wi-Fi et relance. Détail : %s", str(e)[:120])
+        sys.exit(2)
 
     meta = {"pdf": Path(args.pdf).name, "n": len(texts),
             "date": time.strftime("%Y-%m-%d %H:%M")}
