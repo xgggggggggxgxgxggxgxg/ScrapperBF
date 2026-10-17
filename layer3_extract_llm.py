@@ -26,6 +26,12 @@ import token_tracker  # comptage des tokens par provider/modèle/clé
 log = logging.getLogger("scrapperbf.llm")
 
 
+# Timeout des appels HTTP : (connexion, lecture). Réglable via LLM_TIMEOUT (s) ;
+# coupe un modèle qui « réfléchit » sans fin au lieu d'attendre 10 minutes.
+_T = float(os.environ.get("LLM_TIMEOUT", "60"))
+LLM_TIMEOUT = (10, _T)
+
+
 def _attach_usage(result, kind: str, raw: dict):
     """Attache l'usage (tokens) normalisé au résultat, pour le comptage."""
     if isinstance(result, dict):
@@ -118,7 +124,7 @@ def call_gemini(prompt: str, json_schema: dict, api_key: str,
                 "responseSchema": json_schema,
             },
         },
-        timeout=60,
+        timeout=LLM_TIMEOUT,
     )
     if resp.status_code != 200:
         raise ProviderError(f"Gemini {resp.status_code}: {resp.text[:300]}")
@@ -151,7 +157,7 @@ def call_openrouter(prompt: str, json_schema: dict, api_key: str, model: str,
         resp = requests.post("https://openrouter.ai/api/v1/chat/completions",
                              headers={"Authorization": f"Bearer {api_key}",
                                       "Content-Type": "application/json"},
-                             json=pl, timeout=60)
+                             json=pl, timeout=LLM_TIMEOUT)
         if resp.status_code == 200:
             data = resp.json()
             text = data["choices"][0]["message"]["content"]
@@ -186,7 +192,7 @@ def call_openai_compatible(prompt: str, json_schema: dict, api_key: str, base_ur
             "response_format": {"type": "json_object"},
             "temperature": 0,
         },
-        timeout=120,
+        timeout=LLM_TIMEOUT,
     )
     if resp.status_code != 200:
         raise ProviderError(f"OpenAI-compat {resp.status_code}: {resp.text[:300]}")

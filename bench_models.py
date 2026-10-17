@@ -99,6 +99,16 @@ def _is_429(e) -> bool:
     return "429" in s or "rate" in s or "temporarily" in s or "quota" in s
 
 
+def _systemic(e) -> bool:
+    """Erreur qui touchera TOUTES les annonces de ce modèle (inutile d'insister) :
+    saturation (429), clé (401), slug (404). On abandonne le modèle pour gagner
+    du temps au lieu de refaire toutes les tentatives."""
+    s = str(e).lower()
+    return any(x in s for x in ("429", "rate", "temporarily", "quota",
+                                "401", "user not found", "no auth",
+                                "404", "no endpoints", "not found for"))
+
+
 def _call_retry(do_call: Callable):
     """Exécute do_call() (qui lève en cas d'erreur). Retente sur 429 avec backoff.
     Retourne (res|None, latence_s, err|None)."""
@@ -195,6 +205,9 @@ def evaluate_models(texts: list, specs: list, caller: Callable = real_caller,
                 err += 1
                 err_msg = err_msg or e or "réponse non-dict"
                 _vlog("    ✗ %.1fs — %s", dt, (e or "non-dict"))
+                if _systemic(e):
+                    log.warning("[%s] erreur systémique (saturation/clé/slug) -> modèle abandonné", spec["name"])
+                    break
                 continue
             ok += 1
             _vlog("    ✓ %.1fs", dt)
@@ -248,6 +261,9 @@ def evaluate_juges(texts: list, specs: list, ab_pairs: list,
                 err += 1
                 err_msg = err_msg or e or "pas de champ 'champs'"
                 _vlog("    ✗ %.1fs — %s", dt, (e or "pas de 'champs'"))
+                if _systemic(e):
+                    log.warning("[%s] erreur systémique -> modèle abandonné", spec["name"])
+                    break
                 continue
             ok += 1
             _vlog("    ✓ %.1fs", dt)
@@ -298,6 +314,9 @@ def evaluate_scoreurs(texts: list, specs: list, behaviors: Optional[list] = None
                 err += 1
                 err_msg = err_msg or e or "réponse non-dict"
                 _vlog("    ✗ %.1fs — %s", dt, (e or "non-dict"))
+                if _systemic(e):
+                    log.warning("[%s] erreur systémique -> modèle abandonné", spec["name"])
+                    break
                 continue
             ok += 1
             _vlog("    ✓ %.1fs", dt)
@@ -449,9 +468,13 @@ def main():
     ap.add_argument("--out", default="bench_results.json")
     ap.add_argument("-v", "--verbose", action="store_true",
                     help="affiche la progression en direct (chaque appel, succès/échec, durée)")
+    ap.add_argument("--timeout", type=float, default=90,
+                    help="secondes max par appel (coupe un modèle qui rame ; défaut 90)")
     args = ap.parse_args()
     global VERBOSE
     VERBOSE = VERBOSE or args.verbose
+    import layer3_extract_llm as _l3
+    _l3.LLM_TIMEOUT = (10, args.timeout)   # coupe les modèles trop lents
 
     from pdf_avis_extract import segment_avis_blocks
     from section_split import split_sections
