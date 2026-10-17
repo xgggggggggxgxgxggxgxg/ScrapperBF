@@ -28,3 +28,14 @@ def test_single_provider_degraded():
 
 def test_no_provider_returns_none():
     assert extract_fields("texte", "AVIS", providers=[]) is None
+
+
+def test_degraded_when_A_fails():
+    # L'extracteur A échoue (renvoie None -> a={}), B réussit : doit être dégradé
+    # (correctif : la dégradation ne doit pas examiner QUE B).
+    def _fail(name):
+        return {"name": name, "fn": lambda p, sc, sy, st: None}
+    out = extract_fields("texte", "AVIS", providers=[_fail("A"), _prov("B", B)], max_retries=1)
+    assert out["a"] == {}
+    assert out["b"]["objet"] == "Acquisition d'ordinateurs"
+    assert out["degrade"] is True

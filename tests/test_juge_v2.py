@@ -74,6 +74,26 @@ def test_scoreur_only_when_no_llm():
     assert dec["couleur"] in ("vert", "jaune", "rouge")
 
 
+def test_critical_swap_escalates():
+    # Échange date_limite_depot <-> date_ouverture_plis (champ critique).
+    a = dict(GOOD); a["date_limite_depot"] = "15/11/2026"; a["date_ouverture_plis"] = "20/11/2026"
+    b = dict(GOOD); b["date_limite_depot"] = "20/11/2026"; b["date_ouverture_plis"] = "15/11/2026"
+    # Avec juge-LLM qui arbitre -> au moins JAUNE (ne doit PAS passer en vert).
+    dec = juge.juger_avis(TEXT, a, b, providers=["x"], juge_llm_fn=_llm(GOOD, "bon"))
+    assert dec["couleur"] == "jaune"
+    # Sans juge-LLM (conflit critique non arbitré) -> ROUGE.
+    dec2 = juge.juger_avis(TEXT, a, b, providers=[], juge_llm_fn=None)
+    assert dec2["couleur"] == "rouge"
+
+
+def test_merge_null_dict_does_not_shadow_real_value():
+    fd = juge._defs("AVIS")
+    a = {"montant_previsionnel_global": {"htva": None, "ttc": None}}
+    b = {"montant_previsionnel_global": {"ttc": "80 000 000"}}
+    merged = juge._merge(a, b, fd)
+    assert merged["montant_previsionnel_global"] == {"ttc": "80 000 000"}
+
+
 def test_providers_juge_prefers_distinct_model():
     # 3 providers -> le juge-LLM prend le 3e (distinct de A=0 et B=1)
     assert juge._providers_juge(["A", "B", "C"])[0] == "C"

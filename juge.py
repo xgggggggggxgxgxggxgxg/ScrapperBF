@@ -48,14 +48,29 @@ def _defs(section: str) -> dict:
     return load_field_schema(section)
 
 
+def _blank(v) -> bool:
+    """Vide 'en profondeur' : None, chaîne blanche, ou conteneur dont TOUTES les
+    valeurs sont vides (ex. {"htva": null, "ttc": null}). Évite qu'un objet A plein
+    de null n'écrase une vraie valeur de B lors de la fusion."""
+    if v is None:
+        return True
+    if isinstance(v, str):
+        return not v.strip()
+    if isinstance(v, dict):
+        return all(_blank(x) for x in v.values())
+    if isinstance(v, (list, tuple, set)):
+        return all(_blank(x) for x in v)
+    return False
+
+
 def _merge(a: dict, b: Optional[dict], field_defs: dict) -> dict:
     """Fusion best-effort A/B (pour le scoreur quand il n'y a pas d'arbitre LLM) :
-    valeur de A si non vide, sinon celle de B."""
+    valeur de A si non vide (en profondeur), sinon celle de B."""
     out = {}
     b = b or {}
     for f in field_defs:
         va = a.get(f) if a else None
-        out[f] = va if not judge.is_empty(va) else b.get(f)
+        out[f] = va if not _blank(va) else b.get(f)
     return out
 
 
@@ -132,7 +147,11 @@ def juger_avis(text: str, a: dict, b: Optional[dict], section: str = "AVIS",
             "critique": d["champ"] in crit, "a": d["a"], "b": d["b"],
         })
     # Corrections du juge-LLM = points que le modèle a dû rectifier (informatif).
+    # On ignore les éléments mal formés (un modèle imparfait peut renvoyer autre
+    # chose qu'un dict).
     for c in (llm.get("corrections") if llm else []) or []:
+        if not isinstance(c, dict):
+            continue
         ch = c.get("champ")
         if ch and ch not in {x["champ"] for x in champs_en_conflit}:
             champs_en_conflit.append({"champ": ch, "cause": "correction_llm",
@@ -140,13 +159,21 @@ def juger_avis(text: str, a: dict, b: Optional[dict], section: str = "AVIS",
                                       "a": c.get("ancienne"), "b": c.get("nouvelle")})
 
     # --- Problèmes sur champs CRITIQUES (forcent le rouge) ---
+    # Conflits "graves" (gravité >= 2 : contradiction, échange de champs, correction
+    # LLM) indexés par champ. Un champ critique absent, OU en conflit grave non
+    # arbitré (pas de juge-LLM), force le rouge + réessai.
     crit_problem = []
-    contradictions = {d["champ"] for d in divs if d["cause"] == "contradiction"}
+    conflit_grave = {c["champ"]: c for c in champs_en_conflit if c["gravite"] >= 2}
     for f in crit:
         if not _present(champs_finaux, f):
             crit_problem.append({"champ": f, "cause": "absent"})
-        elif f in contradictions and llm is None:
-            crit_problem.append({"champ": f, "cause": "divergence_non_arbitree"})
+        elif f in conflit_grave and llm is None:
+            crit_problem.append({"champ": f, "cause": conflit_grave[f]["cause"]})
+
+    # Conflit grave sur un champ critique MAIS arbitré par le juge-LLM : on ne force
+    # pas le rouge (le LLM a tranché), mais ça mérite au moins un JAUNE (ex. un
+    # échange date_limite/date_ouverture, même résolu, doit être revu par un humain).
+    conflit_critique_arbitre = llm is not None and any(f in conflit_grave for f in crit)
 
     conflit_non_critique = any(c["gravite"] >= 2 and not c["critique"]
                                for c in champs_en_conflit)
@@ -182,11 +209,16 @@ def juger_avis(text: str, a: dict, b: Optional[dict], section: str = "AVIS",
                      "champs essentiels : " + champs_pb + ". "
                      "Ne laisse vide que si l'information est RÉELLEMENT absente."),
         }
-    elif conflit_non_critique or verdict_sc == "doute" or verdict_llm == "doute":
+    elif conflit_non_critique or conflit_critique_arbitre or verdict_sc == "doute" or verdict_llm == "doute":
         couleur, action = "jaune", "file_humaine"
-        jc = [c["champ"] for c in champs_en_conflit if not c["critique"]]
-        raison = ("Doute sur champ(s) non critique(s) : " + ", ".join(jc)
-                  if jc else "Doute léger sur l'extraction.") + " -> petite file humaine."
+        jc = [c["champ"] for c in champs_en_conflit if c["gravite"] >= 2]
+        if conflit_critique_arbitre:
+            raison = ("Conflit sur champ(s) critique(s) arbitré par le juge-LLM "
+                      "(à revérifier) : " + ", ".join(jc) + " -> petite file humaine.")
+        elif jc:
+            raison = "Doute sur champ(s) : " + ", ".join(jc) + " -> petite file humaine."
+        else:
+            raison = "Doute léger sur l'extraction -> petite file humaine."
     else:
         couleur, action = "vert", "base"
         raison = "Scoreur et juge-LLM concordent, aucun champ critique en défaut -> base."

@@ -84,9 +84,11 @@ def extract_fields(text: str, section: str = "AVIS", providers: Optional[list] =
         log.warning("extraction : A et B ont échoué")
         return None
 
-    degrade = b is None or not b
+    # Dégradé dès qu'il MANQUE une extraction, que ce soit A OU B (un seul avis
+    # exploitable -> juge sévère). b is None = un seul provider dès le départ.
+    degrade = (b is None) or (not a) or (not b)
     if degrade:
-        log.info("extraction : mode dégradé (un seul extracteur) -> juge sévère")
+        log.info("extraction : mode dégradé (une seule extraction exploitable) -> juge sévère")
 
     return {
         "a": a,
