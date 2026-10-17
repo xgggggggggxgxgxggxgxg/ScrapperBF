@@ -296,6 +296,71 @@ def format_table(results: dict, role: str = "extracteur") -> str:
     return "\n".join([line(rows[0]), "  ".join("-" * w[i] for i in range(len(cols)))] + [line(r) for r in rows[1:]])
 
 
+# Métrique(s) de classement par rôle (domaine d'utilisation).
+ROLE_METRIC = {
+    "extracteur": ("confiance_juge_moyenne", "remplissage_moyen"),
+    "juge": ("explique_divergence", "confiance_juge_moyenne"),
+    "scoreur": ("couverture_moyenne",),
+}
+ROLE_LABEL = {
+    "extracteur": "Extracteurs — domaine : extraction d'annonces en JSON (français)",
+    "juge": "Arbitres — domaine : trancher entre A/B et EXPLIQUER les divergences",
+    "scoreur": "Scoreurs — domaine : score comportemental (qualité souple)",
+}
+
+
+def rank_models(role: str, results: dict) -> list:
+    """Classe les modèles d'un rôle, MEILLEUR d'abord : métrique(s) du domaine
+    haute, puis moins d'erreurs, puis moins de tokens, puis plus rapide. PUR."""
+    keys = ROLE_METRIC.get(role, ("taux_json_valide",))
+
+    def score(s):
+        prim = tuple((s.get(k) or 0) for k in keys)
+        return prim + (-(s.get("erreurs") or 0),
+                       -(s.get("tokens_moyen_par_annonce") or 10**9),
+                       -(s.get("latence_moyenne_s") or 10**9))
+    return [name for name, _ in sorted(results.items(), key=lambda kv: score(kv[1]), reverse=True)]
+
+
+def build_report(results_by_role: dict, meta: dict, tokens: str = "") -> str:
+    """Rapport Markdown consolidé : un tableau + un gagnant par domaine, puis la
+    reco de production. PUR (testable)."""
+    L = [f"# Rapport de banc d'essai — modèles LLM",
+         "",
+         f"- **Bulletin** : {meta.get('pdf', '?')}",
+         f"- **Annonces testées** : {meta.get('n', '?')}",
+         f"- **Date** : {meta.get('date', '?')}",
+         ""]
+    winners = {}
+    for role in ("extracteur", "juge", "scoreur"):
+        res = results_by_role.get(role)
+        if not res:
+            continue
+        ranked = rank_models(role, res)
+        winners[role] = ranked
+        L += [f"## {ROLE_LABEL[role]}", "", "```", format_table(res, role), "```", ""]
+        if ranked:
+            L += [f"**Recommandé : `{ranked[0]}`**"
+                  + (f" · 2ᵉ : `{ranked[1]}`" if len(ranked) > 1 else ""), ""]
+    # Reco production
+    extr = winners.get("extracteur", [])
+    arb = winners.get("juge", [])
+    sco = winners.get("scoreur", [])
+    trio = (extr[:2] + arb[:1]) if (len(extr) >= 2 and arb) else (extr + arb)[:3]
+    L += ["## Recommandation de production", ""]
+    if trio:
+        L += ["```bash", "# consensus = 2 extracteurs + 1 arbitre",
+              "OPENROUTER_MODELS=" + ", ".join(trio)]
+        if sco:
+            L += ["ENABLE_SPAN_SCORING=1", f"SPAN_MODEL={sco[0]}"]
+        L += ["```", ""]
+    if tokens:
+        L += ["## Consommation de tokens", "", "```", tokens, "```", ""]
+    L += ["---", "_Indicateurs proxy (sans vérité terrain). Pour une exactitude "
+          "absolue par champ, relancer l'extracteur avec `--gold`._"]
+    return "\n".join(L)
+
+
 def _specs_from_models(models: list, provider: str) -> list:
     """Construit les specs à partir d'une liste d'ID de modèles (même provider)."""
     if provider == "openrouter":
@@ -323,8 +388,8 @@ def main():
     setup_logging()
     ap = argparse.ArgumentParser(description="Banc d'essai des modèles LLM par rôle")
     ap.add_argument("pdf", help="PDF de bulletin (ses annonces servent d'échantillon)")
-    ap.add_argument("--role", default="extracteur", choices=["extracteur", "juge", "scoreur"],
-                    help="rôle testé (choisit la tâche ET les modèles par défaut)")
+    ap.add_argument("--role", default="extracteur", choices=["extracteur", "juge", "scoreur", "all"],
+                    help="rôle testé ('all' = les 3 + rapport consolidé)")
     ap.add_argument("--models", help="IDs séparés par des virgules (sinon preset du rôle)")
     ap.add_argument("--provider", default="openrouter", choices=["openrouter", "gemini", "openai_compat"])
     ap.add_argument("--n", type=int, default=6, help="nombre d'annonces testées")
@@ -340,32 +405,36 @@ def main():
     if not texts:
         sys.exit("Aucune annonce extraite du PDF.")
 
-    models = ([m.strip() for m in args.models.split(",") if m.strip()]
-              if args.models else ROLE_PRESETS[args.role])
-    specs = _specs_from_models(models, args.provider)
-    log.info("Banc d'essai [%s] : %d modèle(s) × %d annonce(s)", args.role, len(specs), len(texts))
+    def _run_role(role: str) -> dict:
+        specs = _specs_from_models(
+            [m.strip() for m in args.models.split(",") if m.strip()] if (args.models and role == args.role)
+            else ROLE_PRESETS[role], args.provider)
+        log.info("Banc [%s] : %d modèle(s) × %d annonce(s)", role, len(specs), len(texts))
+        if role == "extracteur":
+            gold = json.loads(Path(args.gold).read_text(encoding="utf-8")) if args.gold else None
+            return evaluate_models(texts, specs, gold=gold)
+        if role == "juge":
+            ab_specs = _specs_from_models(ROLE_PRESETS["extracteur"][:2], "openrouter")
+            schema = build_json_schema(load_field_schema("AVIS"))
+            log.info("Génération A/B via %s + %s…", ab_specs[0]["model"], ab_specs[1]["model"])
+            ab = [(real_caller(ab_specs[0], t, schema)[0] or {},
+                   real_caller(ab_specs[1], t, schema)[0] or {}) for t in texts]
+            return evaluate_juges(texts, specs, ab)
+        return evaluate_scoreurs(texts, specs)
 
-    if args.role == "extracteur":
-        gold = json.loads(Path(args.gold).read_text(encoding="utf-8")) if args.gold else None
-        results = evaluate_models(texts, specs, gold=gold)
-    elif args.role == "juge":
-        # A/B produites par les 2 premiers extracteurs du roster (pour nourrir l'arbitre).
-        ab_specs = _specs_from_models(ROLE_PRESETS["extracteur"][:2], "openrouter")
-        schema = build_json_schema(load_field_schema("AVIS"))
-        log.info("Génération des extractions A/B via %s + %s…",
-                 ab_specs[0]["model"], ab_specs[1]["model"])
-        ab_pairs = []
-        for t in texts:
-            A = real_caller(ab_specs[0], t, schema)[0] or {}
-            B = real_caller(ab_specs[1], t, schema)[0] or {}
-            ab_pairs.append((A, B))
-        results = evaluate_juges(texts, specs, ab_pairs)
-    else:  # scoreur
-        results = evaluate_scoreurs(texts, specs)
+    roles = ["extracteur", "juge", "scoreur"] if args.role == "all" else [args.role]
+    results_by_role = {}
+    for role in roles:
+        res = _run_role(role)
+        results_by_role[role] = res
+        print(f"\n### {role}\n" + format_table(res, role))
+        Path(f"bench_{role}.json").write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print("\n" + format_table(results, args.role) + "\n")
-    Path(args.out).write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info("Détail -> %s | tokens cumulés :\n%s", args.out, token_tracker.report())
+    meta = {"pdf": Path(args.pdf).name, "n": len(texts),
+            "date": time.strftime("%Y-%m-%d %H:%M")}
+    report = build_report(results_by_role, meta, tokens=token_tracker.report())
+    Path("bench_report.md").write_text(report, encoding="utf-8")
+    log.info("Rapport -> bench_report.md | détail -> bench_<role>.json")
 
 
 if __name__ == "__main__":

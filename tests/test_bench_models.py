@@ -1,8 +1,51 @@
 """Tests hors-ligne du banc d'essai (appelant injecté, aucune requête réseau)."""
 from bench_models import (
     evaluate_models, evaluate_juges, evaluate_scoreurs, format_table, _match,
-    ROLE_PRESETS,
+    ROLE_PRESETS, rank_models, build_report,
 )
+
+
+def test_rank_models_by_domain_metric():
+    res = {
+        "faible": {"confiance_juge_moyenne": 0.6, "remplissage_moyen": 0.5,
+                   "erreurs": 1, "tokens_moyen_par_annonce": 900, "latence_moyenne_s": 1.0},
+        "fort": {"confiance_juge_moyenne": 0.95, "remplissage_moyen": 0.9,
+                 "erreurs": 0, "tokens_moyen_par_annonce": 1200, "latence_moyenne_s": 2.0},
+    }
+    assert rank_models("extracteur", res)[0] == "fort"     # meilleure confiance juge
+
+
+def test_rank_tiebreak_prefers_fewer_errors_then_cheaper():
+    res = {
+        "cher": {"couverture_moyenne": 1.0, "erreurs": 0, "tokens_moyen_par_annonce": 500, "latence_moyenne_s": 1.0},
+        "buggy": {"couverture_moyenne": 1.0, "erreurs": 2, "tokens_moyen_par_annonce": 100, "latence_moyenne_s": 0.5},
+    }
+    assert rank_models("scoreur", res)[0] == "cher"        # couverture égale -> moins d'erreurs
+
+
+def test_build_report_has_sections_and_prod_line():
+    rbr = {
+        "extracteur": {"A:free": {"confiance_juge_moyenne": 0.95, "remplissage_moyen": 0.9,
+                                  "json_valide": 5, "appels": 5, "taux_json_valide": 1.0,
+                                  "tokens_moyen_par_annonce": 1200, "tokens_total": 6000,
+                                  "latence_moyenne_s": 1.0, "debit_t_s": 100, "exactitude_gold": None, "erreurs": 0},
+                       "B:free": {"confiance_juge_moyenne": 0.9, "remplissage_moyen": 0.85,
+                                  "json_valide": 5, "appels": 5, "taux_json_valide": 1.0,
+                                  "tokens_moyen_par_annonce": 1000, "tokens_total": 5000,
+                                  "latence_moyenne_s": 1.0, "debit_t_s": 120, "exactitude_gold": None, "erreurs": 0}},
+        "juge": {"ARB:free": {"explique_divergence": 0.9, "confiance_juge_moyenne": 0.9,
+                              "json_valide": 5, "appels": 5, "taux_json_valide": 1.0,
+                              "remplissage_moyen": 0.9, "tokens_moyen_par_annonce": 800,
+                              "latence_moyenne_s": 2.0, "erreurs": 0}},
+        "scoreur": {"SC:free": {"couverture_moyenne": 1.0, "json_valide": 5, "appels": 5,
+                                "taux_json_valide": 1.0, "tokens_moyen_par_annonce": 300,
+                                "latence_moyenne_s": 0.5, "erreurs": 0}},
+    }
+    md = build_report(rbr, {"pdf": "N4500.pdf", "n": 5, "date": "2026-10-17"})
+    assert "# Rapport de banc d'essai" in md
+    assert "Extracteurs" in md and "Arbitres" in md and "Scoreurs" in md
+    assert "OPENROUTER_MODELS=A:free, B:free, ARB:free" in md   # 2 extracteurs + arbitre
+    assert "SPAN_MODEL=SC:free" in md
 
 
 TEXT_OK = ("MINISTERE X Acquisition de PC Avis de demande de prix n° 2026-1 "
