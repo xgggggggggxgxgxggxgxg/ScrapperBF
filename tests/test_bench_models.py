@@ -108,6 +108,16 @@ def test_call_retry_retries_on_429(monkeypatch):
     assert err is None and res == {"ok": True} and n["c"] == 3
 
 
+def test_verbose_logs_progress(monkeypatch, caplog):
+    import logging as _l, bench_models as bm
+    monkeypatch.setattr(bm, "VERBOSE", True)
+    with caplog.at_level(_l.INFO, logger="scrapperbf.bench"):
+        evaluate_models([TEXT_OK], [{"name": "m/free", "kind": "x", "model": "m"}],
+                        caller=_good, schema={})
+    txt = caplog.text
+    assert "extracteur m/free" in txt and "annonce 1/1" in txt and "✓" in txt
+
+
 def test_call_retry_gives_up_on_non_429(monkeypatch):
     import bench_models as bm
     monkeypatch.setattr(bm.time, "sleep", lambda *_: None)

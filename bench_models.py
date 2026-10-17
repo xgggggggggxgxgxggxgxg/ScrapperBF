@@ -85,6 +85,14 @@ def _prompt(text: str, schema: dict) -> str:
 BENCH_RETRY_429 = int(os.environ.get("BENCH_RETRY_429", "3"))
 BENCH_BACKOFF = float(os.environ.get("BENCH_BACKOFF", "6"))
 
+# Affichage détaillé de la progression (mis à True par --verbose).
+VERBOSE = os.environ.get("BENCH_VERBOSE", "0") not in ("0", "", "false", "False")
+
+
+def _vlog(msg, *args):
+    if VERBOSE:
+        log.info(msg, *args)
+
 
 def _is_429(e) -> bool:
     s = str(e).lower()
@@ -177,15 +185,19 @@ def evaluate_models(texts: list, specs: list, caller: Callable = real_caller,
         tin = tout = ttot = 0
         gold_hits = gold_tot = 0
         err_msg = None
+        _vlog("▶ extracteur %s : %d annonce(s)", spec["name"], len(texts))
         for i, text in enumerate(texts):
+            _vlog("  · %s — annonce %d/%d…", spec["name"], i + 1, len(texts))
             res, usage, dt, e = caller(spec, text, schema)
             appels += 1
             lat.append(dt)
             if e or not isinstance(res, dict):
                 err += 1
                 err_msg = err_msg or e or "réponse non-dict"
+                _vlog("    ✗ %.1fs — %s", dt, (e or "non-dict"))
                 continue
             ok += 1
+            _vlog("    ✓ %.1fs", dt)
             fill.append(sum(1 for f in CORE_FIELDS if res.get(f)) / len(CORE_FIELDS))
             conf.append(judge_avis(res, text).get("confiance", 0.0))
             if usage:
@@ -225,7 +237,9 @@ def evaluate_juges(texts: list, specs: list, ab_pairs: list,
         ttot = 0
         expl_ok = expl_tot = 0
         err_msg = None
-        for (a, b), text in zip(ab_pairs, texts):
+        _vlog("▶ arbitre %s : %d annonce(s)", spec["name"], len(texts))
+        for i, ((a, b), text) in enumerate(zip(ab_pairs, texts)):
+            _vlog("  · %s — annonce %d/%d…", spec["name"], i + 1, len(texts))
             res, usage, dt, e = caller(spec, text, a, b)
             appels += 1
             lat.append(dt)
@@ -233,8 +247,10 @@ def evaluate_juges(texts: list, specs: list, ab_pairs: list,
             if e or not isinstance(champs, dict):
                 err += 1
                 err_msg = err_msg or e or "pas de champ 'champs'"
+                _vlog("    ✗ %.1fs — %s", dt, (e or "pas de 'champs'"))
                 continue
             ok += 1
+            _vlog("    ✓ %.1fs", dt)
             fill.append(sum(1 for f in CORE_FIELDS if champs.get(f)) / len(CORE_FIELDS))
             conf.append(judge_avis(champs, text).get("confiance", 0.0))
             if usage:
@@ -272,15 +288,19 @@ def evaluate_scoreurs(texts: list, specs: list, behaviors: Optional[list] = None
         cover, lat = [], []
         ttot = 0
         err_msg = None
-        for text in texts:
+        _vlog("▶ scoreur %s : %d annonce(s)", spec["name"], len(texts))
+        for i, text in enumerate(texts):
+            _vlog("  · %s — annonce %d/%d…", spec["name"], i + 1, len(texts))
             res, usage, dt, e = caller(spec, text, behaviors)
             appels += 1
             lat.append(dt)
             if e or not isinstance(res, dict):
                 err += 1
                 err_msg = err_msg or e or "réponse non-dict"
+                _vlog("    ✗ %.1fs — %s", dt, (e or "non-dict"))
                 continue
             ok += 1
+            _vlog("    ✓ %.1fs", dt)
             notes = sum(1 for bb in behaviors if isinstance(res.get(bb), (int, float)))
             cover.append(notes / len(behaviors))
             if usage:
@@ -427,7 +447,11 @@ def main():
     ap.add_argument("--n", type=int, default=6, help="nombre d'annonces testées")
     ap.add_argument("--gold", help="JSON de vérité terrain (rôle extracteur)")
     ap.add_argument("--out", default="bench_results.json")
+    ap.add_argument("-v", "--verbose", action="store_true",
+                    help="affiche la progression en direct (chaque appel, succès/échec, durée)")
     args = ap.parse_args()
+    global VERBOSE
+    VERBOSE = VERBOSE or args.verbose
 
     from pdf_avis_extract import segment_avis_blocks
     from section_split import split_sections
