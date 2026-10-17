@@ -52,6 +52,7 @@ AVIS:
     type: string
     description: "Ministère/région/commune/institution qui émet l'avis"
     required: true
+    critique: true        # champ CRITIQUE : un doute ici bascule seul en rouge
   categorie:
     type: string
     description: "Fournitures et services courants / Travaux / Prestations intellectuelles"
@@ -59,6 +60,7 @@ AVIS:
     type: string
     description: "Description précise du besoin"
     required: true
+    critique: true        # champ CRITIQUE
   type_avis:
     type: string
     description: "Ex: Avis de demande de prix, Appel d'offres ouvert accéléré, etc."
@@ -70,6 +72,7 @@ AVIS:
     description: "Source de financement et année d'exercice"
   montant_previsionnel_global:
     type: object
+    critique: true        # champ CRITIQUE
     properties:
       htva:
         type: string
@@ -117,6 +120,7 @@ AVIS:
   date_limite_depot:
     type: string
     description: "Date, heure et lieu de dépôt des offres"
+    critique: true        # champ CRITIQUE
   date_ouverture_plis:
     type: string
     description: "Date, heure et lieu d'ouverture des plis (globale ou par lot)"

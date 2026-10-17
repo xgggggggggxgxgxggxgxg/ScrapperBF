@@ -49,6 +49,7 @@ import ocr_fallback
 import token_tracker
 import span_scorer
 import judge
+import juge as juge_v2  # orchestrateur v2 (scoreur code pur + juge-LLM) pour les AVIS
 
 DB_PATH = BASE_DIR / "ingestion.db"
 OUTPUT_DIR = BASE_DIR / "output"
@@ -57,6 +58,10 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # Couche 4 (auto-analyse + auto-complétion) activée par défaut ; désactivable
 # (ENABLE_REVIEW=0) pour un run purement déterministe/première passe.
 ENABLE_REVIEW = os.environ.get("ENABLE_REVIEW", "1") not in ("0", "false", "False", "")
+
+# Nouveau flux AVIS (v2) : extraction A/B -> juge (scoreur code pur + juge-LLM)
+# -> vert/jaune/rouge. JUGE_V2=0 pour repasser à l'ancien consensus.
+JUGE_V2 = os.environ.get("JUGE_V2", "1") not in ("0", "false", "False", "")
 
 # On n'appelle l'API que si la révision est activée ET qu'au moins un provider
 # est configuré (sinon : chaîne 100 % déterministe, aucune erreur réseau).
@@ -242,8 +247,32 @@ def process_pdf(pdf_path: str, numero: str = None):
 
     def _finalize_avis(rec, text, fmt_info):
         enrich_coverage(rec)
-        if use_api:
-            # Extraction par CONSENSUS (2 extracteurs + 1 arbitre).
+        if use_api and JUGE_V2:
+            # --- Flux v2 : extraction A/B -> juge (scoreur + juge-LLM) ------
+            dec = juge_v2.traiter_avis(text, "AVIS", numero=numero, index=len(avis_out))
+            if dec is not None:
+                for k, v in dec["champs_finaux"].items():
+                    if not str(k).startswith("_"):
+                        rec[k] = v
+                enrich_coverage(rec)
+                rec["_juge_v2"] = {
+                    "couleur": dec["couleur"], "action": dec["action"],
+                    "score": dec["score"], "verdict_scoreur": dec["verdict_scoreur"],
+                    "verdict_llm": dec["verdict_llm"],
+                    "pourquoi_divergence_juges": dec["pourquoi_divergence_juges"],
+                    "raison": dec["raison"],
+                    "champs_critiques_manquants": dec["champs_critiques_manquants"],
+                    "champs_en_conflit": dec["champs_en_conflit"],
+                    "regles_appliquees": dec.get("regles_appliquees", []),
+                    "reessaye": dec.get("_reessaye", False),
+                    "dossier": dec.get("_dossier"),
+                }
+                rec["_judge"] = juge_v2.to_judge_compat(dec)
+            else:  # aucun provider -> chaîne déterministe (regex retiré : pas de champs)
+                rec["_decision"] = {"needs_llm": decide(rec, text)["needs_llm"]}
+                rec["_judge"] = judge.judge_avis(rec, text)
+        elif use_api:
+            # --- Ancien flux : extraction par CONSENSUS (2 extracteurs + 1 arbitre).
             ex = consensus_extract(text, "AVIS")
             if ex is not None:
                 rec["_consensus"] = ex.pop("_consensus", None)
@@ -264,10 +293,11 @@ def process_pdf(pdf_path: str, numero: str = None):
             sc = rec.get("_score_exactitude")
             if sc is not None and sc < 100:
                 feedback_store.record(rec.get("_raisons_ecart", []), numero, "AVIS", score=sc)
+            rec["_judge"] = judge.judge_avis(rec, text)
         else:
             rec["_decision"] = {"needs_llm": decide(rec, text)["needs_llm"]}
+            rec["_judge"] = judge.judge_avis(rec, text)
         rec["_format"] = fmt_info
-        rec["_judge"] = judge.judge_avis(rec, text)
         # Triplet incomplet (titre cyan sans émetteur jaune et/ou catégorie rouge
         # au-dessus) : on n'est pas sûr du début d'annonce -> revue humaine.
         if rec.get("_triplet_complet") is False:
