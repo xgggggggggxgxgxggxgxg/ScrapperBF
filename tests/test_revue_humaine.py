@@ -45,6 +45,21 @@ def test_correction_creates_rule_and_closes(tmp_path):
     assert rules[0]["champ"] == "montant_previsionnel_global"
 
 
+def test_creer_dossier_idempotent_preserves_correction(tmp_path):
+    regles_path = tmp_path / "regles.json"
+    revue_humaine.creer_dossier(DECISION, "texte", "N4503", 2, base=tmp_path)
+    revue_humaine.appliquer_correction(
+        "N4503-AVIS-2", "montant_previsionnel_global",
+        quoi_faire="recopier le TTC", valeur_correcte={"ttc": "80 000 000"},
+        base=tmp_path, regles_path=regles_path)
+    # Re-traitement : creer_dossier rappelé pour le même (numero, index) ne doit PAS
+    # écraser la correction humaine.
+    again = revue_humaine.creer_dossier(DECISION, "texte", "N4503", 2, base=tmp_path)
+    assert again["statut"] == "corrige"
+    assert again["corrections"]  # la correction est préservée
+    assert again["champs_proposes"]["montant_previsionnel_global"] == {"ttc": "80 000 000"}
+
+
 def test_lister_filtre_par_statut(tmp_path):
     revue_humaine.creer_dossier(DECISION, "t", "N1", 0, base=tmp_path)
     assert len(revue_humaine.lister("en_attente", base=tmp_path)) == 1

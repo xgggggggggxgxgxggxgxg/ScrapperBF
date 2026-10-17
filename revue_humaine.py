@@ -17,7 +17,9 @@ Stockage simple en fichiers JSON sous output/revue_humaine/. Pur / hors-ligne.
 """
 
 import json
+import os
 import logging
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -33,6 +35,23 @@ def _dir(base: Optional[Path] = None) -> Path:
     d = Path(base) if base else REVUE_DIR
     d.mkdir(parents=True, exist_ok=True)
     return d
+
+
+def _write_json(path: Path, obj) -> None:
+    """Écriture ATOMIQUE d'un dossier (temp + os.replace) : jamais de fichier à
+    moitié écrit si un relecteur lit la file au même moment. NB : pas de verrou
+    inter-processus (usage prévu : un relecteur à la fois)."""
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=".dossier-", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(obj, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, path)
+    except Exception:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
 
 
 def creer_dossier(decision: dict, text: str, numero: str, index: int,
@@ -63,7 +82,23 @@ def creer_dossier(decision: dict, text: str, numero: str, index: int,
         "corrections": [],                  # rempli par appliquer_correction
     }
     path = d / f"{dossier['id']}.json"
-    path.write_text(json.dumps(dossier, ensure_ascii=False, indent=2), encoding="utf-8")
+    # Idempotence : ne JAMAIS écraser un dossier déjà CORRIGÉ par un humain.
+    # creer_dossier est rappelé pour un même (numero, section, index) lors d'un
+    # re-traitement (run précédent interrompu -> statut SQLite resté 'en_cours',
+    # donc already_processed() retourne False). Si le dossier a été passé à
+    # 'corrige' entre-temps, le réécrire effacerait la correction (corrections,
+    # champs_proposes, statut) et le ferait réapparaître dans la file.
+    if path.exists():
+        try:
+            existant = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            existant = None
+        if isinstance(existant, dict) and existant.get("statut") == "corrige":
+            existant["_path"] = str(path)
+            log.info("dossier revue humaine %s déjà corrigé -> conservé (pas d'écrasement)",
+                     dossier["id"])
+            return existant
+    _write_json(path, dossier)
     dossier["_path"] = str(path)
     log.info("dossier revue humaine %s (%s) -> %s", dossier["id"], dossier["couleur"], path)
     return dossier
@@ -93,7 +128,7 @@ def appliquer_correction(dossier_id: str, champ: str, quoi_faire: str,
     dossier["corrections"].append(correction)
     dossier["champs_proposes"][champ] = valeur_correcte  # valeur finale retenue
     dossier["statut"] = "corrige"
-    path.write_text(json.dumps(dossier, ensure_ascii=False, indent=2), encoding="utf-8")
+    _write_json(path, dossier)
 
     # Apprentissage : la correction devient une règle par type de situation.
     regle = regles.add_rule(

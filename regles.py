@@ -27,7 +27,9 @@ veux le garder local ; ici versionné vide par défaut).
 """
 
 import json
+import os
 import logging
+import tempfile
 import unicodedata
 from datetime import datetime
 from pathlib import Path
@@ -36,6 +38,12 @@ from typing import Optional
 log = logging.getLogger("scrapperbf.regles")
 
 REGLES_PATH = Path(__file__).parent / "regles.json"
+
+# NOTE concurrence : la lecture-modification-écriture de regles.json (add_rule) et
+# des dossiers de revue n'est PAS verrouillée entre processus. L'écriture est rendue
+# ATOMIQUE (fichier temporaire + os.replace) pour éviter un fichier à moitié écrit,
+# mais en cas de corrections VRAIMENT simultanées (deux `revue_cli corriger` en
+# parallèle) le dernier écrivain gagne. Usage prévu : un relecteur à la fois.
 
 
 def _fold(s) -> str:
@@ -51,15 +59,41 @@ def load_rules(path: Optional[Path] = None) -> list:
         return []
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
-        return data if isinstance(data, list) else data.get("regles", [])
     except Exception as e:
         log.warning("regles.json illisible (%s) -> aucune règle", e)
         return []
+    # Accepte un tableau [...] OU un objet {"regles": [...]}. Dans tous les cas,
+    # garantit le CONTRAT « renvoie toujours une liste » : un fichier édité à la
+    # main avec {"regles": {...}} / {"regles": null} / scalaire ne doit pas faire
+    # planter les consommateurs qui itèrent (match_rules, format_for_prompt, add_rule).
+    if isinstance(data, list):
+        v = data
+    elif isinstance(data, dict):
+        v = data.get("regles", [])
+    else:
+        v = []
+    if not isinstance(v, list):
+        log.warning("regles.json : valeur inattendue (%s) -> aucune règle", type(v).__name__)
+        return []
+    return v
 
 
 def save_rules(rules: list, path: Optional[Path] = None) -> None:
+    """Écriture ATOMIQUE : fichier temporaire dans le même dossier puis os.replace,
+    pour ne jamais laisser un regles.json à moitié écrit (lecture concurrente)."""
     p = Path(path or REGLES_PATH)
-    p.write_text(json.dumps(rules, ensure_ascii=False, indent=2), encoding="utf-8")
+    p.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=str(p.parent), prefix=".regles-", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(rules, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, p)
+    except Exception:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
 
 
 def match_rules(text: str, section: str, rules: Optional[list] = None) -> list:

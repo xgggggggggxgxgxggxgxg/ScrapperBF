@@ -12,15 +12,15 @@
 - Branchement pipeline AVIS derrière `JUGE_V2` (défaut actif). RÉSULTATS inchangé.
 - 7 améliorations post-revue (modèle juge distinct, scoreur indépendant, cache, logs,
   confiance par couleur, montant en lettres) + 4 correctifs de la revue adverse round 1.
+- **Revue adverse round 2** (terminée, avec vérification) : 3 correctifs supplémentaires —
+  `load_rules` robuste aux `regles.json` mal formés, dossier corrigé non écrasé au
+  re-traitement, écritures atomiques (regles + dossiers).
 - README à jour (flux v2 + CLI).
 
 ## 🔜 À faire
 
 ### Priorité haute
-1. **Revue adverse round 2** (en cours) : 3 dimensions jamais examinées round 1
-   (règles/revue E/S, conformité spec, intégration pipeline) + re-check anti-régression
-   de `juge.py`. → traiter les findings confirmés quand le workflow se termine.
-2. **Run réel end-to-end** avec de vraies clés API sur un PDF de Quotidien. Tout est
+1. **Run réel end-to-end** avec de vraies clés API sur un PDF de Quotidien. Tout est
    testé **hors-ligne** (providers injectés) ; le flux n'a **jamais** tourné avec de
    vrais modèles. À vérifier : A et B distincts, juge-LLM sur un 3ᵉ modèle, création
    effective des dossiers 🟡/🔴, coût/tokens.
@@ -46,5 +46,3 @@
    décider s'il se branche en parallèle du nouveau juge.
 9. **CLI** : pas de pagination ni de recherche dans les dossiers ; possible ajout si le
    volume de revue grandit.
-10. **Refaire tourner la phase de vérification** de la revue round 1 (jamais exécutée :
-    coupée par la limite de session).

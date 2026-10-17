@@ -35,6 +35,25 @@ def test_dedup(tmp_path):
     assert len(regles.load_rules(p)) == 1  # pas de doublon
 
 
+def test_load_rules_robust_to_bad_shapes(tmp_path):
+    import json as _json
+    # Objet {"regles": <objet>} édité à la main -> ne doit PAS planter, renvoie []
+    p = tmp_path / "regles.json"
+    p.write_text(_json.dumps({"regles": {"r1": {"section": "AVIS"}}}), encoding="utf-8")
+    assert regles.load_rules(p) == []
+    # {"regles": null} et scalaire -> []
+    p.write_text(_json.dumps({"regles": None}), encoding="utf-8")
+    assert regles.load_rules(p) == []
+    p.write_text("7", encoding="utf-8")
+    assert regles.load_rules(p) == []
+    # Le wrapper valide {"regles": [...]} fonctionne toujours
+    p.write_text(_json.dumps({"regles": [{"section": "AVIS", "champ": "objet"}]}), encoding="utf-8")
+    assert len(regles.load_rules(p)) == 1
+    # Et le consommateur n'explose pas sur une forme bancale
+    p.write_text(_json.dumps({"regles": 7}), encoding="utf-8")
+    assert regles.match_rules("texte", "AVIS", regles.load_rules(p)) == []
+
+
 def test_format_for_prompt(tmp_path):
     p = tmp_path / "regles.json"
     regles.add_rule("AVIS", "objet", "situation X", "faire Y",
