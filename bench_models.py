@@ -478,6 +478,10 @@ def main():
                     help="affiche la progression en direct (chaque appel, succès/échec, durée)")
     ap.add_argument("--timeout", type=float, default=90,
                     help="secondes max par appel (coupe un modèle qui rame ; défaut 90)")
+    ap.add_argument("--ab-models", dest="ab_models",
+                    help="rôle juge : modèle(s) générant les extractions A/B "
+                         "(1 ou 2 slugs). Défaut = 2 premiers extracteurs du roster. "
+                         "Mets un modèle QUI RÉPOND, ex. liquid/lfm-2.5-2.6b:free")
     args = ap.parse_args()
     global VERBOSE
     VERBOSE = VERBOSE or args.verbose
@@ -501,7 +505,11 @@ def main():
             gold = json.loads(Path(args.gold).read_text(encoding="utf-8")) if args.gold else None
             return evaluate_models(texts, specs, gold=gold)
         if role == "juge":
-            ab_specs = _specs_from_models(ROLE_PRESETS["extracteur"][:2], "openrouter")
+            ab_models = ([m.strip() for m in args.ab_models.split(",") if m.strip()]
+                         if args.ab_models else ROLE_PRESETS["extracteur"][:2])
+            if len(ab_models) == 1:          # un seul modèle -> sert pour A ET B
+                ab_models = ab_models * 2
+            ab_specs = _specs_from_models(ab_models[:2], "openrouter")
             schema = build_json_schema(load_field_schema("AVIS"))
             log.info("Génération A/B via %s + %s…", ab_specs[0]["model"], ab_specs[1]["model"])
             ab = [(real_caller(ab_specs[0], t, schema)[0] or {},
