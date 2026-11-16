@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paramètres · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="settings"></div>
+<main class="main" id="main-content">
+  <div style="margin-bottom:24px"><h1 style="font-size:22px;font-weight:800;margin:0 0 4px">Paramètres</h1><p class="muted" style="margin:0">Gérez votre compte et personnalisez votre expérience Veille BF.</p></div>
+  <div class="sp-grid">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="sp-card" style="text-align:center"><div class="sp-avatar">AJ</div><div style="font-weight:700;font-size:14.5px">Ayedji Jaciel</div><div class="muted" style="font-size:12px">jacileonayedji@gmail.com</div><span class="badge completed" style="margin-top:8px">Utilisateur</span></div>
+      <div class="sp-card"><div class="sp-tabs">
+        <button class="sp-tab active" data-tab="profile"><i data-icon="user" data-size="16"></i> Mon profil</button>
+        <button class="sp-tab" data-tab="notif"><i data-icon="bell" data-size="16"></i> Notifications</button>
+        <button class="sp-tab" data-tab="security"><i data-icon="shield" data-size="16"></i> Sécurité</button>
+        <button class="sp-tab" data-tab="prefs"><i data-icon="settings" data-size="16"></i> Préférences</button>
+        <button class="sp-tab" data-tab="sub"><i data-icon="zap" data-size="16"></i> Abonnement</button>
+      </div></div>
+      <div class="sp-card"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Mon compte</div><div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:var(--muted)"><div style="display:flex;gap:6px;align-items:center"><i data-icon="calendar" data-size="14"></i> Depuis le 15/11/2026</div><div style="display:flex;gap:6px;align-items:center"><i data-icon="zap" data-size="14"></i> Abonnement Découverte</div><div style="display:flex;gap:6px;align-items:center"><i data-icon="badge-check" data-size="14"></i> Compte actif</div></div></div>
+    </div>
+    <div class="sp-card" style="padding:28px 30px">
+      <div data-pane="profile">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px"><div class="si-ico" style="width:30px;height:30px;border-radius:8px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center"><i data-icon="user" data-size="16"></i></div><h2 style="margin:0;font-size:16px;font-weight:800">Mon profil</h2></div>
+        <p class="muted" style="margin:0 0 22px 39px;font-size:13px">Vos informations personnelles et professionnelles</p>
+        <div class="sp-grid2">
+          <div class="sp-field"><label>Nom complet *</label><input value="Ayedji Jaciel"></div>
+          <div class="sp-field"><label>Adresse e-mail</label><input value="jacileonayedji@gmail.com" disabled><p class="sp-hint">L'e-mail ne peut pas être modifié.</p></div>
+          <div class="sp-field"><label>Entreprise / Organisation</label><input placeholder="Ex : BTP Burkina SARL"></div>
+          <div class="sp-field"><label>Fonction / Poste</label><input placeholder="Ex : Directeur Achats"></div>
+          <div class="sp-field"><label>Téléphone</label><input placeholder="+226 70 XX XX XX"></div>
+          <div class="sp-field"><label>Rôle Veille BF</label><input value="Utilisateur" disabled></div>
+          <div class="sp-field"><label>Ville</label><input placeholder="Ex : Ouagadougou"></div>
+          <div class="sp-field"><label>Pays</label><select><option>Burkina Faso</option><option>Côte d'Ivoire</option><option>Mali</option><option>Niger</option></select></div>
+        </div>
+        <div style="margin-top:24px;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--line);display:flex;gap:28px;flex-wrap:wrap;max-width:640px">
+          <div><div class="muted" style="font-size:11.5px;margin-bottom:3px">Date de création</div><div style="font-size:13.5px;font-weight:600;display:flex;gap:5px;align-items:center"><i data-icon="calendar" data-size="14"></i> 15/11/2026</div></div>
+          <div><div class="muted" style="font-size:11.5px;margin-bottom:3px">Dernière connexion</div><div style="font-size:13.5px;font-weight:600;display:flex;gap:5px;align-items:center"><i data-icon="clock" data-size="14"></i> À l'instant</div></div>
+          <div><div class="muted" style="font-size:11.5px;margin-bottom:3px">Statut du compte</div><div style="font-size:13.5px;font-weight:600;color:var(--success)">● Actif</div></div>
+        </div>
+        <button class="button" style="margin-top:18px" data-toast="Profil enregistré"><i data-icon="save" data-size="15"></i> Enregistrer</button>
+      </div>
+      <div data-pane="notif" hidden>
+        <h2>Notifications</h2><p class="muted" style="font-size:13px">Choisissez comment Veille BF vous alerte des nouveaux marchés.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px;max-width:520px">
+          <label style="display:flex;justify-content:space-between;align-items:center"><span>Nouveaux marchés de mon secteur</span><input type="checkbox" checked></label>
+          <label style="display:flex;justify-content:space-between;align-items:center"><span>Rappel d'échéance (J-3)</span><input type="checkbox" checked></label>
+          <label style="display:flex;justify-content:space-between;align-items:center"><span>Résultats provisoires</span><input type="checkbox"></label>
+          <label style="display:flex;justify-content:space-between;align-items:center"><span>Alertes par WhatsApp <span class="badge" style="background:var(--accent-light);color:var(--accent)">PRO</span></span><input type="checkbox" disabled></label>
+        </div>
+        <button class="button" style="margin-top:18px" data-toast="Préférences enregistrées"><i data-icon="save" data-size="15"></i> Enregistrer</button>
+      </div>
+      <div data-pane="security" hidden>
+        <h2>Sécurité</h2><p class="muted" style="font-size:13px">Gérez votre mot de passe et vos connexions.</p>
+        <div class="sp-grid2" style="margin-top:16px">
+          <div class="sp-field"><label>Mot de passe actuel</label><input type="password" placeholder="••••••••"></div>
+          <div class="sp-field"><label>Nouveau mot de passe</label><input type="password" placeholder="Min. 8 caractères"></div>
+        </div>
+        <button class="button" style="margin-top:18px" data-toast="Mot de passe mis à jour (démo)"><i data-icon="shield-check" data-size="15"></i> Mettre à jour</button>
+      </div>
+      <div data-pane="prefs" hidden>
+        <h2>Préférences</h2><p class="muted" style="font-size:13px">Apparence et langue de l'interface.</p>
+        <div style="margin-top:16px;max-width:520px;display:flex;flex-direction:column;gap:14px">
+          <label style="display:flex;justify-content:space-between;align-items:center"><span>Thème sombre</span><button class="button secondary-button" id="pref-theme">Basculer</button></label>
+          <div class="sp-field"><label>Langue</label><select><option>Français</option><option>English</option></select></div>
+        </div>
+      </div>
+      <div data-pane="sub" hidden>
+        <h2>Abonnement</h2><p class="muted" style="font-size:13px">Vous êtes actuellement sur le plan <strong>Découverte</strong> (gratuit).</p>
+        <div class="panel" style="margin-top:16px;max-width:520px"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>Plan Découverte</strong><div class="muted" style="font-size:12px">20 marchés · recherche limitée</div></div><a class="button" href="upgrade.html">Passer à PRO</a></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  document.querySelectorAll('.sp-tab').forEach(function(t){ t.addEventListener('click',function(){
+    document.querySelectorAll('.sp-tab').forEach(function(x){x.classList.remove('active');}); t.classList.add('active');
+    document.querySelectorAll('[data-pane]').forEach(function(p){ p.hidden=p.dataset.pane!==t.dataset.tab; });
+  }); });
+  document.addEventListener('click',function(e){ if(e.target&&e.target.id==='pref-theme'){ var dark=document.documentElement.getAttribute('data-theme')==='dark'; var n=dark?'light':'dark'; document.documentElement.setAttribute('data-theme',n); try{localStorage.setItem('veillebf-theme',n);}catch(x){} } });
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

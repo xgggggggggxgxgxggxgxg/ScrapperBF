@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autorités contractantes · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="authorities"></div>
+<main class="main" id="main-content">
+  <div style="margin-bottom:22px"><h1 style="font-size:24px;font-weight:800;margin:0 0 4px">Autorités contractantes</h1><p class="muted" style="margin:0">Analysez les acheteurs publics, leurs marchés et leurs habitudes d'achat.</p></div>
+  <div class="aut-kpis">
+    <div class="aut-kpi"><div class="aut-kpi-ico" style="background:var(--primary-light);color:var(--primary)"><i data-icon="landmark" data-size="18"></i></div><div class="aut-kpi-val">11</div><div class="aut-kpi-lbl">Autorités référencées</div></div>
+    <div class="aut-kpi"><div class="aut-kpi-ico" style="background:var(--blue-light);color:var(--blue)"><i data-icon="chart-no-axes-column" data-size="18"></i></div><div class="aut-kpi-val">20</div><div class="aut-kpi-lbl">Marchés publiés</div></div>
+    <div class="aut-kpi"><div class="aut-kpi-ico" style="background:var(--accent-light);color:var(--accent)"><i data-icon="trophy" data-size="18"></i></div><div class="aut-kpi-val">0</div><div class="aut-kpi-lbl">Attributions recensées</div></div>
+    <div class="aut-kpi"><div class="aut-kpi-ico" style="background:var(--danger-light);color:var(--danger)"><i data-icon="coins" data-size="18"></i></div><div class="aut-kpi-val">5.3 Md</div><div class="aut-kpi-lbl">Montant total publié</div></div>
+    <div class="aut-kpi"><div class="aut-kpi-ico" style="background:var(--blue-light);color:var(--blue)"><i data-icon="calendar" data-size="18"></i></div><div class="aut-kpi-val">11</div><div class="aut-kpi-lbl">Actives cette année</div></div>
+    <div class="aut-kpi"><div class="aut-kpi-ico" style="background:var(--primary-light);color:var(--primary)"><i data-icon="users" data-size="18"></i></div><div class="aut-kpi-val">6</div><div class="aut-kpi-lbl">Nouveaux acheteurs</div></div>
+  </div>
+  <div class="panel">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div class="search-box" style="flex:1"><i data-icon="search" data-size="16"></i><input id="q" placeholder="Rechercher une autorité, un ministère…"></div>
+      <select class="list-tools" id="sort" style="border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--ink)"><option value="markets">↓ Marchés</option><option value="name">A → Z</option></select>
+      <button class="button secondary-button" data-toast="Filtres (démo)"><i data-icon="filter" data-size="15"></i> Filtres</button>
+    </div>
+    <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Autorité</th><th>Type</th><th>Région</th><th>Marchés</th><th>Attributions</th><th>Montant total</th><th>Dernière activité</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="table-pager"><span>11 autorités</span><div style="display:flex;gap:6px;align-items:center"><button class="button secondary-button" disabled>← Précédent</button><span>Page 1 / 1</span><button class="button secondary-button" disabled>Suivant →</button></div></div>
+  </div>
+</main>
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  var D=window.DATA, rows=D.authorities.slice();
+  function render(){
+    var q=document.getElementById('q').value.toLowerCase(), sort=document.getElementById('sort').value;
+    var list=rows.filter(function(a){ return a[0].toLowerCase().indexOf(q)>-1; });
+    if(sort==='name') list.sort(function(a,b){return a[0]<b[0]?-1:1;}); else list.sort(function(a,b){return b[3]-a[3];});
+    document.getElementById('rows').innerHTML=list.map(function(a){
+      return '<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="ent-icon"><i data-icon="landmark" data-size="16"></i></div><div style="font-weight:600;font-size:13px;line-height:1.3">'+a[0]+'</div></div></td>'
+        +'<td><span class="auth-badge">'+a[1]+'</span></td><td class="muted">'+a[2]+'</td><td>'+a[3]+' marchés</td><td class="muted">'+a[4]+'</td><td style="font-weight:700">'+a[5]+'</td><td class="muted">13/11/2026</td>'
+        +'<td><div class="row-actions"><a href="search.html" title="Fiche"><i data-icon="eye" data-size="15"></i></a><button data-toast="Veille activée"><i data-icon="bell" data-size="15"></i></button></div></td></tr>';
+    }).join('');
+    window.renderIcons(document.getElementById('rows'));
+  }
+  document.getElementById('q').addEventListener('input',render);
+  document.getElementById('sort').addEventListener('change',render);
+  render();
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Archives des avis (depuis 2022) · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="directory"></div>
+<main class="main" id="main-content">
+  <section class="cl-hero">
+    <div>
+      <p class="cl-eyebrow"><i data-icon="archive" data-size="13"></i> Base documentaire DGCMEF</p>
+      <h1 class="cl-h1">Archives des avis <span class="ent-badge" style="vertical-align:middle"><i data-icon="history" data-size="13"></i> Enterprise</span></h1>
+      <p class="cl-hero-copy">Tous les bulletins « Quotidien » (PDF d'avis d'appels d'offres) publiés par la DGCMEF depuis 2022. Recherchez un bulletin par numéro, date ou année, puis consultez ou extrayez une page précise.</p>
+    </div>
+  </section>
+
+  <div class="upsell-banner" style="border-color:var(--accent)">
+    <div><div class="ub-title" style="color:var(--accent)">🔒 Archive réservée au plan Enterprise</div><div class="ub-text">Aperçu de démonstration. La consultation des PDF, l'extraction de page et le téléchargement depuis 2022 sont inclus dans le plan <strong>Enterprise</strong> (grandes entreprises).</div></div>
+    <a href="upgrade.html" class="button" style="background:var(--accent)">Passer à Enterprise — 75 000 FCFA/mois</a>
+  </div>
+
+  <div class="aut-kpis" id="kpis"></div>
+
+  <div class="panel" style="margin-bottom:16px">
+    <h2 style="display:flex;align-items:center;gap:8px"><i data-icon="file-text" data-size="16"></i> Extraire une page précise</h2>
+    <div class="extract-row">
+      <label>Bulletin N°<input id="ex-num" placeholder="Ex : 4505" inputmode="numeric"></label>
+      <label>Page<input id="ex-page" placeholder="Ex : 29" inputmode="numeric"></label>
+      <button class="button" id="ex-go"><i data-icon="file-text" data-size="15"></i> Extraire la page</button>
+    </div>
+    <p class="muted" style="font-size:12px;margin:10px 0 0">Indiquez le numéro du bulletin et la page recherchée pour en extraire l'avis correspondant.</p>
+  </div>
+
+  <div class="panel">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div class="search-box" style="flex:1"><i data-icon="search" data-size="16"></i><input id="q" placeholder="Numéro de bulletin ou date (ex : 4490, 13/11/2026)…"></div>
+      <select id="year" style="border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--ink)"><option value="">Toutes les années</option></select>
+      <button class="button secondary-button" data-toast="Téléchargement groupé réservé au plan Enterprise"><i data-icon="download" data-size="15"></i> Exporter</button>
+    </div>
+    <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Bulletin</th><th>Date</th><th>Jour</th><th>Avis publiés</th><th>Pages</th><th>Taille</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="table-pager"><span id="count">—</span><span class="muted" id="shown"></span></div>
+  </div>
+
+  <div class="app-footer"><span>Bulletins « Quotidien » des marchés publics du Burkina Faso (données illustratives, 2022–2026).</span><span>© 2026 Veille BF · Tous droits réservés</span></div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  var A=window.DATA.archive, JOURS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  // Génère la liste des bulletins en remontant depuis l'ancrage, jours ouvrés uniquement.
+  function hash(n){ var x=Math.sin(n*12.9898)*43758.5453; return x-Math.floor(x); }
+  var bulletins=[], d=new Date(A.anchorDate+'T00:00:00'), num=A.anchorNum;
+  while(d.getFullYear()>=A.firstYear){
+    var wd=d.getDay();
+    if(wd!==0 && wd!==6){
+      var h=hash(num), avis=8+Math.floor(h*38), pages=Math.round(avis*1.3)+6, size=(pages*0.11+0.4).toFixed(1);
+      var iso=d.toISOString().slice(0,10);
+      bulletins.push({num:num, bis:hash(num*3)>0.88, date:iso, jour:JOURS[wd], avis:avis, pages:pages, size:size, year:d.getFullYear()});
+      num--;
+    }
+    d.setDate(d.getDate()-1);
+  }
+  var years=[]; bulletins.forEach(function(b){ if(years.indexOf(b.year)<0) years.push(b.year); });
+  document.getElementById('year').innerHTML='<option value="">Toutes les années</option>'+years.map(function(y){return '<option>'+y+'</option>';}).join('');
+
+  document.getElementById('kpis').innerHTML=[
+    ['primary-light','primary','newspaper',bulletins.length.toLocaleString('fr-FR'),'Bulletins publiés'],
+    ['accent-light','accent','file-check2',A.full.toLocaleString('fr-FR'),'Avis archivés'],
+    ['blue-light','blue','file-text',A.totalPages.toLocaleString('fr-FR'),'Pages indexées'],
+    ['primary-light','primary','history','2022–2026','Période couverte']
+  ].map(function(k){ return '<div class="aut-kpi"><div class="aut-kpi-ico" style="background:var(--'+k[0]+');color:var(--'+k[1]+')"><i data-icon="'+k[2]+'" data-size="18"></i></div><div class="aut-kpi-val">'+k[3]+'</div><div class="aut-kpi-lbl">'+k[4]+'</div></div>'; }).join('');
+
+  var LIMIT=60;
+  function render(){
+    var q=document.getElementById('q').value.toLowerCase().trim(), yr=document.getElementById('year').value;
+    var list=bulletins.filter(function(b){
+      if(yr && String(b.year)!==yr) return false;
+      if(q){ var hay=(b.num+' n°'+b.num+' '+window.fmtDate(b.date)+' '+b.date).toLowerCase(); if(hay.indexOf(q)<0) return false; }
+      return true;
+    });
+    document.getElementById('count').textContent=list.length.toLocaleString('fr-FR')+' bulletin'+(list.length>1?'s':'')+' depuis 2022';
+    var page=list.slice(0,LIMIT);
+    document.getElementById('shown').textContent=list.length>LIMIT?('Affichage des '+LIMIT+' plus récents'):'';
+    document.getElementById('rows').innerHTML=page.map(function(b){
+      return '<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="ent-icon"><i data-icon="newspaper" data-size="16"></i></div><div><div style="font-weight:600;font-size:13px">Quotidien N°'+b.num+(b.bis?' (bis)':'')+'</div><div class="muted" style="font-size:11px">PDF · '+b.pages+' p.</div></div></div></td>'
+        +'<td style="white-space:nowrap">'+window.fmtDate(b.date)+'</td><td class="muted">'+b.jour+'</td><td>'+b.avis+' avis</td><td class="muted">'+b.pages+'</td><td class="muted" style="white-space:nowrap">'+b.size+' Mo</td>'
+        +'<td><div class="row-actions"><button data-open="'+b.num+'" title="Consulter le PDF"><i data-icon="eye" data-size="15"></i></button><button data-extract="'+b.num+'" title="Extraire une page"><i data-icon="file-text" data-size="15"></i></button><button data-dl="'+b.num+'" title="Télécharger"><i data-icon="download" data-size="15"></i></button></div></td></tr>';
+    }).join('');
+    window.renderIcons(document.getElementById('rows'));
+  }
+  ['q','year'].forEach(function(id){ var e=document.getElementById(id); e.addEventListener('input',render); e.addEventListener('change',render); });
+  document.getElementById('ex-go').addEventListener('click',function(){
+    var n=document.getElementById('ex-num').value.trim(), p=document.getElementById('ex-page').value.trim();
+    if(!n||!p){ window.toast('Indiquez un numéro de bulletin et une page.'); return; }
+    window.toast('Extraction du bulletin N°'+n+', page '+p+' — réservée au plan Enterprise');
+  });
+  document.addEventListener('click',function(e){
+    var o=e.target.closest('[data-open]'), x=e.target.closest('[data-extract]'), dl=e.target.closest('[data-dl]');
+    if(o) window.toast('Consultation du Quotidien N°'+o.dataset.open+' — réservée au plan Enterprise');
+    else if(x) window.toast('Extraction de page du N°'+x.dataset.extract+' — réservée au plan Enterprise');
+    else if(dl) window.toast('Téléchargement du N°'+dl.dataset.dl+' — réservé au plan Enterprise');
+  });
+  render();
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profil de candidature · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="profile"></div>
+<main class="main" id="main-content">
+  <header class="cap-heading">
+    <div><h1>Profil de candidature</h1><p>Renseignez les capacités de votre entreprise afin que Veille BF puisse évaluer les marchés adaptés à votre profil.</p></div>
+    <div class="cap-aside"><strong id="pct">0% complété</strong><span>Profil simplifié du plan Découverte.</span></div>
+  </header>
+  <div class="profile-progress"><i id="bar" style="width:0%"></i></div>
+  <section class="cap-card">
+    <div class="section-intro">
+      <span class="si-ico"><i data-icon="info" data-size="16"></i></span>
+      <div><h2>Informations générales</h2><p>Renseignez les informations d'identification de votre entreprise.</p></div>
+      <aside><i data-icon="lightbulb" data-size="18"></i><div><b>Conseil</b><p>Ces informations nous permettent de mieux analyser les marchés adaptés à votre entreprise.</p></div></aside>
+    </div>
+    <div class="profile-grid" id="form">
+      <label class="profile-field"><span>Nom de l'entreprise<em>*</em></span><input placeholder="Ex : Entreprise Générale du Faso SARL"></label>
+      <label class="profile-field"><span>Secteur principal<em>*</em></span><select><option value="">Sélectionner le secteur principal</option><option>BTP et travaux publics</option><option>Fournitures et équipements</option><option>Services</option><option>Prestations intellectuelles</option><option>Hydraulique</option><option>Santé</option><option>Agriculture</option><option>Informatique</option></select></label>
+      <label class="profile-field"><span>Année de création<em>*</em></span><input placeholder="Ex : 2018"></label>
+      <label class="profile-field"><span>Ville<em>*</em></span><input placeholder="Ex : Ouagadougou"></label>
+      <label class="profile-field"><span>IFU<em>*</em></span><input placeholder="Ex : 00123456A"></label>
+      <label class="profile-field span-two"><span>Secteurs secondaires</span><input placeholder="Séparez les secteurs par des virgules"></label>
+      <label class="profile-field"><span>RCCM<em>*</em></span><input placeholder="Ex : BF OUA 2018 B 1234"></label>
+      <label class="profile-field span-two"><span>Forme juridique</span><select><option>Sélectionner la forme juridique</option><option>SARL</option><option>SA</option><option>Entreprise individuelle</option><option>GIE</option><option>Coopérative</option></select></label>
+    </div>
+    <footer class="cap-actions">
+      <button class="button secondary-button" disabled><i data-icon="arrow-left" data-size="15"></i> Précédent</button>
+      <button class="button" id="save"><i data-icon="save" data-size="15"></i> Voir mes opportunités</button>
+      <span class="muted" style="font-size:12px;display:flex;align-items:center;gap:6px"><i data-icon="badge-check" data-size="14"></i> Cliquez sur Enregistrer pour sauvegarder votre profil simplifié.</span>
+    </footer>
+  </section>
+</main>
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  function upd(){
+    var fields=document.querySelectorAll('#form input, #form select'), done=0;
+    fields.forEach(function(f){ if(f.value && f.value.indexOf('Sélectionner')<0 && f.value.indexOf('Séparez')<0) done++; });
+    var pct=Math.round(done/fields.length*100);
+    document.getElementById('pct').textContent=pct+'% complété';
+    document.getElementById('bar').style.width=pct+'%';
+  }
+  document.querySelectorAll('#form input, #form select').forEach(function(f){ f.addEventListener('input',upd); f.addEventListener('change',upd); });
+  document.getElementById('save').addEventListener('click',function(){ window.toast('Profil enregistré — redirection vers vos opportunités'); setTimeout(function(){ location.href='recommendations.html'; },900); });
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

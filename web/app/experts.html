@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experts agréés · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="experts"></div>
+<main class="main" id="main-content">
+  <section class="cl-hero">
+    <div>
+      <p class="cl-eyebrow"><i data-icon="user-check" data-size="13"></i> Mise en relation</p>
+      <h1 class="cl-h1">Experts agréés</h1>
+      <p class="cl-hero-copy">Faites monter vos dossiers d'appel d'offres par des professionnels vérifiés : ingénieurs, juristes, comptables et rédacteurs d'offres. Contactez-les directement.</p>
+    </div>
+    <div class="cl-hero-actions"><span class="ent-badge"><i data-icon="badge-check" data-size="14"></i> Profils vérifiés Veille BF</span></div>
+  </section>
+
+  <section class="filters-card">
+    <div class="search-row">
+      <div class="search-box" style="flex:1"><i data-icon="search" data-size="16"></i><input id="q" placeholder="Nom, métier, spécialité…"></div>
+      <select id="region" style="border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:var(--surface);color:var(--ink)"><option value="">Toutes les régions</option></select>
+    </div>
+    <div class="quick-group"><span>Spécialité</span><div id="sector-pills"><button class="active" data-v="">Toutes</button></div></div>
+  </section>
+
+  <div class="exp-grid" id="grid"></div>
+
+  <div class="app-footer"><span>Mise en relation facilitée par Veille BF · tarifs indicatifs communiqués par les experts.</span><span>© 2026 Veille BF · Tous droits réservés</span></div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  var D=window.DATA, preSector=decodeURIComponent((location.search.match(/sector=([^&]+)/)||[,''])[1]);
+  var sectors=[]; D.experts.forEach(function(e){ e.sectors.forEach(function(s){ if(sectors.indexOf(s)<0) sectors.push(s); }); });
+  var regions=[]; D.experts.forEach(function(e){ if(regions.indexOf(e.region)<0) regions.push(e.region); });
+  document.getElementById('region').innerHTML='<option value="">Toutes les régions</option>'+regions.map(function(r){return '<option>'+r+'</option>';}).join('');
+  document.getElementById('sector-pills').innerHTML='<button class="'+(preSector?'':'active')+'" data-v="">Toutes</button>'+sectors.map(function(s){return '<button class="'+(preSector===s?'active':'')+'" data-v="'+s+'">'+s+'</button>';}).join('');
+  var state={q:'',sector:preSector||'',region:''};
+
+  function stars(r){ var full=Math.round(r); return '★★★★★'.slice(0,full)+'☆☆☆☆☆'.slice(0,5-full); }
+  function render(){
+    var list=D.experts.filter(function(e){
+      if(state.sector && e.sectors.indexOf(state.sector)<0) return false;
+      if(state.region && e.region!==state.region) return false;
+      if(state.q){ var q=state.q.toLowerCase(); if((e.name+e.role+e.sectors.join(' ')).toLowerCase().indexOf(q)<0) return false; }
+      return true;
+    });
+    document.getElementById('grid').innerHTML = list.length? list.map(function(e){
+      return '<article class="exp-card">'
+        +'<div class="exp-head"><div class="exp-avatar">'+e.initials+'</div><div style="min-width:0"><div class="exp-name">'+e.name+' <span class="agree-badge" title="Profil agréé"><i data-icon="badge-check" data-size="13"></i></span></div><div class="exp-role">'+e.role+'</div><div class="exp-rating"><span class="stars">'+stars(e.rating)+'</span> '+e.rating.toFixed(1)+'</div></div></div>'
+        +'<p class="exp-bio">'+e.bio+'</p>'
+        +'<div class="exp-tags">'+e.sectors.map(function(s){return '<span class="chip">'+s+'</span>';}).join('')+'</div>'
+        +'<div class="exp-stats"><span><i data-icon="map-pin" data-size="13"></i> '+e.region+'</span><span><i data-icon="clock" data-size="13"></i> '+e.years+' ans</span><span><i data-icon="file-check2" data-size="13"></i> '+e.dossiers+' dossiers</span><span><i data-icon="languages" data-size="13"></i> '+e.langues+'</span></div>'
+        +'<div class="exp-rate"><i data-icon="wallet" data-size="14"></i> '+e.rate+'</div>'
+        +'<div class="exp-contact"><button class="button" data-wa="'+e.name+'"><i data-icon="message-circle" data-size="14"></i> WhatsApp</button><button class="button secondary-button" data-call="'+e.name+'"><i data-icon="phone" data-size="14"></i> Appeler</button><button class="button secondary-button" data-quote="'+e.name+'"><i data-icon="mail" data-size="14"></i> Devis</button></div>'
+        +'</article>';
+    }).join('') : '<div class="empty-state" style="grid-column:1/-1"><i data-icon="user-check" data-size="34"></i><p style="margin-top:12px">Aucun expert ne correspond à ces critères.</p></div>';
+    window.renderIcons(document.getElementById('grid'));
+  }
+  document.getElementById('sector-pills').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; this.querySelectorAll('button').forEach(function(x){x.classList.remove('active');}); b.classList.add('active'); state.sector=b.dataset.v; render(); });
+  document.getElementById('q').addEventListener('input',function(){ state.q=this.value; render(); });
+  document.getElementById('region').addEventListener('change',function(){ state.region=this.value; render(); });
+  document.addEventListener('click',function(e){
+    var wa=e.target.closest('[data-wa]'), ca=e.target.closest('[data-call]'), qu=e.target.closest('[data-quote]');
+    if(wa) window.toast('Ouverture de WhatsApp avec '+wa.dataset.wa+' (démo)');
+    else if(ca) window.toast('Appel de '+ca.dataset.call+' (démo)');
+    else if(qu) window.toast('Demande de devis envoyée à '+qu.dataset.quote+' (démo)');
+  });
+  render();
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

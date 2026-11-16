@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recherche avancée · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="markets"></div>
+<main class="main" id="main-content">
+  <div class="page-title">
+    <div><h1>Recherche avancée</h1><p class="muted">Trouvez rapidement les marchés, lots, entreprises et résultats qui vous intéressent.</p></div>
+    <div style="display:flex;gap:8px">
+      <button class="button secondary-button" id="reset"><i data-icon="rotate-ccw" data-size="15"></i> Réinitialiser</button>
+      <button class="button secondary-button" data-toast="Recherche enregistrée"><i data-icon="bookmark" data-size="15"></i> Enregistrer</button>
+      <button class="button" id="go"><i data-icon="search" data-size="15"></i> Rechercher</button>
+    </div>
+  </div>
+  <div class="search-layout">
+    <aside class="panel search-filters">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px"><i data-icon="filter" data-size="16"></i><h2 style="margin:0">Filtres de recherche</h2></div>
+      <div class="field"><label>Mot-clé</label><input id="q" placeholder="Objet, référence, autorité..."></div>
+      <div class="field"><label>Type de document</label><select id="type"><option value="">Tous les types</option><option value="AO">Avis d'appel d'offres</option><option value="DP">Demande de prix</option><option value="RP">Résultat provisoire</option></select></div>
+      <div class="field"><label>Statut</label><select id="status"><option value="">Tous les statuts</option><option value="open">Ouvert</option><option value="result">Résultat</option></select></div>
+      <div class="field"><label>Région</label><input id="region" placeholder="Toutes les régions"></div>
+      <div class="field"><label>Secteur</label><input id="sector" placeholder="Tous les secteurs"></div>
+    </aside>
+    <section>
+      <div class="result-toolbar">
+        <div style="display:flex;align-items:center;gap:12px"><h2 style="margin:0;font-size:16px">Résultats de recherche</h2><span class="badge completed" id="count">—</span></div>
+        <select id="sort"><option value="relevance">Trier par : Pertinence</option><option value="date">Trier par : Date</option><option value="amount">Trier par : Montant</option></select>
+      </div>
+      <div class="upsell-banner"><div><div class="ub-title">🔒 Plan Découverte — accès limité à 20 marchés</div><div class="ub-text">Passez au plan <strong>PRO</strong> pour accéder à l'intégralité des 19 909 marchés.</div></div><a href="upgrade.html" class="button">Passer à PRO — 15 000 FCFA/mois</a></div>
+      <div style="display:grid;gap:12px" id="results"></div>
+      <div class="app-footer"><span>Les données présentées sont actualisées quotidiennement à 00h00.</span><span>© 2026 Veille BF · Tous droits réservés</span></div>
+    </section>
+  </div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  var D=window.DATA;
+  function render(){
+    var q=document.getElementById('q').value.toLowerCase(), ty=document.getElementById('type').value, st=document.getElementById('status').value,
+        rg=document.getElementById('region').value.toLowerCase(), sc=document.getElementById('sector').value.toLowerCase(), sort=document.getElementById('sort').value;
+    var list=D.markets.filter(function(m){
+      if(ty&&m.type!==ty) return false; if(st&&m.status!==st) return false;
+      if(q&&(m.title+m.authority+m.ref).toLowerCase().indexOf(q)<0) return false;
+      if(rg&&m.region.toLowerCase().indexOf(rg)<0) return false;
+      if(sc&&m.sector.toLowerCase().indexOf(sc)<0) return false; return true;
+    });
+    if(sort==='date') list.sort(function(a,b){return b.pub<a.pub?-1:1;});
+    else if(sort==='amount') list.sort(function(a,b){return (b.amount||0)-(a.amount||0);});
+    document.getElementById('count').textContent=list.length.toLocaleString('fr-FR')+' résultats';
+    document.getElementById('results').innerHTML=list.map(function(m){
+      return '<div class="panel result-card"><div style="display:flex;gap:14px"><div class="rc-icon"><i data-icon="file-text" data-size="20"></i></div><div style="min-width:0"><a class="rc-title" href="market.html?id='+m.id+'">'+m.title+'</a><div class="rc-meta"><span><i data-icon="map-pin" data-size="13"></i> '+m.region+'</span><span>'+m.sector+'</span></div><div style="font-size:13px;color:var(--muted)">'+m.typeLabel+(m.status==='open'?' ouvert':'')+' · Réf : '+m.ref+'</div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;font-size:12px"><strong class="amount-cell">'+window.fmtAmount(m.amount)+'</strong><span class="muted">'+(m.status==='result'?'Résultat '+window.fmtDate(m.deadline):'Clôture '+window.fmtDate(m.deadline))+'</span><div class="row-actions"><button data-toast="Favori"><i data-icon="bookmark" data-size="15"></i></button><a href="market.html?id='+m.id+'"><i data-icon="chevron-right" data-size="15"></i></a></div></div></div>';
+    }).join('');
+    window.renderIcons(document.getElementById('results'));
+  }
+  ['q','type','status','region','sector','sort'].forEach(function(id){ var e=document.getElementById(id); e.addEventListener('input',render); e.addEventListener('change',render); });
+  document.getElementById('go').addEventListener('click',render);
+  document.getElementById('reset').addEventListener('click',function(){ ['q','region','sector'].forEach(function(id){document.getElementById(id).value='';}); document.getElementById('type').value='';document.getElementById('status').value='';render(); });
+  render();
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

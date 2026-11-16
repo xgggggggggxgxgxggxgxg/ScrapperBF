@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="support"></div>
+<main class="main" id="main-content">
+  <div style="margin-bottom:20px"><h1 style="font-size:24px;font-weight:800;margin:0 0 4px">Support</h1><p class="muted" style="margin:0">Aide et contact</p></div>
+  <div class="support-contacts">
+    <a class="support-card" href="#" data-toast="Ouverture de WhatsApp (démo)"><div class="sc-ico" style="background:#25d366"><i data-icon="message-circle" data-size="20"></i></div><div><strong>WhatsApp</strong><div class="sc-sub">Réponse en moins de 2h (jours ouvrables 8h–18h)</div><div class="muted" style="font-size:12px;margin-top:4px">Ouvrir WhatsApp <i data-icon="external-link" data-size="11"></i></div></div></a>
+    <a class="support-card" href="mailto:contact@veillebf.example"><div class="sc-ico" style="background:var(--primary)"><i data-icon="mail" data-size="20"></i></div><div><strong>Email</strong><div class="sc-sub">contact@veillebf.example</div><div class="muted" style="font-size:12px;margin-top:4px">Réponse sous 24h</div></div></a>
+  </div>
+  <div class="panel">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px"><i data-icon="book-open" data-size="18"></i><span style="font-weight:700;font-size:16px">Questions fréquentes</span></div>
+    <div id="faq"></div>
+  </div>
+  <div class="panel" style="margin-top:16px;font-size:13px;color:var(--muted)">Votre compte : Ayedji Jaciel · Plan Découverte — Mentionnez ces informations en nous contactant.</div>
+</main>
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  var faq=[
+    ['Comment créer une alerte marché ?','Rendez-vous sur un marché puis cliquez sur « Alerte ». Les alertes personnalisées illimitées sont incluses dans le plan PRO.'],
+    ['Comment mettre à niveau mon abonnement ?','Depuis la page Abonnement ou le bouton « Passer à un plan payant », réglez via Orange Money, Moov Money, Coris Money ou carte bancaire.'],
+    ['Comment télécharger un rapport PDF ?','Le téléchargement des avis et DAO en PDF est disponible à partir du plan PRO, depuis la fiche de chaque marché.'],
+    ['Mon paiement n\'est pas pris en compte, que faire ?','Patientez quelques minutes puis rechargez la page. Si le problème persiste, contactez-nous par WhatsApp avec votre référence de transaction.'],
+    ['Comment modifier mon numéro WhatsApp ?','Depuis Paramètres → Mon profil, mettez à jour votre téléphone puis enregistrez.'],
+    ['Pourquoi je ne reçois plus d\'alertes ?','Vérifiez vos préférences de notification et que votre secteur est renseigné dans votre profil de candidature.']
+  ];
+  document.getElementById('faq').innerHTML=faq.map(function(f){
+    return '<div class="faq-item"><button class="faq-q"><span>'+f[0]+'</span><i data-icon="chevron-down" data-size="16"></i></button><div class="faq-a">'+f[1]+'</div></div>';
+  }).join('');
+  document.querySelectorAll('.faq-q').forEach(function(q){ q.addEventListener('click',function(){ q.parentNode.classList.toggle('open'); }); });
+  window.renderIcons(document.getElementById('faq'));
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

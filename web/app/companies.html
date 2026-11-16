@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entreprises · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="companies"></div>
+<main class="main" id="main-content">
+  <section class="cl-hero">
+    <div><p class="cl-eyebrow">Intelligence entreprises</p><h1 class="cl-h1">Entreprises</h1><p class="cl-hero-copy">Priorisez les entreprises à suivre à partir de leurs marchés, attributions, contacts et signaux de fiabilité documentaire.</p></div>
+    <div class="cl-hero-actions"><a class="button secondary-button" href="alerts.html"><i data-icon="bell" data-size="15"></i> Veille</a><button class="button secondary-button" data-toast="Actions (démo)">Actions <i data-icon="chevron-down" data-size="15"></i></button></div>
+  </section>
+  <section class="cl-kpi-grid">
+    <button class="cl-kpi active"><div class="cl-kpi-label"><i data-icon="building2" data-size="15"></i><span>Référencées</span></div><strong>0</strong><small>dans le périmètre filtré</small><em>Filtrer</em></button>
+    <button class="cl-kpi"><div class="cl-kpi-label"><i data-icon="users" data-size="15"></i><span>Actives</span></div><strong>0</strong><small>au moins une participation</small><em>Filtrer</em></button>
+    <button class="cl-kpi"><div class="cl-kpi-label"><i data-icon="trophy" data-size="15"></i><span>Top attributaires</span></div><strong>0</strong><small>3 attributions ou plus</small><em>Filtrer</em></button>
+    <button class="cl-kpi"><div class="cl-kpi-label"><i data-icon="phone" data-size="15"></i><span>Avec téléphone</span></div><strong>0</strong><small>contact direct exploitable</small><em>Filtrer</em></button>
+    <button class="cl-kpi"><div class="cl-kpi-label"><i data-icon="user" data-size="15"></i><span>Avec représentant</span></div><strong>0</strong><small>dirigeant ou contact légal</small><em>Filtrer</em></button>
+    <button class="cl-kpi"><div class="cl-kpi-label"><i data-icon="chart-no-axes-column" data-size="15"></i><span>Score moyen</span></div><strong>—</strong><small>sur la page affichée</small><em>Filtrer</em></button>
+  </section>
+  <section class="filters-card">
+    <div class="search-row"><div class="search-box" style="flex:1"><i data-icon="search" data-size="16"></i><input placeholder="Nom, IFU, RCCM, représentant, téléphone, autorité..."></div><button class="button secondary-button" data-toast="Filtres avancés (démo)"><i data-icon="filter" data-size="15"></i> Filtres avancés</button><button class="button" data-toast="Recherche (démo)"><i data-icon="search" data-size="15"></i> Rechercher</button></div>
+  </section>
+  <section class="panel">
+    <div class="list-header" style="margin-bottom:12px"><div><h2 style="margin:0">Liste des entreprises</h2><p class="muted" style="margin:4px 0 0">0 résultat · 0–0</p></div></div>
+    <div class="empty-state"><i data-icon="building2" data-size="34"></i><p style="margin-top:12px">Aucune entreprise dans le périmètre filtré du plan Découverte.<br>Le répertoire complet des attributaires est réservé au plan <strong>PRO</strong>.</p><a class="button" href="upgrade.html" style="margin-top:8px">Débloquer le répertoire</a></div>
+  </section>
+  <div class="app-footer"><span>Données issues des publications officielles des marchés publics du Burkina Faso.</span><span>© 2026 Veille BF · Tous droits réservés</span></div>
+</main>
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

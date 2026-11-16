@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VEILLE BF - Marchés publics du Burkina Faso</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<main class="auth-page">
+  <section class="auth-panel">
+    <div class="auth-brand">
+      <img class="auth-logo" src="assets/logo.svg" alt="">
+      <h1>VEILLE BF</h1>
+      <p class="tagline">Marchés publics du Burkina Faso</p>
+    </div>
+    <h2>Connexion</h2>
+    <p class="muted auth-intro">Accédez à votre espace de veille des marchés publics.</p>
+    <div class="auth-tabs" role="tablist">
+      <button type="button" class="auth-tab" role="tab" data-mode="email" aria-selected="true">✉️ Email</button>
+      <button type="button" class="auth-tab" role="tab" data-mode="whatsapp" aria-selected="false">📱 WhatsApp</button>
+    </div>
+    <form class="form" data-demo="dashboard.html">
+      <div class="field" data-mode="email">
+        <label for="email">Adresse email</label>
+        <input id="email" name="email" type="email" required placeholder="votre@email.bf">
+      </div>
+      <div class="field" data-mode="whatsapp" hidden>
+        <label for="phone_number">Numéro WhatsApp</label>
+        <input id="phone_number" name="phone_number" type="tel" required disabled placeholder="+226 70 00 00 00">
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" required placeholder="••••••••">
+      </div>
+      <div class="form-row">
+        <label class="remember"><input type="checkbox"> Se souvenir de moi</label>
+        <a class="link" href="forgot-password.html">Mot de passe oublié ?</a>
+      </div>
+      <button class="button full" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg> Se connecter</button>
+    </form>
+    <div class="auth-switch"><span class="muted">Pas encore de compte ? </span><a class="link" href="register.html">Créer un compte gratuitement</a></div>
+    <div class="auth-footer">© 2026 Veille BF - Tous droits réservés</div>
+  </section>
+</main>
+<script src="assets/auth.js"></script>
+</body>
+</html>

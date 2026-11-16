@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VEILLE BF - Marchés publics du Burkina Faso</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<main class="auth-page">
+  <section class="auth-panel">
+    <div class="auth-brand">
+      <img class="auth-logo" src="assets/logo.svg" alt="">
+      <h1>VEILLE BF</h1>
+      <p class="tagline">Marchés publics du Burkina Faso</p>
+    </div>
+    <h2>Créer un compte</h2>
+    <p class="muted auth-intro">Inscrivez-vous pour accéder à la veille des marchés publics.</p>
+    <div class="auth-tabs" role="tablist">
+      <button type="button" class="auth-tab" role="tab" data-mode="email" aria-selected="true">✉️ Adresse email</button>
+      <button type="button" class="auth-tab" role="tab" data-mode="whatsapp" aria-selected="false">📱 Numéro WhatsApp</button>
+    </div>
+    <form class="form" data-demo="dashboard.html">
+      <div class="field"><label for="full_name">Nom complet</label><input id="full_name" name="full_name" required placeholder="Votre nom et prénom"></div>
+      <div class="field"><label for="organization_name">Organisation (optionnel)</label><input id="organization_name" name="organization_name" placeholder="Nom de votre entreprise"></div>
+      <div class="field" data-mode="email"><label for="email">Adresse email</label><input id="email" name="email" type="email" required placeholder="votre@email.bf"></div>
+      <div class="field" data-mode="whatsapp" hidden><label for="phone_number">Numéro WhatsApp</label><input id="phone_number" name="phone_number" type="tel" required disabled placeholder="+226 70 00 00 00"></div>
+      <div class="filter-grid">
+        <div class="field"><label for="password">Mot de passe</label><input id="password" name="password" type="password" minlength="8" required placeholder="Min. 8 caractères"></div>
+        <div class="field"><label for="confirm_password">Confirmer</label><input id="confirm_password" name="confirm_password" type="password" minlength="8" required placeholder="••••••••"></div>
+      </div>
+      <div class="field">
+        <label for="referral_code">Code apporteur / Code de recommandation <span style="color:var(--muted);font-weight:400">(optionnel)</span></label>
+        <input id="referral_code" name="referral_code" placeholder="Ex : DUPONT-2024" style="text-transform:uppercase">
+        <span class="hint">Si quelqu'un vous a recommandé Veille BF, entrez son code ici.</span>
+      </div>
+      <label class="consent"><input type="checkbox" required>J'accepte les conditions d'utilisation et la politique de confidentialité de Veille BF.</label>
+      <button class="button full" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg> Créer mon compte</button>
+    </form>
+    <div class="auth-switch"><span class="muted">Déjà inscrit ? </span><a class="link" href="login.html">Se connecter</a></div>
+    <div class="auth-footer">© 2026 Veille BF - Tous droits réservés</div>
+  </section>
+</main>
+<script src="assets/auth.js"></script>
+</body>
+</html>

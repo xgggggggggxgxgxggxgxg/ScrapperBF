@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Détail du marché · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="markets"></div>
+<main class="main" id="main-content">
+  <div class="breadcrumb"><a class="link" href="markets.html">Marchés</a><i data-icon="chevron-right" data-size="13"></i><span>Détail du marché</span></div>
+  <div id="detail"></div>
+  <div class="app-footer"><span>Les données présentées sont actualisées quotidiennement à 00h00.</span><span>© 2026 Veille BF · Tous droits réservés</span></div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  var D=window.DATA;
+  var id=parseInt((location.search.match(/id=(\d+)/)||[])[1],10);
+  var m=D.markets.filter(function(x){return x.id===id;})[0]||D.markets[0];
+  var result=m.status==='result';
+  var d=result?0:window.daysLeft(m.deadline);
+  var typeCls=m.type==='AO'?'type-tender':m.type==='RP'?'type-result':'type-price';
+  // countdown approx
+  var secs=result?0:Math.max(0,Math.floor((new Date(m.deadline+'T23:59:59')-Date.now())/1000));
+  var hh=Math.floor((secs%86400)/3600), mm=Math.floor((secs%3600)/60);
+
+  var statusSteps=[
+    {label:'Publication', sub:m.pub, state:'done'},
+    {label:result?'Résultat publié':'Dépôt des offres', sub:window.fmtDate(m.deadline), state:result?'done':'current'},
+    {label:'Ouverture des plis', sub:'À venir', state:result?'done':'todo'},
+    {label:'Évaluation', sub:'À venir', state:'todo'},
+    {label:'Attribution', sub:'À venir', state:result?'current':'todo'}
+  ];
+
+  var sideCountdown = result ? '' :
+    '<div class="countdown-card"><i data-icon="clock" data-size="22"></i><div class="cd-label">Clôture dans '+d+' jour'+(d>1?'s':'')+'</div><div class="cd-date">'+window.fmtDate(m.deadline)+'</div><div class="countdown-boxes"><div class="cd-box"><b>'+d+'</b><small>J</small></div><div class="cd-box"><b>'+hh+'</b><small>H</small></div><div class="cd-box"><b>'+mm+'</b><small>M</small></div></div></div>';
+
+  var html=
+   '<div class="mkt-layout"><div style="min-width:0">'
+   +'<section class="mkt-hero"><span class="mkt-type"><i data-icon="tag" data-size="13"></i> '+m.typeLabel+'</span>'
+   +'<div class="mkt-actions">'
+   +'<button class="button secondary-button" data-toast="Impression (démo)"><i data-icon="printer" data-size="14"></i> Imprimer</button>'
+   +'<button class="button secondary-button" data-toast="Lien copié"><i data-icon="share2" data-size="14"></i> Partager</button>'
+   +'<button class="button secondary-button" data-toast="Partage WhatsApp (démo)"><i data-icon="phone" data-size="14"></i> WhatsApp</button>'
+   +'<button class="button secondary-button" data-toast="Référence copiée"><i data-icon="copy" data-size="14"></i> Copier</button>'
+   +'<a class="button" href="recommendations.html"><i data-icon="sparkles" data-size="14"></i> Mes chances</a>'
+   +'<a class="button secondary-button" href="experts.html?sector='+encodeURIComponent(m.sector)+'"><i data-icon="user-check" data-size="14"></i> Faire monter mon dossier</a>'
+   +'</div>'
+   +'<h1>'+m.title+'</h1><p class="mkt-ref">Réf. '+m.ref+(m.revue?' · Revue n°'+m.revue+(m.page?', p. '+m.page:''):'')+' · Publié le '+window.fmtDate(m.pub)+'</p></section>'
+   +sideCountdown.replace('countdown-card','countdown-card mkt-mob-only')
+   +'<div style="font-size:12px;font-weight:600;color:var(--muted);margin:4px 0 8px;text-transform:uppercase;letter-spacing:.5px"><i data-icon="star" data-size="13"></i> À retenir</div>'
+   +'<div class="mkt-kpis">'
+   +'<div class="mkt-kpi"><div class="k"><i data-icon="tag" data-size="13"></i>Type</div><div class="v">'+m.typeLabel+'</div></div>'
+   +'<div class="mkt-kpi"><div class="k"><i data-icon="coins" data-size="13"></i>Budget</div><div class="v">'+window.fmtAmount(m.amount)+'</div></div>'
+   +'<div class="mkt-kpi"><div class="k"><i data-icon="layers" data-size="13"></i>Lots</div><div class="v">'+(m.lots||1)+' lot</div></div>'
+   +'<div class="mkt-kpi"><div class="k"><i data-icon="globe" data-size="13"></i>Financement</div><div class="v" style="font-size:12px">'+(m.financing||'Budget de l\'État')+'</div></div>'
+   +'</div>'
+   +'<section class="ai-card"><h3><i data-icon="trending-up" data-size="16"></i> Intelligence marché</h3>'
+   +'<div class="ai-metrics"><div><strong>387</strong><span>marchés similaires</span></div><div><strong>16 646 654 FCFA</strong><span>médiane connue</span></div><div><strong>338</strong><span>attributions exploitables</span></div></div>'
+   +'<p class="ai-disclaimer">Statistiques calculées sur 338 attribution(s) disposant d\'un montant exploitable.</p>'
+   +'<a class="button" href="upgrade.html">Voir l\'intelligence complète avec PRO</a></section>'
+   +'<div class="mkt-tabs"><button class="mkt-tab active" data-tab="infos">Informations générales</button><button class="mkt-tab" data-tab="lots">Lots ('+(m.lots||1)+')</button></div>'
+   +'<div class="panel" style="border-radius:0 0 12px 12px;border-top:none">'
+     +'<div data-pane="infos"><table class="mkt-info-table"><tr><td>Objet du marché</td><td>'+m.title+'</td></tr>'
+     +'<tr><td>Autorité contractante</td><td>'+m.authority+'</td></tr>'
+     +'<tr><td>Référence</td><td>'+m.ref+'</td></tr>'
+     +'<tr><td>Secteur</td><td>'+m.sector+'</td></tr>'
+     +'<tr><td>Région</td><td>'+m.region+'</td></tr>'
+     +'<tr><td>Date de publication</td><td>'+window.fmtDate(m.pub)+'</td></tr>'
+     +'<tr><td>Date limite de dépôt</td><td>'+window.fmtDate(m.deadline)+'</td></tr></table></div>'
+     +'<div data-pane="lots" hidden><table class="mkt-info-table"><tr><td>Lot 1</td><td>'+m.title+'</td></tr><tr><td>Montant estimé</td><td>'+window.fmtAmount(m.amount)+'</td></tr><tr><td>Statut</td><td>'+(result?'Résultat publié':'Ouvert')+'</td></tr></table></div>'
+   +'</div>'
+   +'</div>'
+   +'<div class="mkt-sidebar" style="display:flex;flex-direction:column;gap:14px">'
+   +sideCountdown
+   +'<div class="panel score-card"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">Score d\'opportunité</span><i data-icon="info" data-size="15"></i></div><div class="score-stars">★★★★★</div><span class="score-tag">Excellente opportunité</span></div>'
+   +'<div class="panel"><div style="font-size:13px;font-weight:600;margin-bottom:12px">Statut du marché</div><div class="timeline">'
+     +statusSteps.map(function(s){ var ic=s.state==='done'?'check':s.state==='current'?'clock':'circle'; return '<div class="tl-step"><div class="tl-dot '+s.state+'"><i data-icon="'+ic+'" data-size="12"></i></div><div><div class="tl-label">'+s.label+'</div><div class="tl-sub">'+s.sub+'</div></div></div>'; }).join('')
+   +'</div></div>'
+   +'<a class="button" href="recommendations.html" style="justify-content:center"><i data-icon="lock" data-size="15"></i> Voir les offres</a>'
+   +'</div></div>';
+
+  document.getElementById('detail').innerHTML=html;
+  // retirer le doublon mobile du countdown sur desktop via CSS simple
+  document.querySelectorAll('.mkt-mob-only').forEach(function(x){ x.style.display='none'; });
+
+  document.querySelectorAll('.mkt-tab').forEach(function(t){ t.addEventListener('click',function(){
+    document.querySelectorAll('.mkt-tab').forEach(function(x){x.classList.remove('active');}); t.classList.add('active');
+    document.querySelectorAll('[data-pane]').forEach(function(p){ p.hidden=p.dataset.pane!==t.dataset.tab; });
+  }); });
+  window.renderIcons(document.getElementById('main-content'));
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

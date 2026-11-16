@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pour vous · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="recommendations"></div>
+<main class="main" id="main-content">
+  <header class="panel" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px">
+    <div><div style="font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.85;display:flex;align-items:center;gap:6px"><i data-icon="sparkles" data-size="14"></i> RECOMMANDATIONS PERSONNALISÉES</div><h1 style="margin:6px 0 4px;font-size:24px">Vos opportunités du jour</h1><p style="margin:0;opacity:.9;font-size:13px">Veille BF analyse votre profil et classe les marchés ouverts les plus adaptés à votre entreprise.</p></div>
+    <button class="button secondary-button" id="refresh" style="color:var(--ink)"><i data-icon="refresh-cw" data-size="15"></i> Actualiser</button>
+  </header>
+  <div id="list" style="display:grid;gap:12px"></div>
+  <div class="app-footer"><span>Classement indicatif fondé sur votre profil de candidature.</span><span>© 2026 Veille BF · Tous droits réservés</span></div>
+</main>
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  var D=window.DATA;
+  var open=D.markets.filter(function(m){return m.status==='open';});
+  function score(m){ var s=60; if(m.sector==='BTP') s+=22; if(m.amount&&m.amount<1e8) s+=10; var d=window.daysLeft(m.deadline); if(d>0&&d<=10) s+=8; return Math.min(98,s); }
+  function render(){
+    var ranked=open.map(function(m){return {m:m,s:score(m)};}).sort(function(a,b){return b.s-a.s;}).slice(0,6);
+    document.getElementById('list').innerHTML=ranked.map(function(r){ var m=r.m, stars='★★★★★'.slice(0,Math.round(r.s/20))+'☆☆☆☆☆'.slice(0,5-Math.round(r.s/20));
+      return '<a class="panel result-card" href="market.html?id='+m.id+'" style="color:inherit"><div style="display:flex;gap:14px"><div class="rc-icon"><i data-icon="file-text" data-size="20"></i></div><div style="min-width:0"><span class="rc-title">'+m.title+'</span><div class="rc-meta"><span><i data-icon="map-pin" data-size="13"></i> '+m.region+'</span><span>'+m.sector+'</span><span>'+m.typeLabel+'</span></div><div style="font-size:12px;color:var(--muted)">Réf : '+m.ref+'</div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div style="background:var(--primary-light);color:var(--primary);font-weight:800;border-radius:999px;padding:4px 12px;font-size:13px">'+r.s+'% match</div><div style="color:var(--accent);letter-spacing:1px">'+stars+'</div><strong class="amount-cell">'+window.fmtAmount(m.amount)+'</strong></div></a>';
+    }).join('');
+    window.renderIcons(document.getElementById('list'));
+  }
+  document.getElementById('refresh').addEventListener('click',function(){ open=open.slice().sort(function(){return Math.random()-0.5;}); render(); window.toast('Recommandations actualisées'); });
+  render();
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

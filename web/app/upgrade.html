@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Passer à un plan payant · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page=""></div>
+<main class="main" id="main-content">
+  <div style="margin-bottom:12px"><a class="link" href="dashboard.html"><i data-icon="arrow-left" data-size="14"></i> Retour</a></div>
+  <div class="up-header">
+    <h1>Accédez aux marchés publics sans limites</h1>
+    <p>Coordonnées des acheteurs, résultats complets, alertes personnalisées — tout ce qu'il faut pour piloter vos candidatures.</p>
+    <p class="muted" style="font-size:12px;margin-top:6px">Sans engagement · Arrêt possible à tout moment</p>
+    <div class="up-toggle"><button class="up-toggle-btn active" data-cycle="month">Mensuel</button><button class="up-toggle-btn" data-cycle="year">Annuel <span class="badge" style="background:var(--primary-light);color:var(--primary)">2 mois offerts</span></button></div>
+  </div>
+  <div class="up-grid" id="plans"></div>
+  <div class="up-logos"><div class="up-logos-label">Opérateurs de paiement acceptés</div><div class="up-logo-pill">Orange Money</div><div class="up-logo-pill">Moov Money</div><div class="up-logo-pill">Coris Money</div><div class="up-logo-pill">Sank Money</div><div class="up-logo-pill">Visa / Mastercard</div></div>
+  <div class="app-footer"><span>Paiement sécurisé · Activation instantanée · Support WhatsApp</span><span>© 2026 Veille BF · Tous droits réservés</span></div>
+</main>
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  var plans=[
+    {id:'pro',name:'Pro',color:'#2563eb',featured:true,badge:'Recommandé',desc:'Pour accéder aux coordonnées des acheteurs et répondre à plus de marchés',month:15000,feats:['Tous les marchés publiés depuis janvier 2026','Recherche illimitée et tous les documents','Coordonnées des acheteurs (DCRP, DG…)','Marchés recommandés par IA','5 alertes Email personnalisées','Export PDF & Excel']},
+    {id:'business',name:'Business',color:'#7c3aed',desc:'Le copilote IA pour gagner plus de marchés publics',month:35000,feats:['Tout le plan Pro inclus','Recommandations IA illimitées','Analyse de vos chances de gagner','Mise en relation avec des experts agréés','Alertes WhatsApp & Email illimitées','Assistant IA complet']},
+    {id:'enterprise',name:'Enterprise',color:'#059669',desc:'Pour piloter les marchés publics avec toute votre équipe',month:75000,feats:['Tout le plan Business inclus','Archives complètes des avis (PDF) depuis 2022','Extraction de page et consultation des bulletins','Utilisateurs illimités et gestion des rôles','Reporting avancé et export','Accompagnement dédié']}
+  ];
+  var cycle='month';
+  function price(p){ return cycle==='year'? (p.month*10).toLocaleString('fr-FR')+' FCFA / an' : p.month.toLocaleString('fr-FR')+' FCFA / mois'; }
+  function render(){
+    document.getElementById('plans').innerHTML=plans.map(function(p){
+      return '<div class="up-card'+(p.featured?' up-card--featured':'')+'">'+(p.badge?'<div class="up-badge" style="color:'+p.color+';background:'+p.color+'1a">'+p.badge+'</div>':'')
+        +'<div class="up-plan-name" style="color:'+p.color+'">'+p.name+'</div><div class="up-plan-desc">'+p.desc+'</div>'
+        +'<div class="up-price" style="color:'+p.color+'">'+price(p).replace(/ FCFA.*/,'')+' <span>FCFA / '+(cycle==='year'?'an':'mois')+'</span></div>'
+        +'<ul class="up-features">'+p.feats.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>'
+        +'<div class="up-pay-label">Mode de paiement</div>'
+        +'<button class="button up-btn" style="background:'+p.color+'" data-toast="Paiement Mobile Money (démo) — plan '+p.name+'"><i data-icon="smartphone" data-size="15"></i> Payer par Mobile Money</button>'
+        +'<div class="up-divider">ou carte bancaire</div>'
+        +'<button class="button up-btn secondary-button" data-toast="Paiement carte (démo) — plan '+p.name+'"><i data-icon="credit-card" data-size="15"></i> Visa / Mastercard</button>'
+        +'<div class="muted" style="font-size:12px;margin-top:10px;display:flex;align-items:center;gap:5px"><i data-icon="shield-check" data-size="13"></i> Sans engagement · Arrêt immédiat</div>'
+        +'</div>';
+    }).join('');
+    window.renderIcons(document.getElementById('plans'));
+  }
+  document.querySelectorAll('.up-toggle-btn').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('.up-toggle-btn').forEach(function(x){x.classList.remove('active');}); b.classList.add('active'); cycle=b.dataset.cycle; render(); }); });
+  render();
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>

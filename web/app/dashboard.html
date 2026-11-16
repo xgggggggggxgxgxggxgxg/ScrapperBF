@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableau de bord · VEILLE BF</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app-shell.css">
+</head>
+<body>
+<div id="app" data-page="dashboard"></div>
+<main class="main" id="main-content">
+  <div class="page-title">
+    <div>
+      <h1>Tableau de bord</h1>
+      <p class="muted">Bienvenue, Ayedji. Voici un aperçu des marchés publics et de l'activité de la plateforme.</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="button secondary-button" data-toast="Filtres (démo)"><i data-icon="filter" data-size="15"></i> Filtres</button>
+    </div>
+  </div>
+
+  <section class="activation-journey">
+    <div class="activation-head">
+      <div>
+        <span class="activation-eyebrow">Votre démarrage Veille BF</span>
+        <h2>0 étape sur 5</h2>
+        <p>Terminez ces actions pour recevoir des marchés plus précis et préparer votre première candidature.</p>
+      </div>
+      <strong class="activation-percent">0%</strong>
+    </div>
+    <div class="activation-progress"><span style="width:0%"></span></div>
+    <ol class="activation-steps">
+      <li><i data-icon="circle" data-size="18"></i><a href="capability-profile.html">Renseigner votre secteur <i data-icon="chevron-right" data-size="16"></i></a></li>
+      <li><i data-icon="circle" data-size="18"></i><a href="capability-profile.html">Compléter votre profil <i data-icon="chevron-right" data-size="16"></i></a></li>
+      <li><i data-icon="circle" data-size="18"></i><a href="markets.html">Consulter un marché <i data-icon="chevron-right" data-size="16"></i></a></li>
+      <li><i data-icon="circle" data-size="18"></i><a href="search.html">Enregistrer une recherche <i data-icon="chevron-right" data-size="16"></i></a></li>
+      <li><i data-icon="circle" data-size="18"></i><a href="applications.html">Créer une candidature <i data-icon="chevron-right" data-size="16"></i></a></li>
+    </ol>
+    <a class="button activation-cta" href="capability-profile.html">Continuer : Renseigner votre secteur</a>
+  </section>
+
+  <section class="panel starter-markets">
+    <div class="starter-markets-head">
+      <div><h2 style="margin:0">3 marchés pour démarrer</h2><p class="muted" style="margin:4px 0 0">Sélectionnés selon votre secteur quand il est renseigné.</p></div>
+      <a class="button secondary-button" href="markets.html">Voir tous les marchés</a>
+    </div>
+    <div class="starter-markets-grid" id="starter"></div>
+  </section>
+
+  <section class="dash-kpi-grid" id="kpis"></section>
+
+  <section class="charts-row">
+    <div class="panel chart-panel"><h2>Évolution des marchés publiés</h2><div id="chart-line"></div></div>
+    <div class="panel chart-panel"><h2>Répartition par type de marché</h2><div id="chart-donut"></div></div>
+  </section>
+
+  <section class="dash-bottom-grid">
+    <div class="panel"><h2>Marchés par ministère</h2><div id="by-ministry"></div><a class="dash-see-all" href="search.html">Voir tous <i data-icon="chevron-right" data-size="14"></i></a></div>
+    <div class="panel"><h2>Marchés par région</h2><div id="by-region"></div><a class="dash-see-all" href="search.html">Voir toutes <i data-icon="chevron-right" data-size="14"></i></a></div>
+    <div class="panel"><h2>Derniers marchés publiés</h2><div id="recent"></div><a class="dash-see-all" href="markets.html">Voir tous les marchés récents <i data-icon="chevron-right" data-size="14"></i></a></div>
+  </section>
+
+  <div class="app-footer"><span>Les données présentées sont actualisées quotidiennement à 00h00.</span><span>© 2026 Veille BF · Tous droits réservés</span></div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/icons.js"></script>
+<script>
+(function(){
+  var D=window.DATA;
+  // KPIs
+  var k=[
+    ['green','briefcase-business','Marchés publiés',D.stats.total.toLocaleString('fr-FR')],
+    ['orange','trending-up','Marchés ouverts',D.stats.open],
+    ['red','calendar','Marchés attribués',D.stats.awarded.toLocaleString('fr-FR')],
+    ['blue','arrow-up-right','Montant attribué',D.stats.amount],
+    ['red','calendar','Nouveaux cette semaine',D.stats.newWeek]
+  ];
+  document.getElementById('kpis').innerHTML=k.map(function(x){
+    return '<div class="kpi-card"><div class="kpi-icon '+x[0]+'"><i data-icon="'+x[1]+'" data-size="22"></i></div><div class="kpi-content"><span class="kpi-label">'+x[2]+'</span><span class="kpi-value">'+x[3]+'</span></div></div>';
+  }).join('');
+
+  // Starter cards (3 premiers "ouverts")
+  var open=D.markets.filter(function(m){return m.status==='open';}).slice(0,3);
+  document.getElementById('starter').innerHTML=open.map(function(m){
+    return '<a class="starter-market-card" href="market.html?id='+m.id+'"><small>'+m.sector+'</small><strong>'+m.title+'</strong><span>'+m.region+' · Clôture '+window.fmtDate(m.deadline)+'</span></a>';
+  }).join('');
+
+  // Line chart (sparkline/area)
+  var s=D.series, w=520, h=240, pad=24, max=Math.max.apply(null,s), min=0;
+  var step=(w-pad*2)/(s.length-1);
+  var pts=s.map(function(v,i){ return [pad+i*step, h-pad-((v-min)/(max-min))*(h-pad*2)]; });
+  var line=pts.map(function(p,i){ return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1); }).join(' ');
+  var area=line+' L'+pts[pts.length-1][0].toFixed(1)+' '+(h-pad)+' L'+pad+' '+(h-pad)+' Z';
+  var grid=''; for(var g=0;g<=3;g++){ var y=pad+g*((h-pad*2)/3); grid+='<line x1="'+pad+'" x2="'+(w-pad)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)" stroke-width="1"/>'; }
+  document.getElementById('chart-line').innerHTML='<svg class="spark" viewBox="0 0 '+w+' '+h+'" width="100%" height="240" preserveAspectRatio="none" role="img" aria-label="Évolution des marchés publiés">'+grid+'<path class="area" d="'+area+'"/><path d="'+line+'"/></svg>';
+
+  // Donut
+  var t=D.types, total=t.reduce(function(a,b){return a+b[1];},0), R=70, C=2*Math.PI*R, off=0;
+  var ring=t.map(function(x){ var frac=x[1]/total, len=frac*C; var seg='<circle cx="100" cy="100" r="'+R+'" fill="none" stroke="'+x[2]+'" stroke-width="26" stroke-dasharray="'+len.toFixed(2)+' '+(C-len).toFixed(2)+'" stroke-dashoffset="'+(-off).toFixed(2)+'" transform="rotate(-90 100 100)"/>'; off+=len; return seg; }).join('');
+  var leg=t.map(function(x){ return '<span><i style="background:'+x[2]+'"></i>'+x[0]+'</span>'; }).join('');
+  document.getElementById('chart-donut').innerHTML='<svg viewBox="0 0 200 200" width="100%" height="200" role="img" aria-label="Répartition par type"><text x="100" y="60" text-anchor="middle" font-size="13" fill="var(--muted)">'+t[0][1]+'%</text>'+ring+'</svg><div class="donut-legend">'+leg+'</div>';
+
+  document.getElementById('by-ministry').innerHTML=D.ministries.map(function(x){ return '<div class="dash-list-item"><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>'; }).join('');
+  document.getElementById('by-region').innerHTML=D.regions.map(function(x){ return '<div class="dash-list-item"><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>'; }).join('');
+
+  var recent=D.markets.slice(0,5);
+  document.getElementById('recent').innerHTML=recent.map(function(m){
+    var cls=m.type==='AO'?'type-tender':m.type==='RP'?'type-result':'type-price';
+    return '<div class="dash-recent-item"><span class="type-badge '+cls+'"><span>'+m.type+'</span>'+m.typeLabel+'</span><div class="dash-recent-info"><a href="market.html?id='+m.id+'"><strong>'+m.title+'</strong></a><span>'+(m.authority.length>40?m.authority.slice(0,40)+'…':m.authority)+'</span></div><span class="dash-recent-date">'+m.pub+'</span></div>';
+  }).join('');
+})();
+</script>
+<script src="assets/shell.js"></script>
+</body>
+</html>
